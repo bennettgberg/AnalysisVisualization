@@ -64,7 +64,7 @@ HAA_Inc_mmmt.newvariables["charge_12"] = ["multi",[-2.0,-0.75,0.75,2.0],["q_1","
 HAA_Inc_mmmt.newvariables["charge_34"] = ["multi",[-2.0,-0.75,0.75,2.0],["q_3","q_4"],"","charge_3 #cross charge_4"]
 #HAA_Inc_mmmt.newvariables["mll-mtt"] = tauSFTool.getSFvsPT(e.pt_3,e.gen_match_3)["mll","mtt"]
 
-HAA_Inc_mmmt.vars = {
+HAA_Inc_mmmt.varis = {
         #handle : ["root variable",[binning]or[[binning]],units,label]
         "m_vis":["m_vis",[50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0],"[GeV]","M_{vis}"],
         "AMass_blinded":["AMass",[100.0,120.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot} Blind"],
@@ -186,7 +186,7 @@ HAA_Inc_mmmt.vars = {
         "pt_4_ff_fine":["pt_4",[[40,0,100]],"[Gev]","P_{T}(l_{4})"],
 }
 
-#HAA_Inc_mmmt.vars = {
+#HAA_Inc_mmmt.varis = {
 #        #handle : ["root variable",[binning]or[[binning]],units,label]
 #        "m_vis":["m_vis",[50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0],"[GeV]","M_{vis}"],
 #        "AMass_blinded":["AMass",[100.0,120.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot} Blind"],
