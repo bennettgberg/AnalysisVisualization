@@ -153,10 +153,10 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="make full plots from root files containing histograms")
     #parser.add_arguement('--CategoryFiles',nargs="+",help="Select the files containing the categories for the datacards")
-    parser.add_argument("-i",  "--input", default="skimmed_sys_mmtt_inclusive.root",  help="postfix string from previous MakeDataCard step")
-    parser.add_argument("-o",  "--output", default="test1",  help="postfix string")
-    parser.add_argument("-ch",  "--channel", default="mmtt",  help="postfix string")
-    parser.add_argument("-c",  "--categories", default="cat_mmtt_2017.yaml",  help="categories yaml file")
+  #  parser.add_argument("-i",  "--input", default="skimmed_tttt.root",  help="input root file name")
+    parser.add_argument("-o",  "--output", default="test4",  help="postfix string")
+    parser.add_argument("-ch",  "--channel", default="tttt",  help="postfix string")
+    parser.add_argument("-c",  "--categories", default="cat_tttt_2017.yaml",  help="categories yaml file")
     parser.add_argument("-csv",  "--csvfile", default="bpgMCsamples_2017_v7_yaml.csv",  help="csv file")
     parser.add_argument("-p",  "--processes", default="processes_special_mmtt.yaml",  help="processes yaml file")
     #parser.add_argument("--dist", default="rareBkg",  help="single distribution to plot")
@@ -173,6 +173,9 @@ if __name__ == "__main__":
     ROOT.gROOT.SetBatch(True)
 
     yr = "2017"
+
+    #only plot this signal mass.
+    mass = 40
 
 
     #importing analysis categories and conventions
@@ -212,16 +215,30 @@ if __name__ == "__main__":
 
     #The skimmed root file containing all the TTrees
     #file = ROOT.TFile(args.input,"read")
-    fin = uproot.open(args.input)
+    input_file = "skimmed_%s_%s.root"%(args.channel, args.output)
+    fin = uproot.open(input_file)
 
 
     histolist = {}
     finalhists = {}
     processes = []
     histodict = {}
+    systematics = ["Nominal"] #,"scale_m_etalt1p2Up"]
+    #get all the distributions
     dists = fin.keys()
+    #get rid of the useless ;1 at the end of each dist
     for dnum,dist in enumerate(dists):
         dists[dnum] = dist.split(';')[0]
+    #remove all the distributions we aren't dealing with (all the signals except the one mass)
+    for sys in systematics:
+        #list of masses that we aren't doing rn.
+        bad_masses = [sys + "_a%d"%mss for mss in range(15, mass, 5)]
+        for mss in range(mass+5, 61, 5): bad_masses.append(sys + "_a%d"%mss)
+        #remove the ones we won't use from dists.
+        for bm in bad_masses: 
+            print("bm to remove: {}".format(bm))
+            dists.remove(bm)
+
     print("dists: {}".format(dists))
     cats = [args.channel+"_inclusive"]
     varis = allcats[cats[0]].varis.keys()
@@ -232,10 +249,12 @@ if __name__ == "__main__":
 
     #for ivar,var in enumerate(cat.varis.keys()):
     #for dist in fin.GetListOfKeys():
-    systematics = ["Nominal"] #,"scale_m_etalt1p2Up"]
     for sys in systematics:
+   
         histodict[sys]={}
         for distLong in dists:
+            #if the dist is one we're not doing rn, continue.
+        #    if distLong in bad_masses: continue
             print("Now looping over dist: {}".format(distLong))
             dist = distLong.split(";")[0]
             #distribution = dist.ReadObj()  #The TTree
@@ -360,6 +379,8 @@ if __name__ == "__main__":
                 l=ROOT.TLegend(xR,0.55,xR+0.28,0.9);
                 if var=="mll_fine":
                     l=ROOT.TLegend(0.40,0.55,0.40+0.28,0.9);
+                #signal isn't stacked with the backgrounds.
+                hSig = ROOT.TH1F()
                 #repeat once for each different distribution.
                 for dnum,dist in enumerate(dists):
                     #print "divising MC into categories "
@@ -372,30 +393,46 @@ if __name__ == "__main__":
                     #data
 
                     #set different colors for each distribution number.
-                    hirBackground.SetLineColor(1)
-                    hirBackground.SetFillStyle(1001)
                     colstr = ""
                     bkgtit = ""
-                    if dnum == 0:
+                    print("dist = {}, dnum = {}".format(dist, dnum))
+                    #Bkg
+                    is_sig = False
+                    if dist == sys + "_Bkg":
                         colstr = "#CF8AC8"
                         bkgtit = "DY+Jets" 
-                    elif dnum == 1:
+                    #irBkg
+                    elif dist == sys + "_irBkg":
                         colstr = "#13E2FE"
                         bkgtit = "ZZ or ZH to 4l"
-                    elif dnum == 2:
+                    #TrialphaBkg
+                    elif dist == sys + "_TrialphaBkg":
                         colstr = "#65E114"
                         bkgtit = "3 #alpha"
-                    elif dnum == 3:
+                    #rareBkg
+                    elif dist == sys + "_rareBkg":
                         colstr = "#FF6600"
                         bkgtit = "TTXX, WZ to Inv, 4#alpha"
+                    elif dist == (sys + "_a%d"%mass):  #in ["%s_a%d"%(sys, mss) for mss in range(15, 61, 5)]:
+                        is_sig = True
+                        colstr = "#0000FF" #blue
+                        bkgtit = "Signal " + dist
                     else:
                         print("Error: still need to implement dnum = {}, dist = {}".format(dnum, dist))
                         system.exit() 
-                    hirBackground.SetFillColor(ROOT.TColor.GetColor(colstr))
+                        #break
+
+                    if not is_sig:
+                        hirBackground.SetLineColor(1)
+                        hirBackground.SetFillStyle(1001)
+                        hirBackground.SetFillColor(ROOT.TColor.GetColor(colstr))
+                        hBkgTot.Add(hirBackground)
+                    else:
+                        hirBackground.SetLineColor(ROOT.TColor.GetColor(colstr))
+                        hSig = hirBackground.Clone()
 
                     hirBackground.SetTitle(bkgtit)
 
-                    hBkgTot.Add(hirBackground)
                    # print("Added {} to hBkgTot. Now hBkgTot = {}".format(hirBackground, hBkgTot))
                     #add entry to the legend.
                     l.AddEntry(hirBackground)
@@ -430,6 +467,8 @@ if __name__ == "__main__":
 
                 #print "signal entries   ",hSignal.GetEntries()
                 hBkgTot.Draw("HIST")
+                hSig.Draw("same")
+                
                 stack_title = variabledic[var][3]+variabledic[var][2]
                 #print("hBkgTot = {}".format(str(hBkgTot)))
                 #print("THStack x-axis: {}".format(hBkgTot.GetXaxis()))
