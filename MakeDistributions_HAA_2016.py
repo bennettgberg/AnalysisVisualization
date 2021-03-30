@@ -66,10 +66,13 @@ def subArrayLogic(evt,array):
 
 
 def returnArray(masterArray,variable):
-    if variable in ["njets","jpt_1","jeta_1","jpt_2","jeta_2","bpt_1","bpt_2","nbtag","beta_1","beta_2"]:
-        val = masterArray[variable][:,0]
-    else:
+    #if variable in ["njets","jpt_1","jeta_1","jpt_2","jeta_2","bpt_1","bpt_2","nbtag","beta_1","beta_2"]:
+    #    val = masterArray[variable][:,0]
+    #else:
+    if masterArray[variable].shape == 1:   # flat array important for jagged arrays of input data
         val = masterArray[variable]
+    else:
+        val = masterArray[variable][:,0]
     return val
 
 #create mask for all the events that do or don't pass cuts

@@ -4,7 +4,7 @@
 
 * File Name : Parametrization.py
 
-* Purpose : Loads the variables that will be plotted against one another for further analysis  
+* Purpose : Loads the variables that will be plotted against one another for further analysis
 
 * Creation Date : 04-02-2020
 
@@ -24,18 +24,19 @@ class Category():
         self.newvarcuts = {}
         self.binning = []
         self.extraplots = {}
-        
+        self.systematics = {}
+
 class Process():
     def __init__(self):
         #Nickname corresponds to CSV input file ... wil be the unique identifier
         self.nickname = ""
         self.plotname = ""
         #what are some important weights or scale factors NOT COMMON to all processes????
-        #xsec, nevents, 
+        #xsec, nevents,
         self.weights = {}
         #eventscale weights... a selection string and what weight to apply
         self.eventWeights = {}
-        #cuts per process... overrides the plot name ... and we loop over collection of these in main 
+        #cuts per process... overrides the plot name ... and we loop over collection of these in main
         self.cuts = {}
         self.file = ""
         self.classification = ""
