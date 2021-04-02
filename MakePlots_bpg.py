@@ -154,11 +154,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="make full plots from root files containing histograms")
     #parser.add_arguement('--CategoryFiles',nargs="+",help="Select the files containing the categories for the datacards")
   #  parser.add_argument("-i",  "--input", default="skimmed_tttt.root",  help="input root file name")
-    parser.add_argument("-o",  "--output", default="test4",  help="postfix string")
-    parser.add_argument("-ch",  "--channel", default="tttt",  help="postfix string")
-    parser.add_argument("-c",  "--categories", default="cat_tttt_2017.yaml",  help="categories yaml file")
+    parser.add_argument("-o",  "--output", default="all1",  help="postfix string")
+    parser.add_argument("-ch",  "--channel", default="mtmt",  help="postfix string")
+  #  parser.add_argument("-c",  "--categories", default="cat_tttt_2017.yaml",  help="categories yaml file")
     parser.add_argument("-csv",  "--csvfile", default="bpgMCsamples_2017_v7_yaml.csv",  help="csv file")
-    parser.add_argument("-p",  "--processes", default="processes_special_mmtt.yaml",  help="processes yaml file")
+    parser.add_argument("-p",  "--processes", default="processes_special_mtmt.yaml",  help="processes yaml file")
     #parser.add_argument("--dist", default="rareBkg",  help="single distribution to plot")
     parser.add_argument("--dist", default="Bkg",  help="single distribution to plot")
     parser.add_argument("-mc",  "--mc", default=True,action='store_true',  help="Use only mc skip data")
@@ -177,9 +177,15 @@ if __name__ == "__main__":
     #only plot this signal mass.
     mass = 40
 
+    #show ONLY signal
+    sigOnly = False #True
 
+    noData = True
+
+
+    catfile = "cat_%s_2017.yaml"%(args.channel)
     #importing analysis categories and conventions
-    with io.open(args.categories,'r') as catsyam:
+    with io.open(catfile,'r') as catsyam:
         categories = yaml.load(catsyam)
 
     #loading fake factor and data driven methods
@@ -236,10 +242,21 @@ if __name__ == "__main__":
         for mss in range(mass+5, 61, 5): bad_masses.append(sys + "_a%d"%mss)
         #remove the ones we won't use from dists.
         for bm in bad_masses: 
-            print("bm to remove: {}".format(bm))
-            dists.remove(bm)
+      #      print("bm to remove: {}".format(bm))
+            if bm in dists:
+                dists.remove(bm)
+        #if we're only tryna plot the signal then remove everything else.
+        if sigOnly:
+            i = 0
+            while i < len(dists):
+                if "a%d"%mass not in dists[i]:
+                    dists.remove(dists[i])
+                    i -= 1
+                i += 1
+        elif noData and (sys+"_dataobs") in dists:
+            dists.remove(sys+"_dataobs")
 
-    print("dists: {}".format(dists))
+    #print("dists: {}".format(dists))
     cats = [args.channel+"_inclusive"]
     varis = allcats[cats[0]].varis.keys()
     passvars = []
@@ -255,7 +272,7 @@ if __name__ == "__main__":
         for distLong in dists:
             #if the dist is one we're not doing rn, continue.
         #    if distLong in bad_masses: continue
-            print("Now looping over dist: {}".format(distLong))
+            #print("Now looping over dist: {}".format(distLong))
             dist = distLong.split(";")[0]
             #distribution = dist.ReadObj()  #The TTree
             tree = fin[dist]
@@ -302,8 +319,9 @@ if __name__ == "__main__":
 
     #var is now the variable handle
     for sys in systematics:
+        dirname = "outplots_"+args.output+"_"+sys+"%s%s"%("" if not sigOnly else "_sigOnly", "" if noData else "_data")
         try:
-            os.mkdir("outplots_"+args.output+"_"+sys)
+            os.mkdir(dirname)
         except:
             print "dir prob exists"
 
@@ -317,11 +335,11 @@ if __name__ == "__main__":
             donevars[var] = True
             if args.mc:
                 if var=="AMass":
-                    fileout = open("outplots_"+args.output+"_"+sys+"/"+str(allcats[cats[0]].name)+"_info.txt","w")
+                    fileout = open(dirname+"/"+str(allcats[cats[0]].name)+"_info.txt","w")
                     fileout.write("Working on category "+allcats[cats[0]].name+"\n")
             else:
                 if var=="AMass_blinded":
-                    fileout = open("outplots_"+args.output+"_"+sys+"/"+str(allcats[cats[0]].name)+"_info.txt","w")
+                    fileout = open(dirname+"/"+str(allcats[cats[0]].name)+"_info.txt","w")
                     fileout.write("Working on category "+allcats[cats[0]].name+"\n")
                 #if var in ["AMass","mll_m15","mll_m20","mll_m25","mll_m30","mll_m35","mll_m40","mll_m45","mll_m50","mll_m55","mll_m60"]:
                 #    continue
@@ -370,7 +388,8 @@ if __name__ == "__main__":
                 #print("cd'd to c")
                 #print("made c.")
                 #histogram stack to hold the stack of hists from each dist.
-                hBkgTot = ROOT.THStack()
+                if not sigOnly:
+                    hBkgTot = ROOT.THStack()
                # print("Original hBkgTot = {}".format(hBkgTot))
                # print("THStack x-axis: {}".format(hBkgTot.GetXaxis()))
                 #set up legend.
@@ -381,11 +400,13 @@ if __name__ == "__main__":
                     l=ROOT.TLegend(0.40,0.55,0.40+0.28,0.9);
                 #signal isn't stacked with the backgrounds.
                 hSig = ROOT.TH1F()
+                hData = ROOT.TH1F()
                 #repeat once for each different distribution.
                 for dnum,dist in enumerate(dists):
                     #print "divising MC into categories "
                     hirBackground = ROOT.TH1F()
 
+                    print("sys: {}, dist: {}, cat: {}, var: {}".format(sys, dist, cat, var))
                     #hirBackground = histodict[sys][sys+"_"+dist][cat][var].Clone()
                     hirBackground = histodict[sys][dist][cat][var].Clone()
 
@@ -395,9 +416,10 @@ if __name__ == "__main__":
                     #set different colors for each distribution number.
                     colstr = ""
                     bkgtit = ""
-                    print("dist = {}, dnum = {}".format(dist, dnum))
+                    #print("dist = {}, dnum = {}".format(dist, dnum))
                     #Bkg
                     is_sig = False
+                    is_data = False
                     if dist == sys + "_Bkg":
                         colstr = "#CF8AC8"
                         bkgtit = "DY+Jets" 
@@ -417,25 +439,40 @@ if __name__ == "__main__":
                         is_sig = True
                         colstr = "#0000FF" #blue
                         bkgtit = "Signal " + dist
+                    elif dist == (sys + "_dataobs"):
+                        is_data = True
+                       # colstr = "#000000" #black (?)
+                        bkgtit = "Data observed"
                     else:
                         print("Error: still need to implement dnum = {}, dist = {}".format(dnum, dist))
                         system.exit() 
                         #break
 
-                    if not is_sig:
+                    if not is_sig and not is_data:
+                    #background
                         hirBackground.SetLineColor(1)
                         hirBackground.SetFillStyle(1001)
                         hirBackground.SetFillColor(ROOT.TColor.GetColor(colstr))
                         hBkgTot.Add(hirBackground)
-                    else:
+                    elif is_sig:
+                    #signal
                         hirBackground.SetLineColor(ROOT.TColor.GetColor(colstr))
                         hSig = hirBackground.Clone()
+                    else:
+                    #data
+                        hirBackground.SetMarkerColor(1)
+                        hirBackground.SetMarkerStyle(20)
+                        hData = hirBackground.Clone()
 
                     hirBackground.SetTitle(bkgtit)
 
+                    if not is_data:
+                        l.AddEntry(hirBackground)
+                    else:
+                        l.AddEntry(hData, "Data observed", "PE")
+                        
                    # print("Added {} to hBkgTot. Now hBkgTot = {}".format(hirBackground, hBkgTot))
                     #add entry to the legend.
-                    l.AddEntry(hirBackground)
 
 
         
@@ -466,15 +503,29 @@ if __name__ == "__main__":
                 pre=add_Preliminary(args.channel)
 
                 #print "signal entries   ",hSignal.GetEntries()
-                hBkgTot.Draw("HIST")
-                hSig.Draw("same")
+                if not sigOnly:
+                    hBkgTot.Draw("HIST")
+                    hSig.Draw("same")
+                    if not noData:
+                        hData.Draw("PE same") # same")
+                else:
+                    hSig.Draw("HIST")
                 
                 stack_title = variabledic[var][3]+variabledic[var][2]
                 #print("hBkgTot = {}".format(str(hBkgTot)))
                 #print("THStack x-axis: {}".format(hBkgTot.GetXaxis()))
-                hBkgTot.GetXaxis().SetTitle(stack_title)
-                hBkgTot.GetYaxis().SetTitle("Events")
-                hBkgTot.SetTitle("")
+                if not sigOnly:
+                    hBkgTot.GetXaxis().SetTitle(stack_title)
+                    hBkgTot.GetYaxis().SetTitle("Events")
+                    hBkgTot.SetTitle("")
+                #elif not noData:
+                #    hData.GetXaxis().SetTitle(stack_title)
+                #    hData.GetYaxis().SetTitle("Events")
+                #    hData.SetTitle("")
+                else:
+                    hSig.GetXaxis().SetTitle(stack_title)
+                    hSig.GetYaxis().SetTitle("Events")
+                    hSig.SetTitle("")
 
                 #print("boutta draw lumi")
                 #hirBackground.Draw("same")
@@ -489,7 +540,11 @@ if __name__ == "__main__":
                 #print "with cuts ",allcats[cati].cuts
                 #print "data entries ",hData.GetEntries()
                 #print "background entries ",hBackground.GetEntries()
-
-                c.SaveAs("outplots_"+args.output+"_"+sys+"/"+var+"_"+str(cats[0])+".png")
+                fname = dirname+"/"+var+"_"+str(cats[0])+".png"
+                print("trying to save as: {}".format(fname))
+                try:
+                    c.SaveAs(fname)
+                except:
+                    print("Error: could not save {}".format(fname))
 
                 hirBackground.Delete()

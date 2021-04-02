@@ -3,17 +3,18 @@ HAA_Inc_tttt:
     ffworkingpoint: &ffworkingpoint 15.0
     name: "tttt_inclusive"
     cuts:
-        #preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",5.],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",12],["charge_12","<",0]]
+        #preselection: [["pt_1",">",20.],["pt_2",">",20.],["pt_3",">",20.],["pt_4",">",20.],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",12],["charge_12","<",0]]
+        #preselection: [["pt_1",">",20.],["pt_2",">",20.],["pt_3",">",20.],["pt_4",">",20.],["eta_3","absl",2.3],["eta_4","absl",2.3],["cat","==",12],["charge_12","<",0]]
+        preselection: [["cat","==",12]]
    #     preselection: [["pt_1",">",20.],["pt_2",">",20.],["pt_3",">",20.],["pt_4",">",20.],["eta_3","absl",2.3],["eta_4","absl",2.3],["eta_1","absl",2.3],["eta_2","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["nbtag","<",1.0],["cat","==",12],["charge_12","<",0]]
-        preselection: []
+       # preselection: []
         #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["idDeepTau2017v2p1VSjet_3",">=",*ffworkingpoint],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_3",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_3",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
-   #     categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0]]
+  #      categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0]]
         categorycuts: []
         #trigger: &trigger [[["OR"],["muonTriggerWord","band",2],["muonTriggerWord","band",4]]]
         #trigger: &trigger [["muonTriggerWord","band",4]]
-        trigger: &trigger [[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]]]
-    #    trigger: &trigger [[["OR"],["whichTriggerWordSubL","band",4],["whichTriggerWordSubL","band",8],["whichTriggerWordSubL","band",16],["whichTriggerWordSubL","band",32]]]
-       # trigger: &trigger []
+        #trigger: &trigger [[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]]]
+        trigger: &trigger []
 
     newvariables: &newvariables {
         mllmtt: ["minusArr",[-40.0,-30.0,-20.0,-10.0,0.0,10.0,20.0,30.0,40.0,50.0,60.0],["mll","m_vis"],"[GeV]","mll - m_{vis}"],
@@ -29,10 +30,14 @@ HAA_Inc_tttt:
       }
 
     varis: &varis {
-        m_vis: ["m_vis",[50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0],"[GeV]","M_{vis}"],
+        #m_vis: ["m_vis",[50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0],"[GeV]","M_{vis}"],
+        #m_vis: ["m_vis",[0.0,10.0,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0],"[GeV]","M_{vis}"],
+        m_vis: ["m_vis",[[40,0.0,200.0]],"[GeV]","M_{vis}"],
         AMass_blinded: ["AMass",[130.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot} Blind"],
-        AMass: ["AMass",[0.0,20.0,40.0,60.0,80.0,100.0,120.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot}"],
-        mll: ["mll",[0.0,10.,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.,100.,110.,120.,130.,140.],"[GeV]","M_{#tau_{1}#tau_{2}}"],
+        #AMass: ["AMass",[0.0,20.0,40.0,60.0,80.0,100.0,120.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot}"],
+        AMass: ["AMass",[[80,0.0,400.0]],"[GeV]","M_{4l Tot}"],
+        #mll: ["mll",[0.0,10.,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.,100.,110.,120.,130.,140.],"[GeV]","M_{#tau_{1}#tau_{2}}"],
+        mll: ["mll",[[40,0.0,200.0]],"[GeV]","M_{#tau_{1}#tau_{2}}"],
         mll_m15: ["mll_m15",[13.0,13.125,13.25,13.375,13.5,13.625,13.75,13.875,14.0,14.125,14.25,14.375,14.5,14.625,14.75,14.875,15.0,15.125,15.25,15.375,15.5,15.625,15.75,15.875,16.0,16.125,16.25,16.375,16.5,16.625,16.75,16.875,17.0],"[GeV]","M_{#tau_{1}#tau_{2}}"],
         mll_m20: ["mll_m20",[18.0,18.125,18.25,18.375,18.5,18.625,18.75,18.875,19.0,19.125,19.25,19.375,19.5,19.625,19.75,19.875,20.0,20.125,20.25,20.375,20.5,20.625,20.75,20.875,21.0,21.125,21.25,21.375,21.5,21.625,21.75,21.875,22.0],"[GeV]","M_{#tau_{1}#tau_{2}}"],
         mll_m25: ["mll_m25",[23.0,23.125,23.25,23.375,23.5,23.625,23.75,23.875,24.0,24.125,24.25,24.375,24.5,24.625,24.75,24.875,25.0,25.125,25.25,25.375,25.5,25.625,25.75,25.875,26.0,26.125,26.25,26.375,26.5,26.625,26.75,26.875,27.0],"[GeV]","M_{#tau_{1}#tau_{2}}"],

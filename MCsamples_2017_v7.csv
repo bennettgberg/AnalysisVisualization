@@ -122,3 +122,4 @@ HToAATo4Tau_M-45,a45,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTa
 HToAATo4Tau_M-50,a50,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTau_M-50_FilterMu15Mu5_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v3/MINIAODSIM
 HToAATo4Tau_M-55,a55,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTau_M-55_FilterMu15Mu5_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v3/MINIAODSIM
 HToAATo4Tau_M-60,a60,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTau_M-60_FilterMu15Mu5_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v3/MINIAODSIM
+dataobs,dataobs,23.43,3807850.0,3807850.0,,/SingleElectron/Run2017F-Nano25Oct2019-v1/NANOAOD

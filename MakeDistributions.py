@@ -422,7 +422,7 @@ def initialize(channel):
     rareBkg = ["Other","rare","WZ"]
     finalDistributions = {}
     finalDistributions["Bkg"]=Bkg
-    finalDistributions["data_obs"]=["data_obs"]
+    finalDistributions["dataobs"]=["dataobs"]
     finalDistributions["a15"]=["a15"]
     finalDistributions["a20"]=["a20"]
     finalDistributions["a25"]=["a25"]
@@ -484,7 +484,10 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
         #print(masterArray.keys())
         plottedVars = []
 
-        if process.nickname=="data_obs":
+        #if process.nickname=="dataobs":
+        if "data" in process.nickname:
+            print("data obs!")
+            newVarVals = {}
             masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 
             for variableHandle in allcats[cat].varis.keys():
@@ -501,6 +504,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 else:
                     plottedVars.append(variableHandle)
 
+            print("newvariables now")
 
             for var in allcats[cat].newvariables.keys():
                 newVarVals[var]=0.0
@@ -525,7 +529,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
 
             skipEvents = np.where(mask==0)[0]
             skimArray={}
-#            print("before skim", len(masterArray["finalweight"]))
+            print("before skim", len(masterArray["finalweight"]))
             for key in masterArray.keys():
                 try:
                     skimArray[key] = masterArray[key][mask]
@@ -533,14 +537,14 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                     #print "length problem? length of key in master ",len(masterArray[key])," length of mask ",len(mask)
                     #print "skipping branch ",key
                     continue
-            #print("after skim", len(skimArray["mll"]), process.file)
+            print("after skim", len(skimArray["mll"]), process.file)
             if len(skimArray["mll"])==0:
                 continue
 
             for key in skimArray.keys():
                 if key not in plottedVars and key != "finalweight":
                     del skimArray[key]
-            #print "working on category ",cat
+            print "working on category ",cat
             skimArrayPerCat[systematic+":"+cat+":"+process.nickname+":"+process.cuts.keys()[0]] = skimArray
 
 
@@ -662,7 +666,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
 
 
         print("process nickname: {}".format(process.nickname))
-        if process.nickname not in ["data_obs","FF","FF_1","FF_2","FF_12"]:
+        if process.nickname not in ["dataobs","FF","FF_1","FF_2","FF_12"]:
             EventWeights = getEventWeightDicitonary()
 
             newVarVals={}
@@ -880,7 +884,7 @@ def slimskimoutput(process,allcats,weightHistoDict,systematic,massoutputdir):
                 #print("About to call makeCutsOnTreeArray.")
                 skimArrayPerSysCats.update(makeCutsOnTreeArray(process,tree.arrays(),allcats,weightHistoDict,"Nominal"))
                 #print("Now done with makeCutsOnTreeArray.")
-            except: # MemoryError:
+            except MemoryError:
                 print("Error! {} failed.".format(process.file))
                 open("memErrFiles.txt", "a").write(process.file + "\n")
 
@@ -1340,8 +1344,11 @@ def combineRootFiles(systematics, finalDistributions, rootfiledir, channel):
     #        if sys == "Nominal":
     #            majorkey = "Events"
             #print("**********MAJOR KEY**************: {}".format(majorkey))
-            #print("file: {}".format(globfile))
-            tree = fin[majorkey]
+            try:
+                tree = fin[majorkey]
+            except:
+                print("file: {}".format(globfile))
+                sys.exit("Error!!!!!!!!!")
             mainArrays = tree.arrays()
             #print("globfile {}".format(globfile))
             for catDist, final in finalDistributions.iteritems():
@@ -1381,9 +1388,9 @@ def combineRootFiles(systematics, finalDistributions, rootfiledir, channel):
             for branch in data.dtype.names:
                 #print "working on branch ",branch
                 #print "branch datatype ",type(finalSkims[sys][catDist][branch])
-                if len(finalSkim[branch].shape) == 1:   # flat array important for jagged arrays of input data
+                if branch in finalSkim and len(finalSkim[branch].shape) == 1:   # flat array important for jagged arrays of input data
                     data[branch] = finalSkim[branch]
-                else:
+                elif branch in finalSkim:
                     data[branch] = finalSkim[branch][:,0]
             treeOut = root_numpy.array2tree(data, name=sys+"_"+catDist)
             treeOut.Write()
@@ -1403,11 +1410,11 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser(description="This file generates root files containing Histograms ... files in utils contain selections and settings")
-    parser.add_argument("-o",  "--outname", default="test4",  help="postfix string")
+    parser.add_argument("-o",  "--outname", default="all1",  help="postfix string")
     parser.add_argument("-fi",  "--ffin", default="",  help="fake factor files")
     parser.add_argument("-fo",  "--ffout", default="",  help="fake factor files to output")
     parser.add_argument("-c",  "--categories", default="categories_array.yaml",  help="categories yaml file")
-    parser.add_argument("-ch",  "--channel", default="tttt",  help="Please list the channel for fake factor histograms")
+    parser.add_argument("-ch",  "--channel", default="mtmt",  help="Please list the channel for fake factor histograms")
     parser.add_argument("-csv",  "--csvfile", default="MCsamples_2017_v7_yaml.csv",  help="categories yaml file")
     parser.add_argument("-i",  "--dir", default="/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov6_10_2_9/src/nano6_2016/",  help="Input files")
     parser.add_argument("-p",  "--processes", default="processes_special.yaml",  help="processes yaml file")
