@@ -43,7 +43,7 @@ def add_CMS():
     return lumi
 
 def add_Preliminary(channel="mmmt"):
-    lowX=0.45
+    lowX=0.30
     #lowY=0.690
     lowY=0.835
     lumi  = ROOT.TPaveText(lowX, lowY+0.06, lowX+0.15, lowY+0.16, "NDC")
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="make full plots from root files containing histograms")
     #parser.add_arguement('--CategoryFiles',nargs="+",help="Select the files containing the categories for the datacards")
   #  parser.add_argument("-i",  "--input", default="skimmed_tttt.root",  help="input root file name")
-    parser.add_argument("-o",  "--output", default="all1",  help="postfix string")
+    parser.add_argument("-o",  "--output", default="test42_mSSnoPU",  help="postfix string")
     parser.add_argument("-ch",  "--channel", default="mtmt",  help="postfix string")
   #  parser.add_argument("-c",  "--categories", default="cat_tttt_2017.yaml",  help="categories yaml file")
     parser.add_argument("-csv",  "--csvfile", default="bpgMCsamples_2017_v7_yaml.csv",  help="csv file")
@@ -179,8 +179,16 @@ if __name__ == "__main__":
 
     #show ONLY signal
     sigOnly = False #True
+    noSig = True
 
-    noData = True
+    #maximum value to set the y-axis to (-1 to auto-set)
+    y_max = 1100 #250
+
+    if sigOnly and noSig:
+        print("Error: both sigOnly and noSig cannot be specified.")
+        system.exit()
+
+    noData = False
 
 
     catfile = "cat_%s_2017.yaml"%(args.channel)
@@ -240,6 +248,7 @@ if __name__ == "__main__":
         #list of masses that we aren't doing rn.
         bad_masses = [sys + "_a%d"%mss for mss in range(15, mass, 5)]
         for mss in range(mass+5, 61, 5): bad_masses.append(sys + "_a%d"%mss)
+        if noSig: bad_masses.append(sys + "_a%d"%mass)
         #remove the ones we won't use from dists.
         for bm in bad_masses: 
       #      print("bm to remove: {}".format(bm))
@@ -249,13 +258,15 @@ if __name__ == "__main__":
         if sigOnly:
             i = 0
             while i < len(dists):
-                if "a%d"%mass not in dists[i]:
+                if sigOnly and "a%d"%mass not in dists[i]:
                     dists.remove(dists[i])
                     i -= 1
                 i += 1
-        elif noData and (sys+"_dataobs") in dists:
-            dists.remove(sys+"_dataobs")
+        elif noData and (sys+"_data_obs") in dists:
+            print("removing data observed!")
+            dists.remove(sys+"_data_obs")
 
+        
     #print("dists: {}".format(dists))
     cats = [args.channel+"_inclusive"]
     varis = allcats[cats[0]].varis.keys()
@@ -406,7 +417,7 @@ if __name__ == "__main__":
                     #print "divising MC into categories "
                     hirBackground = ROOT.TH1F()
 
-                    print("sys: {}, dist: {}, cat: {}, var: {}".format(sys, dist, cat, var))
+                    #print("sys: {}, dist: {}, cat: {}, var: {}".format(sys, dist, cat, var))
                     #hirBackground = histodict[sys][sys+"_"+dist][cat][var].Clone()
                     hirBackground = histodict[sys][dist][cat][var].Clone()
 
@@ -423,7 +434,8 @@ if __name__ == "__main__":
                     if dist == sys + "_Bkg":
                         colstr = "#CF8AC8"
                         bkgtit = "DY+Jets" 
-                    #irBkg
+#################                    #irBkg
+                   # else: continue
                     elif dist == sys + "_irBkg":
                         colstr = "#13E2FE"
                         bkgtit = "ZZ or ZH to 4l"
@@ -439,7 +451,7 @@ if __name__ == "__main__":
                         is_sig = True
                         colstr = "#0000FF" #blue
                         bkgtit = "Signal " + dist
-                    elif dist == (sys + "_dataobs"):
+                    elif dist == (sys + "_data_obs"):
                         is_data = True
                        # colstr = "#000000" #black (?)
                         bkgtit = "Data observed"
@@ -454,9 +466,11 @@ if __name__ == "__main__":
                         hirBackground.SetFillStyle(1001)
                         hirBackground.SetFillColor(ROOT.TColor.GetColor(colstr))
                         hBkgTot.Add(hirBackground)
+                        print("added to hBkgTot: {}".format(str(hirBackground)))
                     elif is_sig:
                     #signal
                         hirBackground.SetLineColor(ROOT.TColor.GetColor(colstr))
+                        hirBackground.SetFillStyle(0)
                         hSig = hirBackground.Clone()
                     else:
                     #data
@@ -505,7 +519,13 @@ if __name__ == "__main__":
                 #print "signal entries   ",hSignal.GetEntries()
                 if not sigOnly:
                     hBkgTot.Draw("HIST")
-                    hSig.Draw("same")
+                   # hBkgTot.Draw("PE")
+                    if y_max > -1:
+                    #MUST us SetMaximum and draw a second time for ROOT's stupid fucking bitch ass to understand
+                        hBkgTot.SetMaximum(y_max) 
+                        hBkgTot.Draw("HIST")
+                    if not noSig:
+                        hSig.Draw("same HIST")
                     if not noData:
                         hData.Draw("PE same") # same")
                 else:
@@ -536,7 +556,6 @@ if __name__ == "__main__":
 
                 #TPad 2 for ratio
                 c.cd()
-
                 #print "with cuts ",allcats[cati].cuts
                 #print "data entries ",hData.GetEntries()
                 #print "background entries ",hBackground.GetEntries()

@@ -1,0 +1,20 @@
+---
+data:
+    nickname: "data"
+    plotname: "data"
+    weights: {"xsec":1.0}
+    cuts: {"data_obs":""}
+    file: "data.root"
+    classification : "data_obs"
+    color: [ROOT.kBlack]
+
+FF:
+    nickname: "FF"
+    plotname: "FF"
+    ffworkingpoint: &ffworkingpoint 15.0
+    weights: {"xsec":1.0}
+    cuts: {"FF":"","FF_1":[["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",7],[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]],["nbtag","<",1.0],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint],[["EQT"],["q_3","q_4"],"mult","<",0]],
+    "FF_2":[["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",7],[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]],["nbtag","<",1.0],["idDeepTau2017v2p1VSjet_3",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_3",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_3",">=",*ffworkingpoint],[["EQT"],["q_3","q_4"],"mult","<",0]],
+    "FF_12":[["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",7],[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]],[["EQT"],["q_3","q_4"],"mult","<",0]]}
+    file: "data.root"
+    classification: "FF"

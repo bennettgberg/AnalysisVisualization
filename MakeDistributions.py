@@ -377,7 +377,14 @@ def initialize(channel):
             print "SKIPPING FILE NOT WORKING ",sample
             continue
         #frooin.Close()
-        temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3]}
+        extension = "_ext1" #extension added to file name for extended samples
+        smp = sample.strip(extension)
+        kf = 1.0 #kfactor only for the special processes with many jets.
+        if smp in ["W%dJetsToLNu"%(nj) for nj in range(1, 5)]:
+            kf = 1.221
+        elif smp in ["DY%dJetsToLL"%(nj) for nj in range(1, 5)]:
+            kf = 1.1637
+        temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3],"kfactor":kf} #,"PU":"weightPUtrue"}
         temppro.cuts={sampleDict[sample][0]:""}
         #if "ggTo2mu2tau" in sample:
         if "HToAATo4Tau" in sample:
@@ -390,28 +397,36 @@ def initialize(channel):
     jetWeightMultiplicity = {}
     #print("WJets file: {}".format(HAA_processes["WJetsToLNu"].file))
     try:
-        DYJetsFile = ROOT.TFile.Open(HAA_processes["DYJetsToLL_ext1"].file,"read")
-        jetWeightMultiplicity["DYJetsToLL_ext1"]=DYJetsFile.Get("hWeights").GetSumOfWeights()
-        DY1JetsFile = ROOT.TFile.Open(HAA_processes["DY1JetsToLL"].file,"read")
-        jetWeightMultiplicity["DY1JetsToLL"]=DY1JetsFile.Get("hWeights").GetSumOfWeights()
-        DY2JetsFile = ROOT.TFile.Open(HAA_processes["DY2JetsToLL"].file,"read")
-        jetWeightMultiplicity["DY2JetsToLL"]=DY2JetsFile.Get("hWeights").GetSumOfWeights()
-        DY3JetsFile = ROOT.TFile.Open(HAA_processes["DY3JetsToLL"].file,"read")
-        jetWeightMultiplicity["DY3JetsToLL"]=DY3JetsFile.Get("hWeights").GetSumOfWeights()
-        DY4JetsFile = ROOT.TFile.Open(HAA_processes["DY4JetsToLL"].file,"read")
-        jetWeightMultiplicity["DY4JetsToLL"]=DY4JetsFile.Get("hWeights").GetSumOfWeights()
+        #get sum of weights for special processes (sum reg and _ext).
+        DYJetsFile = ROOT.TFile.Open(HAA_processes["DYJetsToLL"].file,"read")
+        jetWeightMultiplicity["DYJetsToLL"]=DYJetsFile.Get("hWeights").GetSumOfWeights()
+        DYJetsFilex = ROOT.TFile.Open(HAA_processes["DYJetsToLL_ext1"].file,"read")
+        jetWeightMultiplicity["DYJetsToLL"] += DYJetsFilex.Get("hWeights").GetSumOfWeights()
+       # DY1JetsFile = ROOT.TFile.Open(HAA_processes["DY1JetsToLL"].file,"read")
+       # jetWeightMultiplicity["DY1JetsToLL"]=DY1JetsFile.Get("hWeights").GetSumOfWeights()
+       # DY2JetsFile = ROOT.TFile.Open(HAA_processes["DY2JetsToLL"].file,"read")
+       # jetWeightMultiplicity["DY2JetsToLL"]=DY2JetsFile.Get("hWeights").GetSumOfWeights()
+       # DY3JetsFile = ROOT.TFile.Open(HAA_processes["DY3JetsToLL"].file,"read")
+       # jetWeightMultiplicity["DY3JetsToLL"]=DY3JetsFile.Get("hWeights").GetSumOfWeights()
+       # DY4JetsFile = ROOT.TFile.Open(HAA_processes["DY4JetsToLL"].file,"read")
+       # jetWeightMultiplicity["DY4JetsToLL"]=DY4JetsFile.Get("hWeights").GetSumOfWeights()
+    ####bpg added, not sure if needed??#####
+       # DYJetsM10to50File = ROOT.TFile.Open(HAA_processes["DYJetsToLLM10to50"].file,"read")
+       # jetWeightMultiplicity["DYJetsToLLM10to50"]=DYJetsM10to50File.Get("hWeights").GetSumOfWeights()
     #
         WJetsFile = ROOT.TFile.Open(HAA_processes["WJetsToLNu"].file,"read")
-        print("opened WJets file.")
+      #  print("opened WJets file.")
         jetWeightMultiplicity["WJetsToLNu"]=WJetsFile.Get("hWeights").GetSumOfWeights()
-        W1JetsFile = ROOT.TFile.Open(HAA_processes["W1JetsToLNu"].file,"read")
-        jetWeightMultiplicity["W1JetsToLNu"]=W1JetsFile.Get("hWeights").GetSumOfWeights()
-        W2JetsFile = ROOT.TFile.Open(HAA_processes["W2JetsToLNu"].file,"read")
-        jetWeightMultiplicity["W2JetsToLNu"]=W2JetsFile.Get("hWeights").GetSumOfWeights()
-        W3JetsFile = ROOT.TFile.Open(HAA_processes["W3JetsToLNu"].file,"read")
-        jetWeightMultiplicity["W3JetsToLNu"]=W3JetsFile.Get("hWeights").GetSumOfWeights()
-        W4JetsFile = ROOT.TFile.Open(HAA_processes["W4JetsToLNu"].file,"read")
-        jetWeightMultiplicity["W4JetsToLNu"]=W4JetsFile.Get("hWeights").GetSumOfWeights()
+        WJetsFilex = ROOT.TFile.Open(HAA_processes["WJetsToLNu_ext1"].file,"read")
+        jetWeightMultiplicity["WJetsToLNu"] += WJetsFilex.Get("hWeights").GetSumOfWeights()
+      #  W1JetsFile = ROOT.TFile.Open(HAA_processes["W1JetsToLNu"].file,"read")
+      #  jetWeightMultiplicity["W1JetsToLNu"]=W1JetsFile.Get("hWeights").GetSumOfWeights()
+      #  W2JetsFile = ROOT.TFile.Open(HAA_processes["W2JetsToLNu"].file,"read")
+      #  jetWeightMultiplicity["W2JetsToLNu"]=W2JetsFile.Get("hWeights").GetSumOfWeights()
+      #  W3JetsFile = ROOT.TFile.Open(HAA_processes["W3JetsToLNu"].file,"read")
+      #  jetWeightMultiplicity["W3JetsToLNu"]=W3JetsFile.Get("hWeights").GetSumOfWeights()
+      #  W4JetsFile = ROOT.TFile.Open(HAA_processes["W4JetsToLNu"].file,"read")
+      #  jetWeightMultiplicity["W4JetsToLNu"]=W4JetsFile.Get("hWeights").GetSumOfWeights()
     except:
         print "check jetWeightMultiplicity ... the files may not be loaded"
 
@@ -419,10 +434,10 @@ def initialize(channel):
     Bkg = ["DY","W","TT","ST","EWK","Top"]
     irBkg = ["ZZ","ZHToTauTau","vbf","WHTT","Signal","ggZH"]
     TrialphaBkg = ["ttZ","ttW","WWZ","WZZ","ZZZ","WWW4F","HZJ"]
-    rareBkg = ["Other","rare","WZ"]
+    rareBkg = ["Other","rare","WZ","QCD"]
     finalDistributions = {}
     finalDistributions["Bkg"]=Bkg
-    finalDistributions["dataobs"]=["dataobs"]
+    finalDistributions["data_obs"]=["data_obs"]
     finalDistributions["a15"]=["a15"]
     finalDistributions["a20"]=["a20"]
     finalDistributions["a25"]=["a25"]
@@ -484,7 +499,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
         #print(masterArray.keys())
         plottedVars = []
 
-        #if process.nickname=="dataobs":
+        #if process.nickname=="data_obs":
         if "data" in process.nickname:
             print("data obs!")
             newVarVals = {}
@@ -666,7 +681,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
 
 
         print("process nickname: {}".format(process.nickname))
-        if process.nickname not in ["dataobs","FF","FF_1","FF_2","FF_12"]:
+        if process.nickname not in ["data_obs","FF","FF_1","FF_2","FF_12"]:
             EventWeights = getEventWeightDicitonary()
 
             newVarVals={}
@@ -723,60 +738,103 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
             nickname = process.nickname
             for scalefactor in weightDict.keys():
                 if scalefactor == "kfactor":
-                    weightfinal =  weightfinal * (1 / float(weightDict[scalefactor]))
+                    #kfactor will be dealt with below.
+                    continue
+                    #weightfinal =  weightfinal * (1 / float(weightDict[scalefactor]))
                 elif scalefactor in ["PU"]:
                     masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor]))
+                    #pass
                 elif scalefactor =="theoryXsec":
                     weightfinal =  weightfinal * float(weightDict[scalefactor])
 
-            #print "finalweight after PU and kFactor ",masterArray["finalweight"][:100]
-           # print("done with scalefactor loop")
+            #sum of weights (will include this file + its _ext (if it exists) or its non-_ext (if this is an _ext))
+            sow = weightHistoDict[nickname].GetSumOfWeights()
 
-            if nickname =="DY1JetsToLL":
-                norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-                norm2 = jetWeightMultiplicity["DY1JetsToLL"]/HAA_processes["DY1JetsToLL"].weights["xsec"]
+         #   print("sow, weightfinal before _ext business: {}, {}".format(sow, weightfinal))
+            #extension added to the end of the filename for extended files
+            extension = "_ext1"
+
+            #name of the extended version of this process (if it exists)
+            extname = nickname + extension
+            if extname in weightHistoDict:
+                sow += weightHistoDict[extname].GetSumOfWeights()
+
+            #name of the non-extended version of this process (if it exists)
+            nonextname = nickname.strip(extension)
+            #need to make sure we don't add weights from this file twice.
+            if nonextname != nickname and nonextname in weightHistoDict:
+                sow += weightHistoDict[nonextname].GetSumOfWeights() 
+
+         #   print("sow, weightfinal before special block: {}, {}".format(sow, weightfinal))
+            #weightfinal array needed, because weights may be different for some events.
+            wf_arr = np.full(len(masterArray["finalweight"]), 1.0)
+            #special processes require special weighting.
+            if nonextname in ["DY%dJetsToLL"%(nj) for nj in range(1, 5)]:
+         #       print("block 0!")
+                #norm1 is for the inclusive process DYJetsToLL. (Should already have its _ext added into its jetWeightMultiplicity.)
+                norm1 = jetWeightMultiplicity["DYJetsToLL"]/HAA_processes["DYJetsToLL"].weights["xsec"]
+                #norm2 is specific to this process (sum of weights calculated just above this loop).
+                norm2 = sow / HAA_processes[nickname].weights["xsec"]
+         #       print("norm1: {}, norm2: {}".format(norm1, norm2))
+                #norm2 also needs to be divided by the kfactor.
+                norm2 *= 1.0 / float(weightDict["kfactor"])
+         #       print("norm2 adjusted: {}".format(norm2))
+                weightfinal = weightfinal * 1/(norm1+norm2) 
+         #       print("weightfinal after block 0: {}".format(weightfinal))
+                wf_arr *= weightfinal
+            elif nonextname in ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]:
+         #       print("block 1!")
+                norm1 = jetWeightMultiplicity["WJetsToLNu"] / HAA_processes["WJetsToLNu"].weights["xsec"]
+                norm2 = sow / HAA_processes[nickname].weights["xsec"]
+         #       print("norm1: {}, norm2: {}".format(norm1, norm2))
+                norm2 *= 1.0 / float(weightDict["kfactor"])
+         #       print("norm2 adjusted: {}".format(norm2))
                 weightfinal = weightfinal * 1/(norm1+norm2)
-            if nickname =="DY2JetsToLL":
-                norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-                norm2 = jetWeightMultiplicity["DY2JetsToLL"]/HAA_processes["DY2JetsToLL"].weights["xsec"]
-                weightfinal = weightfinal * 1/(norm1+norm2)
-            if nickname =="DY3JetsToLL":
-                norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-                norm2 = jetWeightMultiplicity["DY3JetsToLL"]/HAA_processes["DY3JetsToLL"].weights["xsec"]
-                weightfinal = weightfinal * 1/(norm1+norm2)
-            if nickname =="DY4JetsToLL":
-                norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-                norm2 = jetWeightMultiplicity["DY4JetsToLL"]/HAA_processes["DY4JetsToLL"].weights["xsec"]
-                weightfinal = weightfinal * 1/(norm1+norm2)
-            if nickname =="W1JetsToLNu":
-                norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
-                norm2 = jetWeightMultiplicity["W1JetsToLNu"]/HAA_processes["W1JetsToLNu"].weights["xsec"]
-                weightfinal = weightfinal * 1/(norm1+norm2)
-            elif nickname =="W2JetsToLNu":
-                norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
-                norm2 = jetWeightMultiplicity["W2JetsToLNu"]/HAA_processes["W2JetsToLNu"].weights["xsec"]
-                weightfinal = weightfinal * 1/(norm1+norm2)
-            elif nickname =="W3JetsToLNu":
-                norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
-                norm2 = jetWeightMultiplicity["W3JetsToLNu"]/HAA_processes["W3JetsToLNu"].weights["xsec"]
-                weightfinal = weightfinal * 1/(norm1+norm2)
+         #       print("weightfinal after block 1: {}".format(weightfinal))
+                wf_arr *= weightfinal
+            elif nonextname in ["DYJetsToLL", "WJetsToLNu"]:
+         #       print("block 2!")
+                #any events with 0 LHE_Njets should use normal weighting.
+                try:
+                    mask0j = masterArray["LHE_Njets"]==0
+                except KeyError:
+         #           print("Error: Branch LHE_Njets does not exist in file for process {}.".format(nickname))
+                    raise KeyError #sys.exit()
+                weight0j = weightfinal * HAA_processes[nickname].weights["xsec"] / sow
+         #       print("weight0j: {}".format(weight0j))
+                wf_arr = weight0j * mask0j.astype(int)
+                #events with > 0 LHE_Njets should use same weighting as the corresponding exclusive file.
+                for nj in range(1, 5):
+                    masknj = masterArray["LHE_Njets"]==nj
+                    norm1 = jetWeightMultiplicity[nonextname]/HAA_processes[nonextname].weights["xsec"]
+                    njname = "DY%dJetsToLL"%nj if nonextname == "DYJetsToLL" else "W%dJetsToLNu"%nj
+                    norm2 = sow / HAA_processes[njname].weights["xsec"]
+                    #norm2 also needs to be divided by the kfactor.
+                    norm2 *= 1.0 / float(HAA_processes[njname].weights["kfactor"])
+                    weightnj = weightfinal * 1.0 / (norm1 + norm2)
+                    wf_arr += weightnj*masknj.astype(int)
+                    
+            #non-special processes get normal weighting lumi(already in weightfinal) * xsec / sum of weights
             else:
-                tempDenom=1.0
-                sumOfWeights = 1.0
-                for nic in weightHistoDict.keys():
-                    if nickname==nic:
-                        sumOfWeights = weightHistoDict[nickname].GetSumOfWeights()
-                    if nickname==nic.strip("_ext")[0]:
-                        sumOfWeights*=tempDenom*weightHistoDict[nic].GetSumOfWeights()
-                weightfinal = weightfinal * HAA_processes[nickname].weights["xsec"]/ sumOfWeights
-                #print "xsec/SoW ",HAA_processes[nickname].weights["xsec"]/ sumOfWeights
+         #       print("block 3!")
+                weightfinal *= HAA_processes[nickname].weights["xsec"] / sow
+                wf_arr *= weightfinal
 
-            #multiply by scalar weight
-            masterArray["finalweight"] *= weightfinal
-            print "finalweight before per event scaling ",masterArray["finalweight"][:100]
+         #   print("first 200 final weights: {}".format(wf_arr[:min(200,len(wf_arr))]))
+
+            #multiply by weightfinal array.
+            masterArray["finalweight"] *= wf_arr #weightfinal
+         #   print("very final weights: {}".format(masterArray["finalweight"][:20])) #[:min(200,len(masterArray["finalweight"]))]))
+        #    print "finalweight before per event scaling ",masterArray["finalweight"][:100]
+
+         #   print("past very final weights.")
+            #print the very high weights.
+            bigweightmask = masterArray["finalweight"]>5
+         #   print("bigweightmask!!!")
+         #   print masterArray["evt"][bigweightmask]
+         #   print(masterArray["finalweight"][bigweightmask])
+         #   print("weightfinal: {}".format(weightfinal))
             
-
-
             #eventWeightDict = process.eventWeights
             eventWeightDict = EventWeights
             if eventWeightDict:
@@ -805,9 +863,10 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                         pass
 
                     masterArray["finalweight"] *= weightMask
-            print "finalweight after per event scaling ",masterArray["finalweight"][:100]
+           # print "finalweight after per event scaling ",masterArray["finalweight"][:100]
 
-            print("before skim", len(masterArray["finalweight"]))
+
+         #   print("before skim", len(masterArray["finalweight"]))
             for key,value in masterArray.iteritems():
                 if ( key in plottedVars or key == "finalweight" ) \
                     and (len(mask)==len(value)):
@@ -820,11 +879,12 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                     #print "length problem? length of key in master ",len(masterArray[key])," length of mask ",len(mask)
                     #print "skipping branch ",key
                 #    continue
-            print("after skim", len(skimArray["mll"]), process.file)
+         #   print("after skim", len(skimArray["mll"]), process.file)
             #for key in skimArray.keys():
             #    if key not in plottedVars and key != "finalweight":
             #        del skimArray[key]
             #print "working on category ",cat
+
             skimArrayPerCat[systematic+":"+cat+":"+process.nickname+":"+process.cuts.keys()[0]] = skimArray
     return skimArrayPerCat
 
@@ -910,7 +970,8 @@ def createSlimOutput(skimArrayPerSysCats,outputdir):
 
       data = np.zeros(len(dictionary[branch]),dtype={'names':dataTypes[0],'formats':dataTypes[1]})
 
-      filename = key.replace(":","_")
+      #filename = key.replace(":","_")
+      filename = key.replace(":",".")
       fileout = ROOT.TFile.Open(outputdir+"/"+filename,"recreate")
       fileout.cd()
       for branch in data.dtype.names:
@@ -1076,172 +1137,174 @@ def createOutputSystematics(skimmedArraysSet,finalDistributions):
 
     return 1
 
-def slimskimorg(process,allcats,weightHistoDict):
-
-    from utils.functions import functs
-    from utils.Weights import CommonWeights
-    from ROOT import gInterpreter
-    commonweight = CommonWeights["lumi"][0]
-    fin = uproot.open(process.file)
-    tree = fin["Events"]
-    #print(fin)
-    #print(tree)
-
-    #for cat, catInfo in allcats.iteritems():
-    #    for variableHandle in catInfo.varis.keys():
-    for cat in allcats.keys():
-        masterArray = tree.arrays()
-        #print(process)
-        #print(process.cuts)
-        #print(masterArray.keys())
-        plottedVars = []
-
-        EventWeights = getEventWeightDicitonary()
-
-        newVarVals={}
-        skimArrayPerCat = {}
-        masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
-
-        for variableHandle in allcats[cat].varis.keys():
-            variable = allcats[cat].varis[variableHandle][0]
-            if "[" in variable:
-                #print "adding jagged variable to array ",variable
-                basevar = variable.split("[")[0]
-                index = int(variable.split("[")[1].split("]")[0])
-                val = masterArray[basevar][:,index]
-                #masterArray[basevar+"_"+str(index)]=val
-                #plottedVars.append(basevar+"_"+str(index))
-                masterArray[variableHandle+"_"+str(index)]=val
-                plottedVars.append(variableHandle+"_"+str(index))
-            else:
-                plottedVars.append(variableHandle)
-
-
-        for var in allcats[cat].newvariables.keys():
-            newVarVals[var]=0.0
-
-        cuts=[]
-        for cuttype in allcats[cat].cuts.keys():
-            for cut in allcats[cat].cuts[cuttype]:
-                cuts.append(cut)
-
-
-        for var in newVarVals.keys():
-            arguments = allcats[cat].newvariables[var][2]
-            tempvals=[]
-            for ag in arguments:
-                tempvals.append(returnArray(masterArray,ag))
-            masterArray[var] = functs[allcats[cat].newvariables[var][0]](*tempvals)
-
-        mask = cutOnArray(masterArray,cuts)
-        masterArray["mask"]=mask
-        masterArray["finalweight"] *= mask.astype(int)
-        weightfinal = 1.0   #don't weight the data!!
-        #print "finalweight right after mask ",masterArray["finalweight"][:100]
-
-        weightDict = process.weights
-        #print " weight dicitonary ? ",weightDict
-        #print "sum of weights dicitonary ? ",weightHistoDict
-        weightfinal = commonweight
-        nickname = process.nickname
-        #print "working on the process nickname ",nickname
-        #print "sum of weights dicitonary keys ? ",weightHistoDict.keys()
-        for scalefactor in weightDict.keys():
-            if scalefactor == "kfactor":
-                weightfinal =  weightfinal * (1 / float(weightDict[scalefactor]))
-            elif scalefactor in ["PU"]:
-                masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor]))
-            elif scalefactor =="theoryXsec":
-                weightfinal =  weightfinal * float(weightDict[scalefactor])
-
-        #print "finalweight after PU and kFactor ",masterArray["finalweight"][:100]
-
-        if nickname =="DY1JetsToLL":
-            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-            norm2 = jetWeightMultiplicity["DY1JetsToLL"]/HAA_processes["DY1JetsToLL"].weights["xsec"]
-            weightfinal = weightfinal * 1/(norm1+norm2)
-        if nickname =="DY2JetsToLL":
-            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-            norm2 = jetWeightMultiplicity["DY2JetsToLL"]/HAA_processes["DY2JetsToLL"].weights["xsec"]
-            weightfinal = weightfinal * 1/(norm1+norm2)
-        if nickname =="DY3JetsToLL":
-            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-            norm2 = jetWeightMultiplicity["DY3JetsToLL"]/HAA_processes["DY3JetsToLL"].weights["xsec"]
-            weightfinal = weightfinal * 1/(norm1+norm2)
-        if nickname =="DY4JetsToLL":
-            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
-            norm2 = jetWeightMultiplicity["DY4JetsToLL"]/HAA_processes["DY4JetsToLL"].weights["xsec"]
-            weightfinal = weightfinal * 1/(norm1+norm2)
-        if nickname =="W1JetsToLNu":
-            norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
-            norm2 = jetWeightMultiplicity["W1JetsToLNu"]/HAA_processes["W1JetsToLNu"].weights["xsec"]
-            weightfinal = weightfinal * 1/(norm1+norm2)
-        elif nickname =="W2JetsToLNu":
-            norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
-            norm2 = jetWeightMultiplicity["W2JetsToLNu"]/HAA_processes["W2JetsToLNu"].weights["xsec"]
-            weightfinal = weightfinal * 1/(norm1+norm2)
-        elif nickname =="W3JetsToLNu":
-            norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
-            norm2 = jetWeightMultiplicity["W3JetsToLNu"]/HAA_processes["W3JetsToLNu"].weights["xsec"]
-            weightfinal = weightfinal * 1/(norm1+norm2)
-        else:
-            tempDenom=1.0
-            sumOfWeights = 1.0
-            for nic in weightHistoDict.keys():
-                if nickname==nic:
-                    sumOfWeights = weightHistoDict[nickname].GetSumOfWeights()
-                if nickname==nic.strip("_ext")[0]:
-                    sumOfWeights*=tempDenom*weightHistoDict[nic].GetSumOfWeights()
-            weightfinal = weightfinal * HAA_processes[nickname].weights["xsec"]/ sumOfWeights
-            #print "xsec/SoW ",HAA_processes[nickname].weights["xsec"]/ sumOfWeights
-
-        #multiply by scalar weight
-        masterArray["finalweight"] *= weightfinal
-        #print "finalweight before per event scaling ",masterArray["finalweight"][:100]
-
-
-        eventWeightDict = process.eventWeights
-        if eventWeightDict:
-            for scalefactor in eventWeightDict.keys():
-
-                cutlist = eventWeightDict[scalefactor][0]
-                weightMask=cutOnArray(masterArray,cutlist)
-                weightMask=weightMask.astype(float)
-
-                if type(eventWeightDict[scalefactor][1][0])==float:
-                    weightMask *= eventWeightDict[scalefactor][1][0]
-
-                if hasattr(eventWeightDict[scalefactor][1][0],'__call__'):
-                    arguments = eventWeightDict[scalefactor][1][1]
-                    tempvals=[]
-
-                    for ag in arguments:
-                       tempvals.append(returnArray(masterArray,ag))
-                    weightMask*= eventWeightDict[scalefactor][1][0](*tempvals)
-
-                if scalefactor!="fake" and scalefactor!="fake1" and scalefactor!="fake2":
-                    weightMask[np.where(weightMask==0.0)]=1.0
-                else:
-                    #print "subtracting fakes "
-                    #print weightMask[:100]
-                    pass
-
-                masterArray["finalweight"] *= weightMask
-        #print "finalweight after per event scaling ",masterArray["finalweight"][:100]
-        skipEvents = np.where(mask==0)[0]
-        skimArray={}
-        #print("before skim", len(masterArray["finalweight"]))
-        for key in masterArray.keys():
-            skimArray[key] = masterArray[key][mask]
-        #print("after skim", len(skimArray["mll"]))
-
-        for key in skimArray.keys():
-            if key not in plottedVars and key != "finalweight":
-                del skimArray[key]
-        skimArrayPerCat[cat+":"+process.nickname+":"+process.cuts.keys()[0]] = skimArray
-
-
-    return skimArrayPerCat
+#def slimskimorg(process,allcats,weightHistoDict):
+#
+#    from utils.functions import functs
+#    from utils.Weights import CommonWeights
+#    from ROOT import gInterpreter
+#    commonweight = CommonWeights["lumi"][0]
+#    fin = uproot.open(process.file)
+#    tree = fin["Events"]
+#    #print(fin)
+#    #print(tree)
+#
+#    #for cat, catInfo in allcats.iteritems():
+#    #    for variableHandle in catInfo.varis.keys():
+#    for cat in allcats.keys():
+#        masterArray = tree.arrays()
+#        #print(process)
+#        #print(process.cuts)
+#        #print(masterArray.keys())
+#        plottedVars = []
+#
+#        EventWeights = getEventWeightDicitonary()
+#
+#        newVarVals={}
+#        skimArrayPerCat = {}
+#        masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
+#
+#        for variableHandle in allcats[cat].varis.keys():
+#            variable = allcats[cat].varis[variableHandle][0]
+#            if "[" in variable:
+#                #print "adding jagged variable to array ",variable
+#                basevar = variable.split("[")[0]
+#                index = int(variable.split("[")[1].split("]")[0])
+#                val = masterArray[basevar][:,index]
+#                #masterArray[basevar+"_"+str(index)]=val
+#                #plottedVars.append(basevar+"_"+str(index))
+#                masterArray[variableHandle+"_"+str(index)]=val
+#                plottedVars.append(variableHandle+"_"+str(index))
+#            else:
+#                plottedVars.append(variableHandle)
+#
+#
+#        for var in allcats[cat].newvariables.keys():
+#            newVarVals[var]=0.0
+#
+#        cuts=[]
+#        for cuttype in allcats[cat].cuts.keys():
+#            for cut in allcats[cat].cuts[cuttype]:
+#                cuts.append(cut)
+#
+#
+#        for var in newVarVals.keys():
+#            arguments = allcats[cat].newvariables[var][2]
+#            tempvals=[]
+#            for ag in arguments:
+#                tempvals.append(returnArray(masterArray,ag))
+#            masterArray[var] = functs[allcats[cat].newvariables[var][0]](*tempvals)
+#
+#        mask = cutOnArray(masterArray,cuts)
+#        masterArray["mask"]=mask
+#        masterArray["finalweight"] *= mask.astype(int)
+#        weightfinal = 1.0   #don't weight the data!!
+#        #print "finalweight right after mask ",masterArray["finalweight"][:100]
+#
+#        weightDict = process.weights
+#        #print " weight dicitonary ? ",weightDict
+#        #print "sum of weights dicitonary ? ",weightHistoDict
+#        weightfinal = commonweight
+#        nickname = process.nickname
+#        #print "working on the process nickname ",nickname
+#        #print "sum of weights dicitonary keys ? ",weightHistoDict.keys()
+#
+#        for scalefactor in weightDict.keys():
+#            if scalefactor == "kfactor":
+#                weightfinal =  weightfinal * (1 / float(weightDict[scalefactor]))
+#            elif scalefactor in ["PU"]:
+#                masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor]))
+#            elif scalefactor =="theoryXsec":
+#                weightfinal =  weightfinal * float(weightDict[scalefactor])
+#
+#        #print "finalweight after PU and kFactor ",masterArray["finalweight"][:100]
+#
+#        if nickname =="DY1JetsToLL":
+#            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
+#            norm2 = jetWeightMultiplicity["DY1JetsToLL"]/HAA_processes["DY1JetsToLL"].weights["xsec"]
+#            weightfinal = weightfinal * 1/(norm1+norm2)
+#        if nickname =="DY2JetsToLL":
+#            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
+#            norm2 = jetWeightMultiplicity["DY2JetsToLL"]/HAA_processes["DY2JetsToLL"].weights["xsec"]
+#            weightfinal = weightfinal * 1/(norm1+norm2)
+#        if nickname =="DY3JetsToLL":
+#            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
+#            norm2 = jetWeightMultiplicity["DY3JetsToLL"]/HAA_processes["DY3JetsToLL"].weights["xsec"]
+#            weightfinal = weightfinal * 1/(norm1+norm2)
+#        if nickname =="DY4JetsToLL":
+#            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"]/HAA_processes["DYJetsToLL_ext1"].weights["xsec"]
+#            norm2 = jetWeightMultiplicity["DY4JetsToLL"]/HAA_processes["DY4JetsToLL"].weights["xsec"]
+#            weightfinal = weightfinal * 1/(norm1+norm2)
+#        if nickname =="W1JetsToLNu":
+#            norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
+#            norm2 = jetWeightMultiplicity["W1JetsToLNu"]/HAA_processes["W1JetsToLNu"].weights["xsec"]
+#            weightfinal = weightfinal * 1/(norm1+norm2)
+#        elif nickname =="W2JetsToLNu":
+#            norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
+#            norm2 = jetWeightMultiplicity["W2JetsToLNu"]/HAA_processes["W2JetsToLNu"].weights["xsec"]
+#            weightfinal = weightfinal * 1/(norm1+norm2)
+#        elif nickname =="W3JetsToLNu":
+#            norm1 = jetWeightMultiplicity["WJetsToLNu"]/HAA_processes["WJetsToLNu"].weights["xsec"]
+#            norm2 = jetWeightMultiplicity["W3JetsToLNu"]/HAA_processes["W3JetsToLNu"].weights["xsec"]
+#            weightfinal = weightfinal * 1/(norm1+norm2)
+#        else:
+#            tempDenom=1.0
+#            sumOfWeights = 1.0
+#            for nic in weightHistoDict.keys():
+#                if nickname==nic:
+#                    sumOfWeights = weightHistoDict[nickname].GetSumOfWeights()
+#                if nickname==nic.strip("_ext")[0]:
+#                    sumOfWeights*=tempDenom*weightHistoDict[nic].GetSumOfWeights()
+#            weightfinal = weightfinal * HAA_processes[nickname].weights["xsec"]/ sumOfWeights
+#        print "xsec/SoW ",HAA_processes[nickname].weights["xsec"]/ sumOfWeights
+#        
+#
+#        #multiply by scalar weight
+#        masterArray["finalweight"] *= weightfinal
+#        #print "finalweight before per event scaling ",masterArray["finalweight"][:100]
+#
+#
+#        eventWeightDict = process.eventWeights
+#        if eventWeightDict:
+#            for scalefactor in eventWeightDict.keys():
+#
+#                cutlist = eventWeightDict[scalefactor][0]
+#                weightMask=cutOnArray(masterArray,cutlist)
+#                weightMask=weightMask.astype(float)
+#
+#                if type(eventWeightDict[scalefactor][1][0])==float:
+#                    weightMask *= eventWeightDict[scalefactor][1][0]
+#
+#                if hasattr(eventWeightDict[scalefactor][1][0],'__call__'):
+#                    arguments = eventWeightDict[scalefactor][1][1]
+#                    tempvals=[]
+#
+#                    for ag in arguments:
+#                       tempvals.append(returnArray(masterArray,ag))
+#                    weightMask*= eventWeightDict[scalefactor][1][0](*tempvals)
+#
+#                if scalefactor!="fake" and scalefactor!="fake1" and scalefactor!="fake2":
+#                    weightMask[np.where(weightMask==0.0)]=1.0
+#                else:
+#                    #print "subtracting fakes "
+#                    #print weightMask[:100]
+#                    pass
+#
+#                masterArray["finalweight"] *= weightMask
+#        #print "finalweight after per event scaling ",masterArray["finalweight"][:100]
+#        skipEvents = np.where(mask==0)[0]
+#        skimArray={}
+#        #print("before skim", len(masterArray["finalweight"]))
+#        for key in masterArray.keys():
+#            skimArray[key] = masterArray[key][mask]
+#        #print("after skim", len(skimArray["mll"]))
+#
+#        for key in skimArray.keys():
+#            if key not in plottedVars and key != "finalweight":
+#                del skimArray[key]
+#        skimArrayPerCat[cat+":"+process.nickname+":"+process.cuts.keys()[0]] = skimArray
+#
+#
+#    return skimArrayPerCat
 
 def createOutput(skimmedArrays,finalDistributions):
     import root_numpy
@@ -1323,10 +1386,11 @@ def combineRootFiles(systematics, finalDistributions, rootfiledir, channel):
     #  print("now running on systematic: {}".format(sys))
       if sys == "Events":
     #     print("rootfiledir: {}".format(rootfiledir))
-         rootFiles["Nominal"] = glob.glob(rootfiledir +"/Nominal_*")
+         #rootFiles["Nominal"] = glob.glob(rootfiledir +"/Nominal_*")
+         rootFiles["Nominal"] = glob.glob(rootfiledir +"/Nominal.*")
          finalSkims["Nominal"]={}
       else:
-        rootFiles[sys] = glob.glob(rootfiledir+"/"+sys+"_*")
+        rootFiles[sys] = glob.glob(rootfiledir+"/"+sys+".*")
         finalSkims[sys]={}
 
 
@@ -1337,7 +1401,8 @@ def combineRootFiles(systematics, finalDistributions, rootfiledir, channel):
      # print("all globfiles for sys {}: {}".format(sys, globfiles))
       for globfile in globfiles:
 #         process = "".join(globfile.split('/')[-1].split("_")[:-1])
-         process = globfile.split("_")[-1]
+         #process = globfile.split("_")[-1]
+         process = globfile.split(".")[-1]
          print("file: {}, process: {}".format(globfile, process))
          with uproot.open(globfile) as fin:
             majorkey = sys + "_" + process
@@ -1352,9 +1417,9 @@ def combineRootFiles(systematics, finalDistributions, rootfiledir, channel):
             mainArrays = tree.arrays()
             #print("globfile {}".format(globfile))
             for catDist, final in finalDistributions.iteritems():
-                print("catDist: {}, final: {}".format(catDist, final))
+         #       print("catDist: {}, final: {}".format(catDist, final))
                 for processOut in final:
-                    print("processOut: {}".format(processOut))
+         #           print("processOut: {}".format(processOut))
                     if (processOut==process) and (catDist not in finalSkims[sys]):
                     #    print "first output for process ",process," finalDist cat ",catDist
                         finalSkims[sys][catDist] = mainArrays
@@ -1410,7 +1475,7 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser(description="This file generates root files containing Histograms ... files in utils contain selections and settings")
-    parser.add_argument("-o",  "--outname", default="all1",  help="postfix string")
+    parser.add_argument("-o",  "--outname", default="test42_mSSnoPU",  help="postfix string")
     parser.add_argument("-fi",  "--ffin", default="",  help="fake factor files")
     parser.add_argument("-fo",  "--ffout", default="",  help="fake factor files to output")
     parser.add_argument("-c",  "--categories", default="categories_array.yaml",  help="categories yaml file")
@@ -1462,20 +1527,24 @@ if __name__ == "__main__":
 ###############################step 0###############################################################
 #
 #    for nickname, process in HAA_processes.items():
-#        for sys in systematics:
-#            payloads.append((process,allcats,weightHistoDict,sys,tempdir))
+#        for syst in systematics:
+#            payloads.append((process,allcats,weightHistoDict,syst,tempdir))
 #
 #    #print(payloads)
 #
 #    m = mp.Manager()
 #  #  logger_q = m.Queue()
 #    #parallelable_data = [(1, logger_q), (2, logger_q)]
+#
 #    pool  = mp.Pool(12)   #12)
 #
 #    #skims = pool.map(slimskimstar,payloads)
 #
 #    pool.map(slimskimstar,payloads)#this works for root output!
 #
+#    #don't multithread
+#    #for pl in payloads:
+#    #    slimskimstar(pl)
 #
 #    pool.close()
 #    pool.join()
