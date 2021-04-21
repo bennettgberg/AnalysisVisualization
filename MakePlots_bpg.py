@@ -17,7 +17,7 @@ import root_numpy
 import sys as system
 
 def add_lumi(year):
-    lowX=0.65
+    lowX=0.60
     lowY=0.835
     lumi  = ROOT.TPaveText(lowX, lowY+0.06, lowX+0.30, lowY+0.16, "NDC")
     lumi.SetBorderSize(   0 )
@@ -154,8 +154,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="make full plots from root files containing histograms")
     #parser.add_arguement('--CategoryFiles',nargs="+",help="Select the files containing the categories for the datacards")
   #  parser.add_argument("-i",  "--input", default="skimmed_tttt.root",  help="input root file name")
-    parser.add_argument("-o",  "--output", default="test42_mSSnoPU",  help="postfix string")
-    parser.add_argument("-ch",  "--channel", default="mtmt",  help="postfix string")
+    parser.add_argument("-o",  "--output", default="test43",  help="postfix string")
+    parser.add_argument("-ch",  "--channel", default="mtet",  help="postfix string")
   #  parser.add_argument("-c",  "--categories", default="cat_tttt_2017.yaml",  help="categories yaml file")
     parser.add_argument("-csv",  "--csvfile", default="bpgMCsamples_2017_v7_yaml.csv",  help="csv file")
     parser.add_argument("-p",  "--processes", default="processes_special_mtmt.yaml",  help="processes yaml file")
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     noSig = True
 
     #maximum value to set the y-axis to (-1 to auto-set)
-    y_max = 1100 #250
+    y_max = 200 #250
 
     if sigOnly and noSig:
         print("Error: both sigOnly and noSig cannot be specified.")

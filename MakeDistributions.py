@@ -752,24 +752,45 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
 
          #   print("sow, weightfinal before _ext business: {}, {}".format(sow, weightfinal))
             #extension added to the end of the filename for extended files
-            extension = "_ext1"
+            extensions = ["_ext1", "_ext2"]
 
-            #name of the extended version of this process (if it exists)
-            extname = nickname + extension
-            if extname in weightHistoDict:
-                sow += weightHistoDict[extname].GetSumOfWeights()
+            #name without the extension at the end
+            bare_name = nickname
+            for ex,extension in enumerate(extensions):
+                #name of the extended version of this process (if it exists)
+                extname = nickname + extension
+                #name of the non-extended version of this process (if it exists)
+                nonextname = nickname.strip(extension)
+                #name of the file with the alternate extension (eg ext2 instead of ext1)
+                xtname = nonextname
+                if ex == 0:
+                    xtname += extensions[1]
+                else:
+                    xtname += extensions[0]
 
-            #name of the non-extended version of this process (if it exists)
-            nonextname = nickname.strip(extension)
-            #need to make sure we don't add weights from this file twice.
-            if nonextname != nickname and nonextname in weightHistoDict:
-                sow += weightHistoDict[nonextname].GetSumOfWeights() 
+                #add the sow from this extended version
+                if extname in weightHistoDict:
+                    sow += weightHistoDict[extname].GetSumOfWeights()
+
+                
+                #add sow from the brother extended file 
+                #but need to make sure we don't add weights from this file twice.
+                if nonextname != nickname and xtname in weightHistoDict:
+                    print("using xtname block! nickname={}, xtname={}, sow before = {}".format(nickname, xtname, sow))
+                    sow += weightHistoDict[xtname].GetSumOfWeights()
+                    print("sow after: {}".format(sow))
+                
+
+                #add sow from non-extended file.
+                if nonextname != nickname and nonextname in weightHistoDict:
+                    sow += weightHistoDict[nonextname].GetSumOfWeights() 
+                    bare_name = nonextname
 
          #   print("sow, weightfinal before special block: {}, {}".format(sow, weightfinal))
             #weightfinal array needed, because weights may be different for some events.
             wf_arr = np.full(len(masterArray["finalweight"]), 1.0)
             #special processes require special weighting.
-            if nonextname in ["DY%dJetsToLL"%(nj) for nj in range(1, 5)]:
+            if bare_name in ["DY%dJetsToLL"%(nj) for nj in range(1, 5)]:
          #       print("block 0!")
                 #norm1 is for the inclusive process DYJetsToLL. (Should already have its _ext added into its jetWeightMultiplicity.)
                 norm1 = jetWeightMultiplicity["DYJetsToLL"]/HAA_processes["DYJetsToLL"].weights["xsec"]
@@ -782,7 +803,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 weightfinal = weightfinal * 1/(norm1+norm2) 
          #       print("weightfinal after block 0: {}".format(weightfinal))
                 wf_arr *= weightfinal
-            elif nonextname in ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]:
+            elif bare_name in ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]:
          #       print("block 1!")
                 norm1 = jetWeightMultiplicity["WJetsToLNu"] / HAA_processes["WJetsToLNu"].weights["xsec"]
                 norm2 = sow / HAA_processes[nickname].weights["xsec"]
@@ -792,7 +813,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 weightfinal = weightfinal * 1/(norm1+norm2)
          #       print("weightfinal after block 1: {}".format(weightfinal))
                 wf_arr *= weightfinal
-            elif nonextname in ["DYJetsToLL", "WJetsToLNu"]:
+            elif bare_name in ["DYJetsToLL", "WJetsToLNu"]:
          #       print("block 2!")
                 #any events with 0 LHE_Njets should use normal weighting.
                 try:
@@ -806,8 +827,8 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 #events with > 0 LHE_Njets should use same weighting as the corresponding exclusive file.
                 for nj in range(1, 5):
                     masknj = masterArray["LHE_Njets"]==nj
-                    norm1 = jetWeightMultiplicity[nonextname]/HAA_processes[nonextname].weights["xsec"]
-                    njname = "DY%dJetsToLL"%nj if nonextname == "DYJetsToLL" else "W%dJetsToLNu"%nj
+                    norm1 = jetWeightMultiplicity[bare_name]/HAA_processes[bare_name].weights["xsec"]
+                    njname = "DY%dJetsToLL"%nj if bare_name == "DYJetsToLL" else "W%dJetsToLNu"%nj
                     norm2 = sow / HAA_processes[njname].weights["xsec"]
                     #norm2 also needs to be divided by the kfactor.
                     norm2 *= 1.0 / float(HAA_processes[njname].weights["kfactor"])
@@ -1475,11 +1496,11 @@ if __name__ == "__main__":
 
 
     parser = argparse.ArgumentParser(description="This file generates root files containing Histograms ... files in utils contain selections and settings")
-    parser.add_argument("-o",  "--outname", default="test42_mSSnoPU",  help="postfix string")
+    parser.add_argument("-o",  "--outname", default="test43",  help="postfix string")
     parser.add_argument("-fi",  "--ffin", default="",  help="fake factor files")
     parser.add_argument("-fo",  "--ffout", default="",  help="fake factor files to output")
     parser.add_argument("-c",  "--categories", default="categories_array.yaml",  help="categories yaml file")
-    parser.add_argument("-ch",  "--channel", default="mtmt",  help="Please list the channel for fake factor histograms")
+    parser.add_argument("-ch",  "--channel", default="mtet",  help="Please list the channel for fake factor histograms")
     parser.add_argument("-csv",  "--csvfile", default="MCsamples_2017_v7_yaml.csv",  help="categories yaml file")
     parser.add_argument("-i",  "--dir", default="/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov6_10_2_9/src/nano6_2016/",  help="Input files")
     parser.add_argument("-p",  "--processes", default="processes_special.yaml",  help="processes yaml file")
@@ -1492,8 +1513,14 @@ if __name__ == "__main__":
     parser.add_argument("-s",  "--skim", default=False,action='store_true',  help="skim input files to make more TTrees")
     parser.add_argument("-mt",  "--mt", default=False,action='store_true',  help="Use Multithreading")
     parser.add_argument("-pt",  "--maxprint", default=False,action='store_true',  help="Print Info on cats and processes")
+    parser.add_argument("-comb",  "--combineFiles", default=False, help="Combine root files mode (1) or generate root files mode (0)")
 
     args = parser.parse_args()
+
+    if args.combineFiles:
+        print("Running in combineFiles mode.")
+    else:
+        print("Running in generateFiles mode.")
     allcats={}
     HAA_processes={}
     finalDistributions={}
@@ -1524,45 +1551,48 @@ if __name__ == "__main__":
                 #   "scale_t_3prongUp","scale_t_3prongDown","scale_t_3prong1pizeroUp","scale_t_3prong1pizeroDown"]
 
     tempdir = "massOutputDir_"+args.channel+"_"+args.outname
+
+    if not args.combineFiles:
 ###############################step 0###############################################################
-#
-#    for nickname, process in HAA_processes.items():
-#        for syst in systematics:
-#            payloads.append((process,allcats,weightHistoDict,syst,tempdir))
-#
-#    #print(payloads)
-#
-#    m = mp.Manager()
-#  #  logger_q = m.Queue()
-#    #parallelable_data = [(1, logger_q), (2, logger_q)]
-#
-#    pool  = mp.Pool(12)   #12)
-#
-#    #skims = pool.map(slimskimstar,payloads)
-#
-#    pool.map(slimskimstar,payloads)#this works for root output!
-#
-#    #don't multithread
-#    #for pl in payloads:
-#    #    slimskimstar(pl)
-#
-#    pool.close()
-#    pool.join()
-#  #  while not logger_q.empty():
-#  #      print logger_q.get()
-#
-#
-#    print("ready to combine the output! (if no prior errors)")
-#    print("prior error files would show up here:")
-#    os.system("cat memErrFiles.txt")
-#    ##if createOutput(skims,finalDistributions) : print "successful output"
-#    ##else: print "ouch ..."
-#    #if createOutputSystematics(skims,finalDistributions) : print "successful output"
-#    #else: print "ouch ..."
+
+        for nickname, process in HAA_processes.items():
+            for syst in systematics:
+                payloads.append((process,allcats,weightHistoDict,syst,tempdir))
+
+        #print(payloads)
+
+        m = mp.Manager()
+      #  logger_q = m.Queue()
+        #parallelable_data = [(1, logger_q), (2, logger_q)]
+
+        pool  = mp.Pool(4)   #12)
+
+        #skims = pool.map(slimskimstar,payloads)
+
+        pool.map(slimskimstar,payloads)#this works for root output!
+
+        #don't multithread
+        #for pl in payloads:
+        #    slimskimstar(pl)
+
+        pool.close()
+        pool.join()
+      #  while not logger_q.empty():
+      #      print logger_q.get()
+
+
+        print("ready to combine the output! (if no prior errors)")
+        print("prior error files would show up here:")
+        os.system("cat memErrFiles.txt")
+        ##if createOutput(skims,finalDistributions) : print "successful output"
+        ##else: print "ouch ..."
+        #if createOutputSystematics(skims,finalDistributions) : print "successful output"
+        #else: print "ouch ..."
 #######################################################################################################
 ######################################step 1###########################################################
-    combineRootFiles(systematics, finalDistributions, tempdir, args.channel)
-    #combineRootFiles(systematics, finalDistributions, direc, args.channel)
+    else:
+        combineRootFiles(systematics, finalDistributions, tempdir, args.channel)
+        #combineRootFiles(systematics, finalDistributions, direc, args.channel)
 #######################################################################################################
 
 
