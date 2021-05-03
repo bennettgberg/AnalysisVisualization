@@ -26,7 +26,17 @@ def add_lumi(year):
     lumi.SetTextColor(    1 )
     lumi.SetTextSize(0.04)
     lumi.SetTextFont (   42 )
-    lumi.AddText(str(year)+" 35.9 fb^{-1} (13 TeV)")
+    #get correct luminosity depending on the year.
+    luminum = 35.9
+    if year == "2017":
+        print("year 2017")
+        luminum = 41.8
+    elif year == "2018":
+        luminum = 59.74
+        print("year 2016")
+    else:
+        print("year: %d"%year)
+    lumi.AddText(str(year)+" " + str(luminum) + " fb^{-1} (13 TeV)")
     return lumi
 
 def add_CMS():
@@ -165,6 +175,7 @@ if __name__ == "__main__":
     parser.add_argument("-mhs",  "--mhs", default=False,action='store_true',  help="make file containing histograms for datacards")
     parser.add_argument("-fh",  "--fh", default=False,action='store_true',  help="Make Finalized histograms")
     parser.add_argument("-ss",  "--signalScale", default=1.0,  help="Scale the Signal")
+    parser.add_argument("-y",  "--maxY", default=-1,  help="Maximum y-value to show in plots (-1 to auto-set)")
     args = parser.parse_args()
 
     ROOT.gStyle.SetFrameLineWidth(2)
@@ -182,7 +193,7 @@ if __name__ == "__main__":
     noSig = True
 
     #maximum value to set the y-axis to (-1 to auto-set)
-    y_max = 200 #250
+    y_max = int(args.maxY) #10000 #250
 
     if sigOnly and noSig:
         print("Error: both sigOnly and noSig cannot be specified.")
@@ -520,6 +531,13 @@ if __name__ == "__main__":
                 if not sigOnly:
                     hBkgTot.Draw("HIST")
                    # hBkgTot.Draw("PE")
+                #set maximum to what it should be (idk why root can't do this automatically)
+                    realmax = hBkgTot.GetMaximum()
+                    if not noSig:
+                        realmax = max(realmax, hSig.GetMaximum())
+                    if not noData:
+                        realmax = max(realmax, hData.GetMaximum())
+                    hBkgTot.SetMaximum(1.1*realmax) 
                     if y_max > -1:
                     #MUST us SetMaximum and draw a second time for ROOT's stupid fucking bitch ass to understand
                         hBkgTot.SetMaximum(y_max) 

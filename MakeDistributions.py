@@ -38,7 +38,7 @@ from utils.Parametrization import *
 #directory where all the ntuple files are stored.
 #direc = "/eos/home-s/shigginb/HAA_ntuples/2016_v7/"
 #direc = "/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov7_basic_10_6_4/src/2016_v7/"
-direc = "/eos/uscms/store/user/bgreenbe/haa_4tau_2017/all/"
+direc = "/eos/uscms/store/user/bgreenbe/haa_4tau_2017/all_mmonly/"
 
 
 #Setting up operators for cut string iterator
@@ -750,7 +750,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
             #sum of weights (will include this file + its _ext (if it exists) or its non-_ext (if this is an _ext))
             sow = weightHistoDict[nickname].GetSumOfWeights()
 
-         #   print("sow, weightfinal before _ext business: {}, {}".format(sow, weightfinal))
+            #print("sow, weightfinal before _ext business: {}, {}".format(sow, weightfinal))
             #extension added to the end of the filename for extended files
             extensions = ["_ext1", "_ext2"]
 
@@ -776,9 +776,9 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 #add sow from the brother extended file 
                 #but need to make sure we don't add weights from this file twice.
                 if nonextname != nickname and xtname in weightHistoDict:
-                    print("using xtname block! nickname={}, xtname={}, sow before = {}".format(nickname, xtname, sow))
+            #        print("using xtname block! nickname={}, xtname={}, sow before = {}".format(nickname, xtname, sow))
                     sow += weightHistoDict[xtname].GetSumOfWeights()
-                    print("sow after: {}".format(sow))
+            #        print("sow after: {}".format(sow))
                 
 
                 #add sow from non-extended file.
@@ -786,12 +786,12 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                     sow += weightHistoDict[nonextname].GetSumOfWeights() 
                     bare_name = nonextname
 
-         #   print("sow, weightfinal before special block: {}, {}".format(sow, weightfinal))
+            #print("sow, weightfinal before special block: {}, {}".format(sow, weightfinal))
             #weightfinal array needed, because weights may be different for some events.
             wf_arr = np.full(len(masterArray["finalweight"]), 1.0)
             #special processes require special weighting.
-            if bare_name in ["DY%dJetsToLL"%(nj) for nj in range(1, 5)]:
-         #       print("block 0!")
+            if bare_name in ["DY%dJetsToLL"%(nj) for nj in range(1, 5)] and "DYJetsToLL" in weightHistoDict:
+            #    print("block 0!")
                 #norm1 is for the inclusive process DYJetsToLL. (Should already have its _ext added into its jetWeightMultiplicity.)
                 norm1 = jetWeightMultiplicity["DYJetsToLL"]/HAA_processes["DYJetsToLL"].weights["xsec"]
                 #norm2 is specific to this process (sum of weights calculated just above this loop).
@@ -803,8 +803,8 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 weightfinal = weightfinal * 1/(norm1+norm2) 
          #       print("weightfinal after block 0: {}".format(weightfinal))
                 wf_arr *= weightfinal
-            elif bare_name in ["W1JetsToLNu", "W2JetsToLNu", "W3JetsToLNu", "W4JetsToLNu"]:
-         #       print("block 1!")
+            elif bare_name in ["W%dJetsToLNu"%(nj) for nj in range(1, 5)] and "WJetsToLNu" in weightHistoDict:
+                print("block 1!")
                 norm1 = jetWeightMultiplicity["WJetsToLNu"] / HAA_processes["WJetsToLNu"].weights["xsec"]
                 norm2 = sow / HAA_processes[nickname].weights["xsec"]
          #       print("norm1: {}, norm2: {}".format(norm1, norm2))
@@ -813,8 +813,8 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 weightfinal = weightfinal * 1/(norm1+norm2)
          #       print("weightfinal after block 1: {}".format(weightfinal))
                 wf_arr *= weightfinal
-            elif bare_name in ["DYJetsToLL", "WJetsToLNu"]:
-         #       print("block 2!")
+            elif bare_name in ["DYJetsToLL", "WJetsToLNu"] and "DY1JetsToLL" in weightHistoDict:
+                print("block 2!")
                 #any events with 0 LHE_Njets should use normal weighting.
                 try:
                     mask0j = masterArray["LHE_Njets"]==0
@@ -837,8 +837,9 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                     
             #non-special processes get normal weighting lumi(already in weightfinal) * xsec / sum of weights
             else:
-         #       print("block 3!")
+            #    print("block 3!")
                 weightfinal *= HAA_processes[nickname].weights["xsec"] / sow
+            #    print("weightfinal: {}".format(weightfinal))
                 wf_arr *= weightfinal
 
          #   print("first 200 final weights: {}".format(wf_arr[:min(200,len(wf_arr))]))
@@ -911,33 +912,33 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
 
 
 
-def slimskim(process,allcats,weightHistoDict,systematic):
-
-    skimArrayPerSysCats={}
-    #print "working on systematic ",systematic
-    work_dict = {}
-    #fin = uproot.open(process.file)
-    with uproot.open(process.file) as fin:
-
-        try:
-            tree = fin[systematic]
-        except:
-            return skimArrayPerSysCats
-
-        if systematic!="Events":
-            syst_names = set(fin[systematic].keys())
-            nom_names = set(fin["Events"].keys()) - syst_names
-            work_dict.update(fin[systematic].arrays(list(syst_names)))
-            work_dict.update(fin["Events"].arrays(list(nom_names)))
-            skimArrayPerSysCats.update(makeCutsOnTreeArray(process,work_dict,allcats,weightHistoDict,systematic))
-        else:
-            skimArrayPerSysCats.update(makeCutsOnTreeArray(process,tree.arrays(),allcats,weightHistoDict,"Nominal"))
-
-    del work_dict
-    print("deleted work_dict")
-    del tree
-    return skimArrayPerSysCats
-
+#def slimskim(process,allcats,weightHistoDict,systematic):
+#
+#    skimArrayPerSysCats={}
+#    #print "working on systematic ",systematic
+#    work_dict = {}
+#    #fin = uproot.open(process.file)
+#    with uproot.open(process.file) as fin:
+#
+#        try:
+#            tree = fin[systematic]
+#        except:
+#            return skimArrayPerSysCats
+#
+#        if systematic!="Events":
+#            syst_names = set(fin[systematic].keys())
+#            nom_names = set(fin["Events"].keys()) - syst_names
+#            work_dict.update(fin[systematic].arrays(list(syst_names)))
+#            work_dict.update(fin["Events"].arrays(list(nom_names)))
+#            skimArrayPerSysCats.update(makeCutsOnTreeArray(process,work_dict,allcats,weightHistoDict,systematic))
+#        else:
+#            skimArrayPerSysCats.update(makeCutsOnTreeArray(process,tree.arrays(),allcats,weightHistoDict,"Nominal"))
+#
+#    del work_dict
+#    print("deleted work_dict")
+#    del tree
+#    return skimArrayPerSysCats
+#
 
 
 #This is the one we're actually usuing!!!!!!!!!!
