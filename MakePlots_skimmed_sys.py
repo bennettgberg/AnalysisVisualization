@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import ROOT
+ROOT.gErrorIgnoreLevel = ROOT.kFatal
 import re
 import math
 from array import array
@@ -158,6 +159,10 @@ if __name__ == "__main__":
     from utils.Parametrization import Process
     import argparse
 
+    #python MakePlots_skimmed_sys.py -i skimmed_mmmt.root -o sys_mmmt -ch mmmt -csv MCsamples_2016_v7.csv -c cat_mmmt_2016.yaml -nr -p processes_special_mmmt.yaml -mc
+    #nohup python MakePlots_skimmed_sys.py -i skimmed_mmet.root -o sys_mmet -nr -mc -ch mmet -p processes_special_mmet.yaml -c cat_mmet_2016.yaml -csv MCsamples_2016_v7.csv > sys_mmet.out &
+
+
     parser = argparse.ArgumentParser(description="make full plots from root files containing histograms")
     #parser.add_arguement('--CategoryFiles',nargs="+",help="Select the files containing the categories for the datacards")
     parser.add_argument("-i",  "--input", default="",  help="postfix string from previous MakeDataCard step")
@@ -172,6 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("-mc",  "--mc", default=False,action='store_true',  help="Use only mc skip data")
     parser.add_argument("-mhs",  "--mhs", default=False,action='store_true',  help="make file containing histograms for datacards")
     parser.add_argument("-fh",  "--fh", default=False,action='store_true',  help="Make Finalized histograms")
+    parser.add_argument("-de",  "--drawerror", default=False,action='store_true',  help="Draw Error Bars")
     parser.add_argument("-ss",  "--signalScale", default=1.0,  help="Scale the Signal")
     args = parser.parse_args()
 
@@ -207,7 +213,6 @@ if __name__ == "__main__":
     newvars=[]
     variabledic={}
 
-    #for newvar in  HAA_Inc_mmmt.newvariables.keys():
     for newvar in  allcats[args.channel+"_inclusive"].newvariables:
         newvars.append([newvar])
         variabledic[newvar]=[newvar,allcats[args.channel+"_inclusive"].newvariables[newvar][1],allcats[args.channel+"_inclusive"].newvariables[newvar][3],allcats[args.channel+"_inclusive"].newvariables[newvar][4]]
@@ -227,48 +232,54 @@ if __name__ == "__main__":
     finalhists = {}
     processes = []
     histodict = {}
-    dists = fin.keys()
-    cats = [args.channel+"_inclusive"]
-    #vars = allcats[cats[0]].vars.keys()
+    #cats = [args.channel+"_inclusive"]
+    #vars = allcats[cat].vars.keys()
     vars = {}
     passvars = []
 
-    cat = cats[0]
-    for variableHandle in allcats[cat].vars.keys():
-        variable = allcats[cat].vars[variableHandle][0]
-        if "[" in variable:
-            #print "adding jagged variable to array ",variable
-            basevar = variable.split("[")[0]
-            index = int(variable.split("[")[1].split("]")[0])
-            #val = masterArray[basevar][:,index]
-            #masterArray[basevar+"_"+str(index)]=val
-            #plottedVars.append(basevar+"_"+str(index))
-            #masterArray[variableHandle+"_"+str(index)]=val
-            #vars.append(variableHandle+"_"+str(index))
-            vars[variableHandle] = variableHandle+"_"+str(index)
-        else:
-            vars[variableHandle] = variableHandle
-    for newvar in allcats[cats[0]].newvariables.keys():
-        #vars.append(newvar)
-        vars[newvar]=newvar
+    for cat in allcats.keys():
+        print "working on cat",cat
+        #cat = cat
+        vars[cat]={}
+        for variableHandle in allcats[cat].vars.keys():
+            variable = allcats[cat].vars[variableHandle][0]
+            if "[" in variable:
+                #print "adding jagged variable to array ",variable
+                basevar = variable.split("[")[0]
+                index = int(variable.split("[")[1].split("]")[0])
+                #val = masterArray[basevar][:,index]
+                #masterArray[basevar+"_"+str(index)]=val
+                #plottedVars.append(basevar+"_"+str(index))
+                #masterArray[variableHandle+"_"+str(index)]=val
+                #vars.append(variableHandle+"_"+str(index))
+                vars[cat][variableHandle] = variableHandle+"_"+str(index)
+            else:
+                vars[cat][variableHandle] = variableHandle
+        for newvar in allcats[cat].newvariables.keys():
+            #vars.append(newvar)
+            vars[cat][newvar]=newvar
 
 
-    #for ivar,var in enumerate(cat.vars.keys()):
-    #for dist in fin.GetListOfKeys():
-    systematics = ["Nominal"] #,"scale_m_etalt1p2Up"]
-    for sys in systematics:
-        histodict[sys]={}
-        for distLong in dists:
-            dist = distLong.split(";")[0]
-            #distribution = dist.ReadObj()  #The TTree
-            tree = fin[dist]
-            masterArray = tree.arrays()
-            histodict[sys][dist]={}
-            for cat in cats:
-                histodict[sys][dist][cat]={}
-                for variableHandle,nobrackets in vars.iteritems():
+        #for ivar,var in enumerate(cat.vars.keys()):
+        #for dist in fin.GetListOfKeys():
+        systematics = ["Nominal"]
+        #systematics =[ "Nominal","scale_eUp","scale_eDown","scale_m_etalt1p2Up","scale_m_etalt1p2Down","scale_m_eta1p2to2p1Up","scale_m_eta1p2to2p1Down","scale_m_etagt2p1Up","scale_m_etagt2p1Down","scale_t_1prongUp","scale_t_1prongDown","scale_t_1prong1pizeroUp","scale_t_1prong1pizeroDown","scale_t_3prongUp","scale_t_3prongDown","scale_t_3prong1pizeroUp","scale_t_3prong1pizeroDown"]
+    for cat in allcats.keys():
+        histodict[cat]={}
+        for sys in systematics:
+            histodict[cat][sys]={}
+            dists = fin[cat].keys()
+            for distLong in dists:
+                dist = distLong.split(";")[0]
+                #distribution = dist.ReadObj()  #The TTree
+                tree = fin[cat][dist]
+                masterArray = tree.arrays()
+                histodict[cat][sys][dist]={}
+                #for cat in cats:
+                #histodict[cat][sys][dist][cat]={}
+                for variableHandle,nobrackets in vars[cat].iteritems():
                     print variableHandle,nobrackets
-                    if variableHandle in allcats[cats[0]].newvariables.keys():
+                    if variableHandle in allcats[cat].newvariables.keys():
                         var = variableHandle
                         bins = allcats[cat].newvariables[variableHandle][1]
                     else:
@@ -285,62 +296,64 @@ if __name__ == "__main__":
                         #var = allcats[cat].vars[variableHandle][0]
                         bins = allcats[cat].vars[variableHandle][1]
                     if type(bins[0])==list:
-                        histodict[sys][dist][cat][variableHandle] = ROOT.TH1D(str(dist),str(dist),bins[0][0],bins[0][1],bins[0][2])
+                        histodict[cat][sys][dist][variableHandle] = ROOT.TH1D(str(dist),str(dist),bins[0][0],bins[0][1],bins[0][2])
                         #val = masterArray[var]
-                        #root_numpy.fill_hist(histodict[sys][dist][cat][variableHandle],val,masterArray["finalweight"])
+                        #root_numpy.fill_hist(histodict[cat][sys][dist][cat][variableHandle],val,masterArray["finalweight"])
                         #passvars.append(var)
                         try:
                             val = masterArray[var]
-                            root_numpy.fill_hist(histodict[sys][dist][cat][variableHandle],val,masterArray["finalweight"])
+                            root_numpy.fill_hist(histodict[cat][sys][dist][variableHandle],val,masterArray["finalweight"])
                             passvars.append(var)
                         except:
                             print "problem with variable so skipping ",var
                             continue
                     else:
                         tmpbin = np.asarray(bins)
-                        histodict[sys][dist][cat][variableHandle] = ROOT.TH1D(str(dist),str(dist),len(tmpbin)-1,tmpbin)
+                        histodict[cat][sys][dist][variableHandle] = ROOT.TH1D(str(dist),str(dist),len(tmpbin)-1,tmpbin)
                         #val = masterArray[var]
-                        #root_numpy.fill_hist(histodict[sys][dist][cat][variableHandle],val,masterArray["finalweight"])
+                        #root_numpy.fill_hist(histodict[cat][sys][dist][cat][variableHandle],val,masterArray["finalweight"])
                         #passvars.append(var)
                         try:
                             val = masterArray[var]
-                            root_numpy.fill_hist(histodict[sys][dist][cat][variableHandle],val,masterArray["finalweight"])
+                            root_numpy.fill_hist(histodict[cat][sys][dist][variableHandle],val,masterArray["finalweight"])
                             passvars.append(var)
                         except:
                             print "problem with variable so skipping ",var
                             continue
-                    #histodict[sys][variablehandle+":"+allcats[cat].name+":"+dist] = root.TH1D(str(process),str(process),bins[0][0],bins[0][1],bins[0][2])
-                    #root_numpy.fill_hist(histodict[variablehandle+":"+allcats[cat].name+":"+dist],val,masterArray["finalweight"])
+                    #histodict[cat][sys][variablehandle+":"+allcats[cat].name+":"+dist] = root.TH1D(str(process),str(process),bins[0][0],bins[0][1],bins[0][2])
+                        #root_numpy.fill_hist(histodict[variablehandle+":"+allcats[cat].name+":"+dist],val,masterArray["finalweight"])
 
 
 
     #for varCatDist in histodict.keys():
+    print "histodict keys",histodict.keys()
+
 
     #var is now the variable handle
-    for sys in systematics:
-        try:
-            os.mkdir("outplots_"+args.output+"_"+sys)
-        except:
-            print "dir prob exists"
+    for cat in allcats.keys():
+        for sys in systematics:
+            try:
+                os.mkdir("outplots_"+args.output+"_"+sys)
+            except:
+                print "dir prob exists"
 
-        #for var in passvars:
-        for var,nobrackets in vars.iteritems():
-            if args.mc:
-                if var=="AMass":
-                    fileout = open("outplots_"+args.output+"_"+sys+"/"+str(allcats[cats[0]].name)+"_info.txt","w")
-                    fileout.write("Working on category "+allcats[cats[0]].name+"\n")
-            else:
-                if var=="AMass_blinded":
-                    fileout = open("outplots_"+args.output+"_"+sys+"/"+str(allcats[cats[0]].name)+"_info.txt","w")
-                    fileout.write("Working on category "+allcats[cats[0]].name+"\n")
-                #if var in ["AMass","mll_m15","mll_m20","mll_m25","mll_m30","mll_m35","mll_m40","mll_m45","mll_m50","mll_m55","mll_m60"]:
-                #    continue
+            #for var in passvars:
+            for var,nobrackets in vars[cat].iteritems():
+                if args.mc:
+                    if var=="AMass":
+                        fileout = open("outplots_"+args.output+"_"+sys+"/"+str(allcats[cat].name)+"_info.txt","w")
+                        fileout.write("Working on category "+allcats[cat].name+"\n")
+                else:
+                    if var=="AMass_blinded":
+                        fileout = open("outplots_"+args.output+"_"+sys+"/"+str(allcats[cat].name)+"_info.txt","w")
+                        fileout.write("Working on category "+allcats[cat].name+"\n")
+                    #if var in ["AMass","mll_m15","mll_m20","mll_m25","mll_m30","mll_m35","mll_m40","mll_m45","mll_m50","mll_m55","mll_m60"]:
+                    #    continue
 
-
-            for cat in cats:
                 #signal
-                if not (histodict[sys][sys+"_"+"a40"][cat][var]): continue
-                hSignal = histodict[sys][sys+"_"+"a40"][cat][var]
+                print "sys ",sys," dist ",dist,"  cat  ",cat,"  var ",var
+                if not (histodict[cat][sys][sys+"_"+"a40"][var]): continue
+                hSignal = histodict[cat][sys][sys+"_"+"a40"][var]
                 hSignals={}
 
                 hDataDict={}
@@ -354,10 +367,10 @@ if __name__ == "__main__":
                 hrareBackground = ROOT.TH1F()
                 h3alphBackground = ROOT.TH1F()
 
-                hBackground = histodict[sys][sys+"_"+"Bkg"][cat][var].Clone()
-                hirBackground = histodict[sys][sys+"_"+"irBkg"][cat][var].Clone()
-                h3alphBackground = histodict[sys][sys+"_"+"TrialphaBkg"][cat][var].Clone()
-                hrareBackground = histodict[sys][sys+"_"+"rareBkg"][cat][var].Clone()
+                hBackground = histodict[cat][sys][sys+"_"+"Bkg"][var].Clone()
+                hirBackground = histodict[cat][sys][sys+"_"+"irBkg"][var].Clone()
+                h3alphBackground = histodict[cat][sys][sys+"_"+"TrialphaBkg"][var].Clone()
+                hrareBackground = histodict[cat][sys][sys+"_"+"rareBkg"][var].Clone()
 
 
                 #data
@@ -390,13 +403,13 @@ if __name__ == "__main__":
                 hBkgTot.Add(h3alphBackground)
 
                 if args.datadrivenZH:
-                    hData = histodict[sys]["data_obs"][cat][var]
-                    #hPrompt = histodict[sys]["prompt"][cat][var]
-                    #hFake1 = histodict[sys]["fake1")
-                    #hFake2 = histodict[sys]["fake2")
+                    hData = histodict[cat][sys][sys+"_data_obs"][var]
+                    #hPrompt = histodict[cat][sys]["prompt"][var]
+                    #hFake1 = histodict[cat][sys]["fake1")
+                    #hFake2 = histodict[cat][sys]["fake2")
                     #hirBackground.Add(hFake1,-1)
                     #hirBackground.Add(hFake2,-1)
-                    hFF = histodict[sys]["Bkg"][cat][var]
+                    hFF = histodict[cat][sys][sys+"_Bkg"][var]
                     hFF.SetTitle("Jet faking #tau")
                     #hFF.Add(hFF2)
                     #hFF.Add(hFF12,-1)
@@ -408,7 +421,7 @@ if __name__ == "__main__":
                     hFF.SetFillColor(ROOT.TColor.GetColor("#CF8AC8"))
 
                 if not args.mc:
-                    #hData = histodict[sys]["data_obs"][cat][var].Clone()
+                    hData = histodict[cat][sys][sys+"_data_obs"][var].Clone()
                     dataMax = hData.GetMaximum()*1.35
                     dataMin = hData.GetMinimum()*1.25
                     if var in ["mll_fine"]:
@@ -436,15 +449,24 @@ if __name__ == "__main__":
 
                 if not (args.datadriven or args.datadrivenZH):
                     hbkg = hBackground.Clone()
+                    hbkgr = hBackground.Clone()
                     hBkgTot.Add(hBackground)
                 else:
                     hbkg = hFF.Clone()
+                    hbkgr = hFF.Clone()
                     hBkgTot.Add(hFF)
 
 
                 hbkg.Add(hirBackground)
                 hbkg.Add(hrareBackground)
                 hbkg.Add(h3alphBackground)
+                hbkg.SetFillStyle(3013)
+                hbkg.SetFillColor(ROOT.TColor.GetColor("#263238"))
+                hbkgr.Add(hirBackground)
+                hbkgr.Add(hrareBackground)
+                hbkgr.Add(h3alphBackground)
+                hbkgr.SetFillStyle(3013)
+                hbkgr.SetFillColor(ROOT.TColor.GetColor("#263238"))
 
 
 
@@ -561,17 +583,20 @@ if __name__ == "__main__":
                             hBkgTot.GetXaxis().SetTitle(str(variabledic[var][3])+str(variabledic[var][2]))
                             hBkgTot.GetYaxis().SetTitle("Events")
                             hSignal.Draw("HIST same axis")
+                            if args.drawerror: hbkg.Draw("same E2")
                         else:
                             hSignal.Draw("HIST")
                             hSignal.SetTitle("")
                             hSignal.GetXaxis().SetTitle(str(variabledic[var][3])+str(variabledic[var][2]))
                             hSignal.GetYaxis().SetTitle("Events")
                             hBkgTot.Draw("HIST same")
+                            if args.drawerror: hbkg.Draw("same E2")
                     else:
                         hData.Draw("ep")
                         hBkgTot.Draw("HIST same")
                         hSignal.Draw("HIST same")
                         hData.Draw("ep same")
+                        if args.drawerror: hbkg.Draw("same E2")
                 else:
                     if(hBkgTot.GetMaximum() > hSignal.GetMaximum()):
                         hBkgTot.Draw("HIST")
@@ -579,12 +604,14 @@ if __name__ == "__main__":
                         hBkgTot.GetXaxis().SetTitle(str(variabledic[var][3])+str(variabledic[var][2]))
                         hBkgTot.GetYaxis().SetTitle("Events")
                         hSignal.Draw("HIST same")
+                        if args.drawerror: hbkg.Draw("same E2")
                     else:
                         hSignal.SetTitle("")
                         hSignal.Draw("HIST")
                         hSignal.GetXaxis().SetTitle(str(variabledic[var][3])+str(variabledic[var][2]))
                         hSignal.GetYaxis().SetTitle("Events")
                         hBkgTot.Draw("HIST same")
+                        if args.drawerror: hbkg.Draw("same E2")
                 #hBackground.Draw("same")
                 #hirBackground.Draw("same")
                 #for hist in histolist:
@@ -602,6 +629,7 @@ if __name__ == "__main__":
                         pad2.Draw()
                         pad2.cd()
                         hData2.Divide(hbkg)
+                        hbkgr.Divide(hbkgr)
                         hData2.SetMarkerStyle(20)
                         hData2.SetTitleSize  (0.12,"Y")
                         hData2.SetTitleOffset(0.40,"Y")
@@ -614,7 +642,7 @@ if __name__ == "__main__":
                         hData2.GetYaxis().SetTitle("Obs/Exp   ")
                         if var in ["mll_m40","mll","mll_fine","mll_fit0","mll_fit1","mll_fit2","mll_fit3"]:
                             hSignal2=hSignal.Clone()
-                            #hSignal2.Divide(hbkg)
+                            #hSignal2.Divide(hbkgr)
                             #hSignal2.SetMarkerStyle(20)
                             hSignal2.SetTitleSize  (0.12,"Y")
                             hSignal2.SetTitleOffset(0.40,"Y")
@@ -626,15 +654,18 @@ if __name__ == "__main__":
                             hSignal2.GetYaxis().SetNdivisions(305)
                             hSignal2.GetYaxis().SetTitle("Signal   ")
                             hSignal2.Draw("P")
+                            if args.drawerror: hSignal2.Draw("P E2")
                         else:
                             hData2.Draw("P");
+                            #if args.drawerror: hData2.Draw("P E2")
+                            if args.drawerror: hbkgr.Draw("E2 same")
                         pad2.Draw()
-                        hData2.Delete()
+                        #hData2.Delete()
                     else:
                         hSignal2=hSignal.Clone()
                         pad2.Draw()
                         pad2.cd()
-                        hSignal2.Divide(hbkg)
+                        hSignal2.Divide(hbkgr)
                         hSignal2.SetMarkerStyle(20)
                         hSignal2.SetTitleSize  (0.12,"Y")
                         hSignal2.SetTitleOffset(0.40,"Y")
@@ -647,33 +678,34 @@ if __name__ == "__main__":
                         hSignal2.GetYaxis().SetTitle("Sig/Bkg   ")
                         hSignal2.Draw("P");
                         pad2.Draw()
-                        hSignal2.Delete()
+                        #hSignal2.Delete()
 
                 #print "with cuts ",allcats[cati].cuts
                 #print "data entries ",hData.GetEntries()
                 #print "background entries ",hBackground.GetEntries()
                 if args.mc:
                     if var=="AMass":
-                        for key in allcats[cats[0]].cuts.keys():
-                            for cut in allcats[cats[0]].cuts[key]:
+                        for key in allcats[cat].cuts.keys():
+                            for cut in allcats[cat].cuts[key]:
                                 fileout.write(str(cut))
                             fileout.write("\n")
-                        fileout.write("signal entries "+str(hSignal.Integral())+"\n")
-                        fileout.write("background entries "+str(hBackground.Integral())+"\n")
+                        fileout.write("signal entries "+str(hSignal.GetSumOfWeights())+"\n")
+                        fileout.write("background entries "+str(hBackground.GetSumOfWeights())+"\n")
                 else:
                     if var=="AMass_blinded":
-                        for key in allcats[cats[0]].cuts.keys():
-                            for cut in allcats[cats[0]].cuts[key]:
+                        for key in allcats[cat].cuts.keys():
+                            for cut in allcats[cat].cuts[key]:
                                 fileout.write(str(cut))
                             fileout.write("\n")
-                        fileout.write("data entries "+str(hData.Integral())+"\n")
-                        fileout.write("background entries "+str(hbkg.Integral())+"\n")
+                        nbins = hData.GetNbinsX()
+                        fileout.write("data entries "+str(hData.Integral(0,nbins+1))+"\n")
+                        fileout.write("background entries "+str(hbkg.Integral(0,nbins+1))+"\n")
 
                 if args.mhs:
                     if var in ["mll_m40","mll","mll_fine","mll_fit0","mll_fit1","mll_fit2","mll_fit3"]:
-                        histoout = ROOT.TFile.Open("final_"+str(cats[0])+"_"+str(var)+".root","recreate")
-                        histoout.mkdir(str(cats[0]))
-                        histoout.cd(str(cats[0]))
+                        histoout = ROOT.TFile.Open("final_"+str(cat)+"_"+str(var)+".root","recreate")
+                        histoout.mkdir(str(cat))
+                        histoout.cd(str(cat))
                         if args.mc:
                             hBackground.Write(hBackground.GetName(),ROOT.TObject.kOverwrite)
                         else:
@@ -686,7 +718,7 @@ if __name__ == "__main__":
                         hSignal.Write(hSignal.GetName(),ROOT.TObject.kOverwrite)
                         histoout.Close()
 
-                c.SaveAs("outplots_"+args.output+"_"+sys+"/"+var+"_"+str(cats[0])+".png")
+                c.SaveAs("outplots_"+args.output+"_"+sys+"/"+var+"_"+str(cat)+".png")
 
                 hBackground.Delete()
                 hirBackground.Delete()
