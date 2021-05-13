@@ -38,7 +38,7 @@ from utils.Parametrization import *
 #directory where all the ntuple files are stored.
 #direc = "/eos/home-s/shigginb/HAA_ntuples/2016_v7/"
 #direc = "/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov7_basic_10_6_4/src/2016_v7/"
-direc = "/eos/uscms/store/user/bgreenbe/haa_4tau_2017/all_mmonly/"
+direc = "/eos/uscms/store/user/bgreenbe/haa_4tau_2017/all/"    #_mmonly/"
 
 
 #Setting up operators for cut string iterator
@@ -519,7 +519,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 else:
                     plottedVars.append(variableHandle)
 
-            print("newvariables now")
+        #    print("newvariables now")
 
             for var in allcats[cat].newvariables.keys():
                 newVarVals[var]=0.0
@@ -554,7 +554,8 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                     continue
             print("after skim", len(skimArray["mll"]), process.file)
             if len(skimArray["mll"])==0:
-                continue
+                #continue
+                print("Warning: length of skim array for data is 0.")
 
             for key in skimArray.keys():
                 if key not in plottedVars and key != "finalweight":
@@ -804,7 +805,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
          #       print("weightfinal after block 0: {}".format(weightfinal))
                 wf_arr *= weightfinal
             elif bare_name in ["W%dJetsToLNu"%(nj) for nj in range(1, 5)] and "WJetsToLNu" in weightHistoDict:
-                print("block 1!")
+          #      print("block 1!")
                 norm1 = jetWeightMultiplicity["WJetsToLNu"] / HAA_processes["WJetsToLNu"].weights["xsec"]
                 norm2 = sow / HAA_processes[nickname].weights["xsec"]
          #       print("norm1: {}, norm2: {}".format(norm1, norm2))
@@ -814,7 +815,7 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
          #       print("weightfinal after block 1: {}".format(weightfinal))
                 wf_arr *= weightfinal
             elif bare_name in ["DYJetsToLL", "WJetsToLNu"] and "DY1JetsToLL" in weightHistoDict:
-                print("block 2!")
+          #      print("block 2!")
                 #any events with 0 LHE_Njets should use normal weighting.
                 try:
                     mask0j = masterArray["LHE_Njets"]==0

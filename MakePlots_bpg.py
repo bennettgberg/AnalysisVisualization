@@ -584,4 +584,4 @@ if __name__ == "__main__":
                 except:
                     print("Error: could not save {}".format(fname))
 
-                hirBackground.Delete()
+                #hirBackground.Delete()

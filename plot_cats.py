@@ -3,19 +3,22 @@
 # run MakeDistributions 3 times to get skimmed root files, then run MakePlots.
 
 import os, sys
-import tauFun as tf
+import tauFun2 as tf
 
 #test name
-testn = "test56"
+testn = "test61"
 
-for cat in ['mmet', 'mmem']:  #'mtet' 'mtem'
 
+
+def makeCatFiles(cat):
     #get category number
     catn = tf.catToNumber(cat)
     print( "catn is %s"%(cat) )
 
     #make processes_special file
-    os.system("cp  processes_special_mmtt.yaml processes_special_%s.yaml"%(cat))
+    if not os.path.exists("processes_special_%s.yaml"%cat):
+        os.system("cp  processes_special_mmtt.yaml processes_special_%s.yaml"%(cat))
+    #if it's not already there
 
     #make new category yaml file.
     os.system( "sed \"s/xxxx/%s/\" cat_xxxx_2017.yaml > tmp.txt"%(cat))
@@ -57,17 +60,21 @@ for cat in ['mmet', 'mmem']:  #'mtet' 'mtem'
             ccline += ",\[\\\"iso_%d\\\",\\\"<\\\",%f\]"%(i+1, iso)
                     
         elif ptype == 't':
-            ccline += "\[\\\"idDeepTau2017v2p1VSjet_%d\\\",\\\">=\\\",\*ffworkingpoint\]"%(i+1)
+            for vnum,vsboi in enumerate(["jet", "e", "mu"]):
+                ccline += "\[\\\"idDeepTau2017v2p1VS%s_%d\\\",\\\">=\\\",\*ffworkingpoint\]"%(vsboi, i+1)
+                if vnum != 2:
+                    ccline += ","
 
         elif ptype == 'e':
             #em
             if cat[i+1] == 'm':
-                iso = 0.3
+                iso = 0.15 # 0.3
             #et
             elif cat[i+1] == 't':
-                iso = 0.3
+                iso = 0.15 #0.3
 
-            ccline += "\[\\\"iso_%d\\\",\\\"<\\\",%f\]"%(i+1, iso)
+            ccline += "\[\\\"iso_%d\\\",\\\"<\\\",%f\],"%(i+1, iso)
+            ccline += "\[\\\"Electron_mvaFall17V2noIso_WP90_%d\\\",\\\">\\\",%f\]"%(i+1, 0.5)
 
         if i == 3:
             ccline += "\]"
@@ -77,6 +84,7 @@ for cat in ['mmet', 'mmem']:  #'mtet' 'mtem'
                
     print("new category files written!")
 
+def runTest(cat):
     #run MakeDistributions twice (separated to avoid MemoryError).
     os.system("cp mcsamples_0_2017.csv bpgMCsamples_2017_v7.csv")
     os.system("python MakeDistributions.py -o %s -ch %s"%(testn, cat)) 
@@ -90,3 +98,7 @@ for cat in ['mmet', 'mmem']:  #'mtet' 'mtem'
     #run MakePlots to make all the plots.
     os.system("python MakePlots_bpg.py -o %s -ch %s"%(testn, cat))
 
+
+for ct in ['emem']: # ['ttmt', 'ttet', 'ttem', 'mtmt', 'mtet', 'mtem', 'etet', 'etem', 'emem']:    #'mmtt']: #'mmet', 'mmem']:  #'mtet' 'mtem'
+    #makeCatFiles(ct)
+    runTest(ct)

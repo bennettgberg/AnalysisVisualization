@@ -62,8 +62,13 @@ def subArrayLogic(evt,array):
 #        val = masterArray[variable]
 #    return val
 def returnArray(masterArray,variable):
+    #print("inside returnArray!")
     if variable in ["njets","jpt_1","jeta_1","jpt_2","jeta_2","bpt_1","bpt_2","nbtag","beta_1","beta_2"]:
-        val = masterArray[variable][:,0]
+        #print("variable: {}".format(variable))
+        #print("masterArray of this variable: {}".format(masterArray[variable]))
+        #print("masterArray of evt: {}".format(masterArray["evt"]))
+        val = masterArray[variable] #[:,0] #??? why [:,0]???????????????
+        #print("val made.")
     else:
         val = masterArray[variable]
     return val
@@ -71,6 +76,7 @@ def returnArray(masterArray,variable):
 #create mask for all the events that do or don't pass cuts
 def cutOnArray(masterArray,cuts):
 
+    #print("inside cutOnArray!!")
     mask=np.full(len(masterArray["evt"]),True)
 
     i = 0
@@ -114,17 +120,23 @@ def cutOnArray(masterArray,cuts):
         #    mask *= tempmask.astype(bool)
         #    continue
         if cut[0][0]=="OR":
+            #print("OR cut!!")
             tempmasks=[]
             tempmask=np.full(len(masterArray["evt"]),False)
+            #print("tempmask made!!!")
             for oe in range(1,len(cut)):
                 oneor = ops[cut[oe][1]](returnArray(masterArray,cut[oe][0]),cut[oe][2])
+                #print("oneor made! oe={}".format(oe))
                 #tempmask = ops["bor"](tempmask,oneor).astype(bool)
                 tempmask = (tempmask + oneor).astype(bool)
+            #print("boutta multiply mask in OR")
             mask *= tempmask.astype(bool)
+            #print("multiplied mask in OR!!")
             continue
 
         else:
             statement = cut[1]
+            #print("statement: {}".format(statement))
             if statement=="absg": # lessthan OR greater than
                 tempmask = ops["<"](returnArray(masterArray,cut[0]),(-1 * cut[2]))
                 tempmask2= ops[">"](returnArray(masterArray,cut[0]),cut[2])
@@ -134,6 +146,7 @@ def cutOnArray(masterArray,cuts):
                 tempmask *= ops["<"](returnArray(masterArray,cut[0]),cut[2])
             else:
                 tempmask = ops[statement](returnArray(masterArray,cut[0]),cut[2])
+                #print("tempmask made.")
             mask *= tempmask.astype(bool)
         # if mask.all()==False:
         #     print "cut that made it false ",cuts[i]
@@ -141,6 +154,7 @@ def cutOnArray(masterArray,cuts):
         # i=i+1
 
 
+    #print("exiting cutOnArray.")
     return mask
 
 
@@ -161,81 +175,81 @@ def getEventWeightDicitonary():
     tauIDSF = TauIDSFTool('2016Legacy','DeepTau2017v2p1VSjet','Medium').getSFvsPT
 
 
-    EventWeights={
+    EventWeights={   } #bpg: commented out whole thing (no systematics yet).
         #"name":[[if statements],[weight to apply]]
-        "3_mt_lt0p4":   [[["cat","==",6],["decayMode_3","==",0],["eta_3","<",0.4]],[0.80]],
-        "3_mj_lt0p4":   [[["cat","==",6],["decayMode_3","==",0],["eta_3","<",0.4]],[1.21]],
-        "3_mt_0p4to0p8":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.4],["eta_3","<",0.8]],[0.81]],
-        "3_mj_0p4to0p8":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.4],["eta_3","<",0.8]],[1.11]],
-        "3_mt_0p8to1p2":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.8],["eta_3","<",1.2]],[0.79]],
-        "3_mj_0p8to1p2":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.8],["eta_3","<",1.2]],[1.2]],
-        "3_mt_1p2to1p7":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.2],["eta_3","<",1.7]],[0.68]],
-        "3_mj_1p2to1p7":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.2],["eta_3","<",1.7]],[1.16]],
-        "3_mt_1p7to2p3":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.7],["eta_3","<",2.3]],[0.68]],
-        "3_mj_1p7to2p3":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.7],["eta_3","<",2.3]],[2.25]],
-
-        "4_mt_lt0p4":   [[["cat","==",6],["decayMode_4","==",0],["eta_4","<",0.4]],[0.80]],
-        "4_mj_lt0p4":   [[["cat","==",6],["decayMode_4","==",0],["eta_4","<",0.4]],[1.21]],
-        "4_mt_0p4to0p8":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[0.81]],
-        "4_mj_0p4to0p8":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[1.11]],
-        "4_mt_0p8to1p2":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[0.79]],
-        "4_mj_0p8to1p2":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[1.2]],
-        "4_mt_1p2to1p7":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[0.68]],
-        "4_mj_1p2to1p7":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[1.16]],
-        "4_mt_1p7to2.3":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[0.68]],
-        "4_mj_1p7to2.3":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[2.25]],
-
-        "3_et_lt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3","<",1.479]],[0.80]],
-        "3_ej_lt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3","<",1.479]],[1.18]],
-        "3_et_gt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3",">",1.479]],[0.72]],
-        "3_ej_gt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3",">",1.479]],[0.93]],
-        "3_et_lt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3","<",1.479]],[1.14]],
-        "3_ej_lt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3","<",1.479]],[1.18]],
-        "3_et_gt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3",">",1.479]],[0.64]],
-        "3_ej_gt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3",">",1.479]],[1.07]],
-
-        "4_et_lt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4","<",1.479]],[0.80]],
-        "4_ej_lt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4","<",1.479]],[1.18]],
-        "4_et_gt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4",">",1.479]],[0.72]],
-        "4_ej_gt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4",">",1.479]],[0.93]],
-        "4_et_lt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4","<",1.479]],[1.14]],
-        "4_ej_lt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4","<",1.479]],[1.18]],
-        "4_et_gt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4",">",1.479]],[0.64]],
-        "4_ej_gt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4",">",1.479]],[1.07]],
-
-        "8_3_et_lt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3","<",1.479]],[0.80]],
-        "8_3_ej_lt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3","<",1.479]],[1.18]],
-        "8_3_et_gt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3",">",1.479]],[0.72]],
-        "8_3_ej_gt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3",">",1.479]],[0.93]],
-        "8_3_et_lt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3","<",1.479]],[1.14]],
-        "8_3_ej_lt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3","<",1.479]],[1.18]],
-        "8_3_et_gt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3",">",1.479]],[0.64]],
-        "8_3_ej_gt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3",">",1.479]],[1.07]],
-
-        "8_4_mt_lt0p4":   [[["cat","==",8],["decayMode_4","==",0],["eta_4","<",0.4]],[0.80]],
-        "8_4_mj_lt0p4":   [[["cat","==",8],["decayMode_4","==",0],["eta_4","<",0.4]],[1.21]],
-        "8_4_mt_0p4to0p8":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[0.81]],
-        "8_4_mj_0p4to0p8":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[1.11]],
-        "8_4_mt_0p8to1p2":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[0.79]],
-        "8_4_mj_0p8to1p2":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[1.2]],
-        "8_4_mt_1p2to1p7":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[0.68]],
-        "8_4_mj_1p2to1p7":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[1.16]],
-        "8_4_mt_1p7to2.3":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[0.68]],
-        "8_4_mj_1p7to2.3":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[2.25]],
-
-        #bound method ... last input list is func parameters! so this uses the tauIDSF function
-        "3_tauSF_8":[[["cat","==",8],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
-        "4_tauSF_8":[[["cat","==",8],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]],
-        "3_tauSF_7":[[["cat","==",7],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
-        "4_tauSF_7":[[["cat","==",7],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]],
-        "3_tauSF_6":[[["cat","==",6],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
-        "4_tauSF_6":[[["cat","==",6],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]],
-        "3_tauSF_5":[[["cat","==",5],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
-        "4_tauSF_5":[[["cat","==",5],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]]
-
-        #recoil corrections? not affecting current fit variable
-        #"recoilcorr2":[[["cat","==",6],["njets","==",2]],[recoilCorrector,["met_x","met_y","gen_match_3"]]],
-    }
+#        "3_mt_lt0p4":   [[["cat","==",6],["decayMode_3","==",0],["eta_3","<",0.4]],[0.80]],
+#        "3_mj_lt0p4":   [[["cat","==",6],["decayMode_3","==",0],["eta_3","<",0.4]],[1.21]],
+#        "3_mt_0p4to0p8":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.4],["eta_3","<",0.8]],[0.81]],
+#        "3_mj_0p4to0p8":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.4],["eta_3","<",0.8]],[1.11]],
+#        "3_mt_0p8to1p2":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.8],["eta_3","<",1.2]],[0.79]],
+#        "3_mj_0p8to1p2":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",0.8],["eta_3","<",1.2]],[1.2]],
+#        "3_mt_1p2to1p7":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.2],["eta_3","<",1.7]],[0.68]],
+#        "3_mj_1p2to1p7":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.2],["eta_3","<",1.7]],[1.16]],
+#        "3_mt_1p7to2p3":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.7],["eta_3","<",2.3]],[0.68]],
+#        "3_mj_1p7to2p3":[[["cat","==",6],["decayMode_3","==",0],["eta_3",">",1.7],["eta_3","<",2.3]],[2.25]],
+#
+#        "4_mt_lt0p4":   [[["cat","==",6],["decayMode_4","==",0],["eta_4","<",0.4]],[0.80]],
+#        "4_mj_lt0p4":   [[["cat","==",6],["decayMode_4","==",0],["eta_4","<",0.4]],[1.21]],
+#        "4_mt_0p4to0p8":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[0.81]],
+#        "4_mj_0p4to0p8":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[1.11]],
+#        "4_mt_0p8to1p2":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[0.79]],
+#        "4_mj_0p8to1p2":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[1.2]],
+#        "4_mt_1p2to1p7":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[0.68]],
+#        "4_mj_1p2to1p7":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[1.16]],
+#        "4_mt_1p7to2.3":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[0.68]],
+#        "4_mj_1p7to2.3":[[["cat","==",6],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[2.25]],
+#
+#        "3_et_lt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3","<",1.479]],[0.80]],
+#        "3_ej_lt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3","<",1.479]],[1.18]],
+#        "3_et_gt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3",">",1.479]],[0.72]],
+#        "3_ej_gt1p479_DM0":[[["cat","==",5],["decayMode_3","==",0],["eta_3",">",1.479]],[0.93]],
+#        "3_et_lt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3","<",1.479]],[1.14]],
+#        "3_ej_lt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3","<",1.479]],[1.18]],
+#        "3_et_gt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3",">",1.479]],[0.64]],
+#        "3_ej_gt1p479_DM1":[[["cat","==",5],["decayMode_3","==",1],["eta_3",">",1.479]],[1.07]],
+#
+#        "4_et_lt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4","<",1.479]],[0.80]],
+#        "4_ej_lt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4","<",1.479]],[1.18]],
+#        "4_et_gt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4",">",1.479]],[0.72]],
+#        "4_ej_gt1p479_DM0":[[["cat","==",5],["decayMode_4","==",0],["eta_4",">",1.479]],[0.93]],
+#        "4_et_lt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4","<",1.479]],[1.14]],
+#        "4_ej_lt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4","<",1.479]],[1.18]],
+#        "4_et_gt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4",">",1.479]],[0.64]],
+#        "4_ej_gt1p479_DM1":[[["cat","==",5],["decayMode_4","==",1],["eta_4",">",1.479]],[1.07]],
+#
+#        "8_3_et_lt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3","<",1.479]],[0.80]],
+#        "8_3_ej_lt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3","<",1.479]],[1.18]],
+#        "8_3_et_gt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3",">",1.479]],[0.72]],
+#        "8_3_ej_gt1p479_DM0":[[["cat","==",8],["decayMode_3","==",0],["eta_3",">",1.479]],[0.93]],
+#        "8_3_et_lt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3","<",1.479]],[1.14]],
+#        "8_3_ej_lt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3","<",1.479]],[1.18]],
+#        "8_3_et_gt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3",">",1.479]],[0.64]],
+#        "8_3_ej_gt1p479_DM1":[[["cat","==",8],["decayMode_3","==",1],["eta_3",">",1.479]],[1.07]],
+#
+#        "8_4_mt_lt0p4":   [[["cat","==",8],["decayMode_4","==",0],["eta_4","<",0.4]],[0.80]],
+#        "8_4_mj_lt0p4":   [[["cat","==",8],["decayMode_4","==",0],["eta_4","<",0.4]],[1.21]],
+#        "8_4_mt_0p4to0p8":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[0.81]],
+#        "8_4_mj_0p4to0p8":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.4],["eta_4","<",0.8]],[1.11]],
+#        "8_4_mt_0p8to1p2":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[0.79]],
+#        "8_4_mj_0p8to1p2":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",0.8],["eta_4","<",1.2]],[1.2]],
+#        "8_4_mt_1p2to1p7":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[0.68]],
+#        "8_4_mj_1p2to1p7":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.2],["eta_4","<",1.7]],[1.16]],
+#        "8_4_mt_1p7to2.3":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[0.68]],
+#        "8_4_mj_1p7to2.3":[[["cat","==",8],["decayMode_4","==",0],["eta_4",">",1.7],["eta_4","<",2.3]],[2.25]],
+#
+#        #bound method ... last input list is func parameters! so this uses the tauIDSF function
+#        "3_tauSF_8":[[["cat","==",8],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
+#        "4_tauSF_8":[[["cat","==",8],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]],
+#        "3_tauSF_7":[[["cat","==",7],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
+#        "4_tauSF_7":[[["cat","==",7],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]],
+#        "3_tauSF_6":[[["cat","==",6],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
+#        "4_tauSF_6":[[["cat","==",6],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]],
+#        "3_tauSF_5":[[["cat","==",5],["gen_match_3","==",5]],[np.vectorize(tauIDSF),["pt_3","gen_match_3"]]],
+#        "4_tauSF_5":[[["cat","==",5],["gen_match_4","==",5]],[np.vectorize(tauIDSF),["pt_4","gen_match_4"]]]
+#
+#        #recoil corrections? not affecting current fit variable
+#        #"recoilcorr2":[[["cat","==",6],["njets","==",2]],[recoilCorrector,["met_x","met_y","gen_match_3"]]],
+#    }
 
     return EventWeights
 
@@ -343,7 +357,8 @@ def initialize(args):
         for sample in sampleDict.keys():
             temppro = Process()
             temppro.nickname=sample
-            temppro.file=dir+sample+"_2016.root"
+            #temppro.file=dir+sample+"_2016.root"
+            temppro.file=dir+sample+"_2017.root"
 
             #with ROOT.TFile.Open(temppro.file,"read") as frooin:
             frooin = ROOT.TFile.Open(temppro.file,"read")
@@ -358,7 +373,8 @@ def initialize(args):
             #frooin.Close()
             temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3]}
             temppro.cuts={sampleDict[sample][0]:""}
-            if "ggTo2mu2tau" in sample:
+            #if "ggTo2mu2tau" in sample:
+            if "HToAA" in sample:
                 temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(137.5*31.05*0.00005)} # worked before
                 #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.0001*5.0)} # SM Higgs xsec x BR Haa x 5 for DataMC control plots
                 #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.001* 5.0)} # SM Higgs xsec x BR Haa  for signal extraction data MC control plots(AN 17029)
@@ -370,7 +386,8 @@ def initialize(args):
             temppro = Process()
             temppro.nickname=sample
             #temppro.file=sample+"_2016.root"
-            temppro.file=dir+sample+"_2016.root"
+            #temppro.file=dir+sample+"_2016.root"
+            temppro.file=dir+sample+"_2017.root"
             temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3],"PU":"weightPUtrue"}
             if args.channel=="mmtt":
                 truetau = [
@@ -391,7 +408,8 @@ def initialize(args):
                             ["gen_match_4","==",5]
                             ]]
             temppro.cuts={sampleDict[sample][0]:truetau} #ONLY SELECT PRMOPT FOR MC! 
-            if "ggTo2mu2tau" in sample:
+            #if "ggTo2mu2tau" in sample:
+            if "HToAA" in sample:
                 #for visualization!
                 temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(137.5*31.05*0.00005)}
                 #
@@ -409,7 +427,8 @@ def initialize(args):
         except:
             print("directory exists")
         for proObj in HAA_processes.keys():
-            if proObj!="data_obs" and proObj!="FF" and "ggTo2mu2tau" not in proObj:
+            #if proObj!="data_obs" and proObj!="FF" and "ggTo2mu2tau" not in proObj:
+            if proObj!="data_obs" and proObj!="FF" and "HToAA" not in proObj:
                 if args.channel=="mmmt" or args.channel=="mmet":
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","==",15]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","==",5]]
@@ -417,7 +436,8 @@ def initialize(args):
                     HAA_processes[proObj].cuts["fake2"] = [["gen_match_4","!=",5]]
 
                 if args.channel=="mmtt":
-                    if "ggTo2mu2tau" in proObj:
+                    #if "ggTo2mu2tau" in proObj:
+                    if "HToAA" in proObj:
                         continue
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","==",5]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","==",5]]
@@ -426,14 +446,16 @@ def initialize(args):
                 if args.channel=="mmem":
                     HAA_processes[proObj].cuts["fake1_"+str(proObj)] = [["gen_match_3","!=",15]]
                     HAA_processes[proObj].cuts["fake2_"+str(proObj)] = [["gen_match_4","!=",15]]
-                    if "ggTo2mu2tau" in proObj:
+                    #if "ggTo2mu2tau" in proObj:
+                    if "HToAA" in proObj:
                         continue
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","==",15]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","==",15]]
                 else: # default case is close enough
                     HAA_processes[proObj].cuts["fake1_"+str(proObj)] = [["gen_match_3","==",0]]
                     HAA_processes[proObj].cuts["fake2_"+str(proObj)] = [["gen_match_4","==",0]]
-                    if "ggTo2mu2tau" in proObj:
+                    #if "ggTo2mu2tau" in proObj:
+                    if "HToAA" in proObj:
                         continue
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","!=",0]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","!=",0]]
@@ -442,7 +464,8 @@ def initialize(args):
             if proObj!="data_obs" and proObj!="FF" and not args.skim:
                 HAA_processes[proObj].cuts["fake1_"+str(proObj)] = [["gen_match_3","==",0]]
                 HAA_processes[proObj].cuts["fake2_"+str(proObj)] = [["gen_match_4","==",0]]
-                if "ggTo2mu2tau" in proObj:
+                #if "ggTo2mu2tau" in proObj:
+                if "HToAA" in proObj:
                     print "skipping signal prompt mc"
                     continue  #this hasn't been added yet ... this is needed to omit signal!!
                 HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","!=",0]]
@@ -466,20 +489,28 @@ def initialize(args):
     for proObj in HAA_processes.keys():
         filelist[proObj]=HAA_processes[proObj].file
 
-    inclusive_samples = ["DYJetsToLLext1",
-                            "DYJetsToLLext2" ,
+    #inclusive_samples = ["DYJetsToLLext1",
+    inclusive_samples = ["DYJetsToLL_ext1",
+                            "DYJetsToLL" ,
                             "DY1JetsToLL" ,
+                            "DY1JetsToLL_ext1" ,
                             "DY2JetsToLL" ,
+                            "DY2JetsToLL_ext1" ,
                             "DY3JetsToLL" ,
+                            "DY3JetsToLL_ext1" ,
                             "DY4JetsToLL" ,
                             "WJetsToLNu" ,
-                            "WJetsToLNuext" ,
-                            "WJetsToLNu_ext2" ,
+                            #"WJetsToLNuext" ,
+                            #"WJetsToLNu_ext1" ,
+                            #"WJetsToLNu_ext2" ,
                             "W1JetsToLNu" ,
-                            "W2JetsToLNuext1" ,
+                            #"W2JetsToLNuext1" ,
+                            #"W2JetsToLNu_ext1" ,
+                            "W2JetsToLNu",
                             "W3JetsToLNu",
-                            "W4JetsToLNu_ext1",
-                            "W4JetsToLNu_ext2"
+                            "W4JetsToLNu"
+                       #     "W4JetsToLNu_ext1",
+                       #     "W4JetsToLNu_ext2"
                             ]
     # adding kfactor to relevent samples
     for sample in sampleDict.keys():
@@ -529,8 +560,10 @@ def initialize(args):
 
     #precise weights for jet multiplicity
     jetWeightMultiplicity = {}
-    DYinc = ["DYJetsToLLext1","DYJetsToLLext2"]
-    WJets = ["WJetsToLNu","WJetsToLNuext","WJetsToLNu_ext2"]
+    #DYinc = ["DYJetsToLLext1","DYJetsToLLext2"]
+    #WJets = ["WJetsToLNu","WJetsToLNuext","WJetsToLNu_ext2"]
+    DYinc = ["DYJetsToLL_ext1","DYJetsToLL"]
+    WJets = ["WJetsToLNu"] #,"WJetsToLNuext","WJetsToLNu_ext2"]
 
     #To Do here: combine the extended samples for everything before ... then feed into cut array
     #STEPS
@@ -542,7 +575,7 @@ def initialize(args):
             weights = weightHistoDict[sample]
             sumOfWeights += [w.GetSumOfWeights() for w in weights]
         sumOfWeights[sumOfWeights==0] = 1e-10 # if value is 0 to stop infs
-        print(sumOfWeights)       
+        #print(sumOfWeights)       
         for sample in inc_group:
             jetWeightMultiplicity[sample] = sumOfWeights
             
@@ -566,33 +599,35 @@ def initialize(args):
 
     W2JetsFile = ROOT.TFile.Open(filelist["W2JetsToLNu"],"read")
     jetWeightMultiplicity["W2JetsToLNu"]=W2JetsFile.Get("hWeights").GetSumOfWeights()
-    W2JetsFileext1 = ROOT.TFile.Open(filelist["W2JetsToLNuext1"],"read")
-    jetWeightMultiplicity["W2JetsToLNu"]+=W2JetsFileext1.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W2JetsToLNuext1"]=W2JetsFileext1.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W2JetsToLNuext1"]+=W2JetsFile.Get("hWeights").GetSumOfWeights()
+    #W2JetsFileext1 = ROOT.TFile.Open(filelist["W2JetsToLNuext1"],"read")
+    #jetWeightMultiplicity["W2JetsToLNu"]+=W2JetsFileext1.Get("hWeights").GetSumOfWeights()
+    #jetWeightMultiplicity["W2JetsToLNuext1"]=W2JetsFileext1.Get("hWeights").GetSumOfWeights()
+    #jetWeightMultiplicity["W2JetsToLNuext1"]+=W2JetsFile.Get("hWeights").GetSumOfWeights()
+    #jetWeightMultiplicity["W2JetsToLNu_ext1"]=W2JetsFileext1.Get("hWeights").GetSumOfWeights()
+    #jetWeightMultiplicity["W2JetsToLNu_ext1"]+=W2JetsFile.Get("hWeights").GetSumOfWeights()
 
     W3JetsFile = ROOT.TFile.Open(filelist["W3JetsToLNu"],"read")
     jetWeightMultiplicity["W3JetsToLNu"]=W3JetsFile.Get("hWeights").GetSumOfWeights()
 
     W4JetsFile = ROOT.TFile.Open(filelist["W4JetsToLNu"],"read")
-    W4JetsFileext1 = ROOT.TFile.Open(filelist["W4JetsToLNu_ext1"],"read")
-    W4JetsFileext2 = ROOT.TFile.Open(filelist["W4JetsToLNu_ext2"],"read")
+#    W4JetsFileext1 = ROOT.TFile.Open(filelist["W4JetsToLNu_ext1"],"read")
+#    W4JetsFileext2 = ROOT.TFile.Open(filelist["W4JetsToLNu_ext2"],"read")
     jetWeightMultiplicity["W4JetsToLNu"]=W4JetsFile.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W4JetsToLNu"]+=W4JetsFileext1.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W4JetsToLNu"]+=W4JetsFileext2.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNu"]+=W4JetsFileext1.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNu"]+=W4JetsFileext2.Get("hWeights").GetSumOfWeights()
 
-    jetWeightMultiplicity["W4JetsToLNuext1"]=W4JetsFileext1.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W4JetsToLNuext1"]+=W4JetsFile.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W4JetsToLNuext1"]+=W4JetsFileext2.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNuext1"]=W4JetsFileext1.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNuext1"]+=W4JetsFile.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNuext1"]+=W4JetsFileext2.Get("hWeights").GetSumOfWeights()
 
-    jetWeightMultiplicity["W4JetsToLNuext2"]=W4JetsFileext2.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W4JetsToLNuext2"]+=W4JetsFile.Get("hWeights").GetSumOfWeights()
-    jetWeightMultiplicity["W4JetsToLNuext2"]+=W4JetsFileext1.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNuext2"]=W4JetsFileext2.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNuext2"]+=W4JetsFile.Get("hWeights").GetSumOfWeights()
+#    jetWeightMultiplicity["W4JetsToLNuext2"]+=W4JetsFileext1.Get("hWeights").GetSumOfWeights()
 
 
-    Bkg = ["DY","W","TT","ST","EWK"]
-    irBkg = ["ZZ","ZHToTauTau","vbf","WHTT"]
-    TrialphaBkg = ["ttZ","ttW","WWZ","WZZ","ZZZ","WWW_4F","HZJ"]
+    Bkg = ["DY","W","TT","ST","EWK","Top"]
+    irBkg = ["ZZ","ZHToTauTau","vbf","WHTT","Signal","ggZH"]
+    TrialphaBkg = ["ttZ","ttW","WWZ","WZZ","ZZZ","WWW4F","HZJ"]
     rareBkg = ["Other","rare","WZ"]
     finalDistributions = {}
     finalDistributions["Bkg"]=Bkg
@@ -660,8 +695,8 @@ def initialize(args):
         # if args.channel!="mmem":
         ss_1_tight.Add(ss_1_tight_prompt,-1)
         ss_2_tight.Add(ss_2_tight_prompt,-1)
-        #ss_1_loose.Add(ss_1_loose_prompt,-1)
-        #ss_2_loose.Add(ss_2_loose_prompt,-1)
+        ss_1_loose.Add(ss_1_loose_prompt,-1)
+        ss_2_loose.Add(ss_2_loose_prompt,-1)
 
 
         f_1= ss_1_tight.Clone()
@@ -767,7 +802,11 @@ def createFakeFactorHistos(allcats, inputFFile):
                 bins = allcats[cat].vars[variableHandle][1]
                 if type(bins[0])==list:
                     histodict[cat][treename][variableHandle] = ROOT.TH1D(str(variableHandle),str(variableHandle),bins[0][0],bins[0][1],bins[0][2])
-                    val = fakefactorArray[var]
+                    try:
+                        val = fakefactorArray[var]
+                    except:
+                        print("Variable {} not working so skipping for cat {}".format(var, cat))
+                        continue
                     root_numpy.fill_hist(histodict[cat][treename][variableHandle],val,fakefactorArray["finalweight"])
                 else:
                     tmpbin = np.asarray(bins)
@@ -779,8 +818,6 @@ def createFakeFactorHistos(allcats, inputFFile):
                     
                       
     
-
-
 def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systematic):
 
     from utils.functions import functs
@@ -798,8 +835,8 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
             masterArray = inputArray.copy()
             cuts=[]
             print "working on category ",cat
-            print "with vars ",allcats[cat].vars
-            print "starting length of dictionary ",len(masterArray["mll"])
+           # print "with vars ",allcats[cat].vars
+           # print "starting length of dictionary ",len(masterArray["mll"])
 
             for cuttype in allcats[cat].cuts.keys():
                 for cut in allcats[cat].cuts[cuttype]:
@@ -812,6 +849,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
             plottedVars = []
             newVarVals={}
             for variableHandle in allcats[cat].vars.keys():
+                #print("variableHandle: {}".format(variableHandle))
                 variable = allcats[cat].vars[variableHandle][0]
                 if "[" in variable:
                     #print "adding jagged variable to array ",variable
@@ -827,9 +865,11 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                     plottedVars.append(variableHandle)
                     plottedVars.append(variable)
 
+            #print("done with variableHandles.")
             for var in allcats[cat].newvariables.keys():
                 newVarVals[var]=0.0
                 plottedVars.append(var) # new vars just label
+            #print("done with newvars loop 0.")
             for var in newVarVals.keys():
                 arguments = allcats[cat].newvariables[var][2]
                 tempvals=[]
@@ -838,7 +878,10 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 masterArray[var] = functs[allcats[cat].newvariables[var][0]](*tempvals)
 
 
-            if process=="data_obs":
+            #print("done with newvars.")
+            #if process=="data_obs":
+            if "data_obs" in process:
+               # print("data_obs????????")
                 masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 
                 #Comments with Dylan!
@@ -855,7 +898,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
                 skipEvents = np.where(mask==0)[0]
                 skimArray={}
-                print("before skim", len(masterArray["finalweight"]))
+                #print("before skim", len(masterArray["finalweight"]))
                 for key in masterArray.keys():
                     try:
                         skimArray[key] = masterArray[key][mask]
@@ -863,9 +906,10 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         print "length problem? length of key in master ",len(masterArray[key])," length of mask ",len(mask)
                         print "skipping branch ",key
                         continue
-                print("after skim", len(skimArray["mll"]), processObj.file)
+                #print("after skim", len(skimArray["mll"]), processObj.file)
                 if len(skimArray["mll"])==0:
-                    continue
+                    print("Warning: length of mll skimArray is 0 for cat {}".format(cat))
+                    #continue
 
                 for key in skimArray.keys():
                     if key not in plottedVars and key != "finalweight":
@@ -876,6 +920,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
 
             if(process=="FF" and datadrivenPackage["bool"]):
+                #print("process FF boiiiiii")
                 masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 
 
@@ -894,24 +939,24 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #causal catching ... the pt may be outside the shape from the histogram... if so we need the constant fit value for extrapolation
                 #fitmask_1 = cutOnArray(masterArray,[["pt_3","<",datadrivenPackage["fakerate1"].GetBinLowEdge(datadrivenPackage["fakerate1"].GetNbinsX())],["pt_3",">",datadrivenPackage["fakerate1"].GetBinLowEdge(2)]])
                 #fitmask_1 = fitmask_1.astype(int)
-                #ptarr_1 = masterArray["pt_3"]
+                ptarr_1 = masterArray["pt_3"]
 
-                #ffweight_1 = ptFun(datadrivenPackage["fakerate1"],ptarr_1)
+                ffweight_1 = ptFun(datadrivenPackage["fakerate1"],ptarr_1)
                 #ffweight_1 = ffweight_1/(1.0000000001 - ffweight_1)
-                #ffweight_1 = np.ones(len(ffweight_1))*(0.153/(1-0.153))
-                ffweight_1 = np.ones(len(tempmask_1))*(datadrivenPackage["fitrate1"].GetParameter(0)/(1-datadrivenPackage["fitrate1"].GetParameter(0)))
+                ffweight_1 = np.ones(len(ffweight_1))*(0.153/(1-0.153))
+               # ffweight_1 = np.ones(len(tempmask_1))*(datadrivenPackage["fitrate1"].GetParameter(0)/(1-datadrivenPackage["fitrate1"].GetParameter(0)))
 
 
 
                 #FF_2
                 #fitmask_2 = cutOnArray(masterArray,[["pt_4","<",datadrivenPackage["fakerate2"].GetBinLowEdge(datadrivenPackage["fakerate2"].GetNbinsX())],["pt_4",">",datadrivenPackage["fakerate2"].GetBinLowEdge(2)]])
                 #fitmask_2 = fitmask_2.astype(int)
-                #ptarr_2 = masterArray["pt_4"]
+                ptarr_2 = masterArray["pt_4"]
 
-                #ffweight_2 = ptFun(datadrivenPackage["fakerate2"],ptarr_2)
+                ffweight_2 = ptFun(datadrivenPackage["fakerate2"],ptarr_2)
                 #ffweight_2 = ffweight_2/(1.0000000001 - ffweight_2)
-                #ffweight_2 = np.ones(len(ffweight_2))*(0.153/(1-0.153))
-                ffweight_2 = np.ones(len(tempmask_2))*(datadrivenPackage["fitrate2"].GetParameter(0)/(1-datadrivenPackage["fitrate2"].GetParameter(0)))
+                ffweight_2 = np.ones(len(ffweight_2))*(0.153/(1-0.153))
+               # ffweight_2 = np.ones(len(tempmask_2))*(datadrivenPackage["fitrate2"].GetParameter(0)/(1-datadrivenPackage["fitrate2"].GetParameter(0)))
 
 
                 ffweight = -1.0 * ffweight_1 * ffweight_2
@@ -934,23 +979,23 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
                 #ffweight_1[~tempmask_1] = 0.0
                 ffweight_1 *= tempmask_1
-                print "ffweight_1 ",ffweight_1[:1000]
+                #print "ffweight_1 ",ffweight_1[:1000]
                 #ffweight_2[~tempmask_2] = 0.0
                 ffweight_2 *= tempmask_2
                 #finalWeight = ffweight_1 + ffweight_2
                 finalWeight = ffweight_1 + ffweight_2 + ffweight
-                print("pair 1-2: ",  np.any(np.all((tempmask_1,tempmask_2), axis=0)))
-                print("pair 1-12: ", np.any(np.all((tempmask_1,tempmask_12), axis=0)))
-                print("pair 12-2: ", np.any(np.all((tempmask_12,tempmask_2), axis=0)))
+                #print("pair 1-2: ",  np.any(np.all((tempmask_1,tempmask_2), axis=0)))
+                #print("pair 1-12: ", np.any(np.all((tempmask_1,tempmask_12), axis=0)))
+                #print("pair 12-2: ", np.any(np.all((tempmask_12,tempmask_2), axis=0)))
 
                 #finalWeight -= ffweight
 
 
-                print "check on fake factor final weight ",finalWeight[:1000]
+                #print "check on fake factor final weight ",finalWeight[:1000]
 
 
                 masterArray["finalweight"] *= finalWeight
-                print "summed final weight ",np.sum(finalWeight)
+                #print "summed final weight ",np.sum(finalWeight)
 
                 keepEvents = ~np.where(finalWeight==0.0)[0]
 
@@ -958,7 +1003,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 for key in masterArray.keys():
                     skimArray[key] = masterArray[key][keepEvents]
 
-                print("after skim", len(skimArray["mll"]), processObj.file)
+                #print("after skim", len(skimArray["mll"]), processObj.file)
                 if len(skimArray["mll"])==0:
                     continue
 
@@ -972,17 +1017,24 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
 
             if process not in ["data_obs","FF","FF_1","FF_2","FF_12"]:
+                #print("noFF or data_obs")
                 EventWeights = getEventWeightDicitonary()
 
+                #print("boutta make masterArray.")
                 masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 
 
+                #print("boutta make mask.")
                 mask = cutOnArray(masterArray,cuts)
+                #print("mask length: {}".format(len(mask)))
                 masterArray["mask"]=mask
+                #print("length masterArray: {}".format(len(masterArray["finalweight"])))
                 masterArray["finalweight"] *= mask.astype(int)
                 weightfinal = 1.0   #don't weight the data!!
 
+                #print("boutta make skipEvents.")
                 skipEvents = np.where(mask==0)[0]
+                #print("made skipEvents.")
                 skimArray={}
                 if len(masterArray["mll"])==0:
                     continue
@@ -999,30 +1051,35 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         weightfinal =  weightfinal * float(weightDict[scalefactor])
 
                 #print "finalweight after PU and kFactor ",masterArray["finalweight"][:100]
-                inclusive_samples = ["DYJetsToLLext1",
-                                    "DYJetsToLLext2" ,
+                inclusive_samples = ["DYJetsToLL_ext1",
+                                    "DYJetsToLL" ,
                                     "DY1JetsToLL" ,
+                                    "DY1JetsToLL_ext1" ,
                                     "DY2JetsToLL" ,
+                                    "DY2JetsToLL_ext1" ,
                                     "DY3JetsToLL" ,
+                                    "DY3JetsToLL_ext1" ,
                                     "DY4JetsToLL" ,
                                     "WJetsToLNu" ,
-                                    "WJetsToLNuext" ,
-                                    "WJetsToLNu_ext2" ,
+                                 #   "WJetsToLNuext" ,
+                                 #   "WJetsToLNu_ext2" ,
                                     "W1JetsToLNu" ,
-                                    "W2JetsToLNuext1" ,
-                                    "W3JetsToLNu",
-                                    "W4JetsToLNu_ext1",
-                                    "W4JetsToLNu_ext2"
+                                    "W2JetsToLNu" ,
+                                    "W3JetsToLNu", #,
+                                    "W4JetsToLNu"
+                                  #  "W4JetsToLNu_ext2"
                                     ]
 
                 if nickname in inclusive_samples:
                     jetweights = 5*[0]
                     if nickname.startswith("DY"):
                         jet0Xsec = 4673.65
-                        jetweights[0] = jet0Xsec/jetWeightMultiplicity["DYJetsToLLext1"][0]
+                        #jetweights[0] = jet0Xsec/jetWeightMultiplicity["DYJetsToLLext1"][0]
+                        jetweights[0] = jet0Xsec/jetWeightMultiplicity["DYJetsToLL_ext1"][0]
                         for nj in range(1, 5):
                             njname = "DY%dJetsToLL"%nj
-                            norm1 = jetWeightMultiplicity["DYJetsToLLext1"][nj]
+                            #norm1 = jetWeightMultiplicity["DYJetsToLLext1"][nj]
+                            norm1 = jetWeightMultiplicity["DYJetsToLL_ext1"][nj]
                             norm2 = jetWeightMultiplicity[njname]
                             jetweights[nj] = float(weightDict["kfactor"])*HAA_processes[njname].weights["xsec"] / (norm1 + norm2)
                     else:
@@ -1037,10 +1094,10 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                     for i_jet,weight in enumerate(jetweights):
                         njetmask = masterArray["LHE_Njets"]==i_jet
                         masterArray["finalweight"] [njetmask] *= weight
-                        print "events that pass ",i_jet," jets ",np.count_nonzero(masterArray["finalweight"] [njetmask])
+                        #print "events that pass ",i_jet," jets ",np.count_nonzero(masterArray["finalweight"] [njetmask])
 
-                    print "jet weight array ",jetweights 
-                    print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," events that pass ", np.count_nonzero(masterArray["finalweight"])
+                    #print "jet weight array ",jetweights 
+                    #print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," events that pass ", np.count_nonzero(masterArray["finalweight"])
 
                     # if nickname.startswith("DYJetsToLL") or nickname.startswith("WJetsToLNu"):
                     #     sow1 = jetWeightMultiplicity[nickname][0]
@@ -1160,20 +1217,24 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                             sumOfWeights += sowhist.GetSumOfWeights()
                     if sumOfWeights != 0.0:
                         weightfinal = weightfinal * HAA_processes[nickname].weights["xsec"]/ sumOfWeights
-                        print "xsec/SoW ",HAA_processes[nickname].weights["xsec"]/ sumOfWeights
+                       # print "xsec/SoW ",HAA_processes[nickname].weights["xsec"]/ sumOfWeights
                         
+               # print("boutta change masterArray")
                 masterArray["finalweight"] *= weightfinal
+                #print("masterArray weighted.")
                 #print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," SoW ",sumOfWeights," events that pass ", np.count_nonzero(masterArray["finalweight"])
 
                 #multiply by scalar weight
-                print "finalweight before per event scaling ",masterArray["finalweight"][:100]
+                #print "finalweight before per event scaling ",masterArray["finalweight"][:100]
 
 
+                #print("done with FF or not FF or whatever.")
                 #eventWeightDict = process.eventWeights
                 eventWeightDict = EventWeights
                 if eventWeightDict:
                     for scalefactor in eventWeightDict.keys():
 
+                        #print("scalefactor: {}".format(scalefactor))
                         cutlist = eventWeightDict[scalefactor][0]
                         weightMask=cutOnArray(masterArray,cutlist)
                         weightMask=weightMask.astype(float)
@@ -1197,10 +1258,10 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
                         masterArray["finalweight"] *= weightMask
                 #print "finalweight after per event scaling ",masterArray["finalweight"][:100]
-                print "summed final weight ",np.sum(masterArray["finalweight"])
-                print " scalar weightfinal ",weightfinal
+#                print "summed final weight ",np.sum(masterArray["finalweight"])
+#                print " scalar weightfinal ",weightfinal
 
-                print("before skim", len(masterArray["finalweight"]))
+#                print("before skim", len(masterArray["finalweight"]))
                 for key,value in masterArray.iteritems():
                     if ( key in plottedVars or key == "finalweight" ) \
                         and (len(mask)==len(value)):
@@ -1213,11 +1274,12 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         #print "length problem? length of key in master ",len(masterArray[key])," length of mask ",len(mask)
                         #print "skipping branch ",key
                     #    continue
-                print("after skim", len(skimArray["mll"]), processObj.file)
+                #print("after skim", len(skimArray["mll"]), processObj.file)
                 #for key in skimArray.keys():
                 #    if key not in plottedVars and key != "finalweight":
                 #        del skimArray[key]
                 skimArrayPerCat[systematic+":"+cat+":"+processObj.nickname+":"+process] = skimArray
+    #print("done with FF or whatever fr")
     #exit()
     return skimArrayPerCat
 
@@ -1262,6 +1324,7 @@ def slimskimoutput(process,allcats,weightHistoDict,systematic,massoutputdir,data
         try:
            tree = fin[systematic]
         except:
+           print("Error: tree not found for process {}, syst {}".format(process, systematic))
            return
 
         if systematic!="Events":
@@ -1271,7 +1334,9 @@ def slimskimoutput(process,allcats,weightHistoDict,systematic,massoutputdir,data
             work_dict.update(fin["Events"].arrays(list(nom_names)))
             skimArrayPerSysCats.update(makeCutsOnTreeArray(process,work_dict,allcats,weightHistoDict,systematic))
         else:
+        #    print("systematic: Events :D")
             skimArrayPerSysCats.update(makeCutsOnTreeArray(process,tree.arrays(),allcats,weightHistoDict,"Nominal"))
+        #    print("done with makeCutsOnTreeArray")
 
 
         createSlimOutput(skimArrayPerSysCats,massoutputdir)
@@ -1470,21 +1535,23 @@ if __name__ == "__main__":
         systematics =[ "Events"]
     systematics =[ "Events"]
 
-    inclusive_samples = ["DYJetsToLLext1",
-                        "DYJetsToLLext2" ,
-                        "DY1JetsToLL" ,
-                        "DY2JetsToLL" ,
-                        "DY3JetsToLL" ,
-                        "DY4JetsToLL" ,
-                        "WJetsToLNu" ,
-                        "WJetsToLNuext" ,
-                        "WJetsToLNu_ext2" ,
-                        "W1JetsToLNu" ,
-                        "W2JetsToLNuext1" ,
-                        "W3JetsToLNu",
-                        "W4JetsToLNu_ext1",
-                        "W4JetsToLNu_ext2"
-                        ]
+#    inclusive_samples = ["DYJetsToLLext1",
+#                        "DYJetsToLLext2" ,
+#                        "DY1JetsToLL" ,
+#                        "DY2JetsToLL" ,
+#                        "DY3JetsToLL" ,
+#                        "DY4JetsToLL" ,
+#                        "WJetsToLNu" ,
+#                        #"WJetsToLNuext" ,
+#                        "WJetsToLNu_ext1" ,
+#                  #      "WJetsToLNu_ext2" ,
+#                        "W1JetsToLNu" ,
+#                        #"W2JetsToLNuext1" ,
+#                        "W2JetsToLNu_ext1" ,
+#                        "W3JetsToLNu" #,
+#                  #      "W4JetsToLNu_ext1",
+#                  #      "W4JetsToLNu_ext2"
+#                        ]
 
 
     for nickname, process in HAA_processes.items():
@@ -1502,19 +1569,19 @@ if __name__ == "__main__":
 
     #print(" PAYLOADS   ",payloads)
 
-    m = mp.Manager()
-    logger_q = m.Queue()
-    parallelable_data = [(1, logger_q), (2, logger_q)]
-    pool  = mp.Pool(12)
+#    m = mp.Manager()
+#    logger_q = m.Queue()
+#    parallelable_data = [(1, logger_q), (2, logger_q)]
+#    pool  = mp.Pool(1) #2)
+#
+#    pool.map(slimskimstar,payloads)#this works for root output!
+#    pool.close()
+#    pool.join()
+#    while not logger_q.empty():
+#        print logger_q.get()
 
-    pool.map(slimskimstar,payloads)#this works for root output!
-    pool.close()
-    pool.join()
-    while not logger_q.empty():
-        print logger_q.get()
-
-    # for payload in payloads:
-    #     slimskimstar(payload)
+    for payload in payloads:
+        slimskimstar(payload)
 
 
     print("root file generation computation time")
@@ -1535,7 +1602,8 @@ if __name__ == "__main__":
         #shutil.rmtree("massOutputDir_"+args.outname)
 
 
-    datadrivenPackage["fakemeasurefile"].Close()
+    if args.datadrivenZH or args.makeFakeHistos:
+        datadrivenPackage["fakemeasurefile"].Close()
 
     print("computation time")
     print(datetime.datetime.now() - begin_time)
