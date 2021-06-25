@@ -6,7 +6,7 @@ import os, sys
 import tauFun2 as tf
 
 #test name
-testn = "test61"
+testn = "test90"
 
 
 
@@ -58,6 +58,10 @@ def makeCatFiles(cat):
                     print("Error: unrecognized channel {}".format(cat[i:i+2]))
                     sys.exit()
             ccline += ",\[\\\"iso_%d\\\",\\\"<\\\",%f\]"%(i+1, iso)
+
+            #add medium Id requirement IF not tt** category. ##jk, always add it.
+            #if not (cat[0] == 't' and cat[1] == 't'):
+            ccline += ",\[\\\"mediumId_%d\\\",\\\"==\\\",1\]"%(i+1)
                     
         elif ptype == 't':
             for vnum,vsboi in enumerate(["jet", "e", "mu"]):
@@ -73,8 +77,11 @@ def makeCatFiles(cat):
             elif cat[i+1] == 't':
                 iso = 0.15 #0.3
 
-            ccline += "\[\\\"iso_%d\\\",\\\"<\\\",%f\],"%(i+1, iso)
-            ccline += "\[\\\"Electron_mvaFall17V2noIso_WP90_%d\\\",\\\">\\\",%f\]"%(i+1, 0.5)
+            ccline += "\[\\\"iso_%d\\\",\\\"<\\\",%f\]"%(i+1, iso)
+
+            #loosen the electron requirement for tt** categories. ##jk don't do this.
+            #if not (cat[0] == 't' and cat[1] == 't'): 
+            ccline += ",\[\\\"Electron_mvaFall17V2noIso_WP90_%d\\\",\\\">\\\",%f\]"%(i+1, 0.5)
 
         if i == 3:
             ccline += "\]"
@@ -84,21 +91,33 @@ def makeCatFiles(cat):
                
     print("new category files written!")
 
-def runTest(cat):
+#run the full test
+def runTest(cat, allBkgs=True):
+    #if allBkgs is true then need to use all backgrounds; otherwise just use what's already in bpgMCsamples.
     #run MakeDistributions twice (separated to avoid MemoryError).
-    os.system("cp mcsamples_0_2017.csv bpgMCsamples_2017_v7.csv")
-    os.system("python MakeDistributions.py -o %s -ch %s"%(testn, cat)) 
-    os.system("cp mcsamples_1_2017.csv bpgMCsamples_2017_v7.csv")
+    #  or only once if just using the contents of bpgMCsamples.
+    if allBkgs:
+        os.system("cp mcsamples_0_2017.csv bpgMCsamples_2017_v7.csv")
+        os.system("python MakeDistributions.py -o %s -ch %s"%(testn, cat)) 
+        os.system("cp mcsamples_1_2017.csv bpgMCsamples_2017_v7.csv")
     os.system("python MakeDistributions.py -o %s -ch %s"%(testn, cat))
 
     #run MakeDistributions one more time to make the root file.
     os.system("python MakeDistributions.py -o %s -ch %s --comb 1"%(testn, cat))
 
+#noData should be true if don't want to include data in the plots.
+def makePlots(cat, noData=False, sigOnly=False):
     print( "Making final plots.")
     #run MakePlots to make all the plots.
-    os.system("python MakePlots_bpg.py -o %s -ch %s"%(testn, cat))
+    os.system("python MakePlots_bpg.py -o %s -ch %s %s %s"%(testn, cat, "-nd" if noData else "", "-so" if sigOnly else ""))
 
 
-for ct in ['emem']: # ['ttmt', 'ttet', 'ttem', 'mtmt', 'mtet', 'mtem', 'etet', 'etem', 'emem']:    #'mmtt']: #'mmet', 'mmem']:  #'mtet' 'mtem'
-    #makeCatFiles(ct)
-    runTest(ct)
+#list of all categories: 'ttmt', 'ttet', 'ttem', 'mtmt', 'mtet', 'mtem', 'etet', 'etem', 'emem', 'mmtt', 'mmmt', 'mmet', 'mmem'
+
+for ct in ['mmtt','mmmt','mmet','mmem']: #'ttmt','ttet','ttem','mtmt','mtet','mtem','etet','etem','mmtt','mmmt','mmet','mmem']:
+    makeCatFiles(ct)
+    allBkgs = True
+    noData = True
+    sigOnly = True
+    #runTest(ct, allBkgs)
+    makePlots(ct, noData, sigOnly)

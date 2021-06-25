@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="make full plots from root files containing histograms")
     #parser.add_arguement('--CategoryFiles',nargs="+",help="Select the files containing the categories for the datacards")
-  #  parser.add_argument("-i",  "--input", default="skimmed_tttt.root",  help="input root file name")
+    parser.add_argument("-i",  "--input", default="",  help="input root file name")
     parser.add_argument("-o",  "--output", default="test43",  help="postfix string")
     parser.add_argument("-ch",  "--channel", default="mtet",  help="postfix string")
   #  parser.add_argument("-c",  "--categories", default="cat_tttt_2017.yaml",  help="categories yaml file")
@@ -176,6 +176,9 @@ if __name__ == "__main__":
     parser.add_argument("-fh",  "--fh", default=False,action='store_true',  help="Make Finalized histograms")
     parser.add_argument("-ss",  "--signalScale", default=1.0,  help="Scale the Signal")
     parser.add_argument("-y",  "--maxY", default=-1,  help="Maximum y-value to show in plots (-1 to auto-set)")
+    parser.add_argument("-nd",  "--noData", default=False, action='store_true',  help="Show data on the plot (False) or don't (True)")
+    parser.add_argument("-so",  "--sigOnly", default=False, action='store_true',  help="True to include only signal; else False.")
+    parser.add_argument("-fc",  "--fakeCat", default="",  help="Category for the fake factor plotting.")
     args = parser.parse_args()
 
     ROOT.gStyle.SetFrameLineWidth(2)
@@ -189,8 +192,8 @@ if __name__ == "__main__":
     mass = 40
 
     #show ONLY signal
-    sigOnly = False #True
-    noSig = True
+    sigOnly = args.sigOnly # False #True
+    noSig = False
 
     #maximum value to set the y-axis to (-1 to auto-set)
     y_max = int(args.maxY) #10000 #250
@@ -199,7 +202,7 @@ if __name__ == "__main__":
         print("Error: both sigOnly and noSig cannot be specified.")
         system.exit()
 
-    noData = False
+    noData = args.noData #False
 
 
     catfile = "cat_%s_2017.yaml"%(args.channel)
@@ -220,7 +223,7 @@ if __name__ == "__main__":
         tempcat.name=categories[category]['name']
         tempcat.cuts=categories[category]['cuts']
         tempcat.newvariables=categories[category]['newvariables']
-        tempcat.varis=categories[category]['varis']
+        tempcat.vars=categories[category]['vars']
         allcats[tempcat.name]=tempcat
 
     print "the categories   ",allcats
@@ -232,16 +235,26 @@ if __name__ == "__main__":
         newvars.append([newvar])
         variabledic[newvar]=[newvar,allcats[args.channel+"_inclusive"].newvariables[newvar][1],allcats[args.channel+"_inclusive"].newvariables[newvar][3],allcats[args.channel+"_inclusive"].newvariables[newvar][4]]
     variables = []
-    for varHandle in allcats[args.channel+"_inclusive"].varis.keys():
+    for varHandle in allcats[args.channel+"_inclusive"].vars.keys():
         variables.append([varHandle])
-        variabledic[varHandle]=allcats[args.channel+"_inclusive"].varis[varHandle]
+        variabledic[varHandle]=allcats[args.channel+"_inclusive"].vars[varHandle]
     #variables = variables + newvars
     #print variables
 
     #The skimmed root file containing all the TTrees
     #file = ROOT.TFile(args.input,"read")
-    input_file = "skimmed_%s_%s.root"%(args.channel, args.output)
-    fin = uproot.open(input_file)
+    if args.input == "":
+        input_file = "skimmed_%s_%s.root"%(args.channel, args.output)
+    else:
+        input_file = args.input
+    if args.fakeCat == "":
+        fin = uproot.open(input_file)
+    else:
+        fim = uproot.open(input_file)
+        fin = fim[args.fakeCat]
+        dists = fin.keys()
+        #print("dists: {}".format(dists))
+        #system.exit()
 
 
     histolist = {}
@@ -274,19 +287,19 @@ if __name__ == "__main__":
                     i -= 1
                 i += 1
         elif noData and (sys+"_data_obs") in dists:
-            print("removing data observed!")
+        #    print("removing data observed!")
             dists.remove(sys+"_data_obs")
 
         
     #print("dists: {}".format(dists))
     cats = [args.channel+"_inclusive"]
-    varis = allcats[cats[0]].varis.keys()
+    vars = allcats[cats[0]].vars.keys()
     passvars = []
 
     for newvar in allcats[cats[0]].newvariables.keys():
-        varis.append(newvar)
+        vars.append(newvar)
 
-    #for ivar,var in enumerate(cat.varis.keys()):
+    #for ivar,var in enumerate(cat.vars.keys()):
     #for dist in fin.GetListOfKeys():
     for sys in systematics:
    
@@ -302,17 +315,17 @@ if __name__ == "__main__":
             histodict[sys][dist]={}
             for cat in cats:
                 histodict[sys][dist][cat]={}
-                for variableHandle in varis:
-                    #print variableHandle
+                for variableHandle in vars:
+                   # print variableHandle
                     if variableHandle in allcats[cats[0]].newvariables.keys():
                         var = variableHandle
                         bins = allcats[cat].newvariables[variableHandle][1]
                     else:
-                        var = allcats[cat].varis[variableHandle][0]
-                        bins = allcats[cat].varis[variableHandle][1]
+                        var = allcats[cat].vars[variableHandle][0]
+                        bins = allcats[cat].vars[variableHandle][1]
                     title = "%s_%s_%s"%(str(dist), str(cat), str(variableHandle))
                     if type(bins[0])==list:
-                        #print("Making new TH1D! title = {}".format(title))
+                       # print("Making new TH1D! title = {}".format(title))
                         histodict[sys][dist][cat][variableHandle] = ROOT.TH1D(title,title,bins[0][0],bins[0][1],bins[0][2])
                         try:
                             val = masterArray[var]
@@ -320,7 +333,6 @@ if __name__ == "__main__":
                             passvars.append(var)
                         except:
                             print "problem with variable so skipping ",var
-                            #print("val: {}".format(val))
                             continue
                     else:
                         tmpbin = np.asarray(bins)
@@ -410,8 +422,13 @@ if __name__ == "__main__":
                 #print("cd'd to c")
                 #print("made c.")
                 #histogram stack to hold the stack of hists from each dist.
+             #   print("sigOnly???????????????????????? " + str(sigOnly))
                 if not sigOnly:
+             #       print("Making hBkgTot!!!!!")
                     hBkgTot = ROOT.THStack()
+             #       print("Made hBkgTot!!!!!")
+             #   else:
+             #       print("sigOnly true????!!!!!!!!!!???????? " + str(sigOnly))
                # print("Original hBkgTot = {}".format(hBkgTot))
                # print("THStack x-axis: {}".format(hBkgTot.GetXaxis()))
                 #set up legend.
@@ -426,11 +443,15 @@ if __name__ == "__main__":
                 #repeat once for each different distribution.
                 for dnum,dist in enumerate(dists):
                     #print "divising MC into categories "
-                    hirBackground = ROOT.TH1F()
+                    #hirBackground = ROOT.TH1F()
 
                     #print("sys: {}, dist: {}, cat: {}, var: {}".format(sys, dist, cat, var))
                     #hirBackground = histodict[sys][sys+"_"+dist][cat][var].Clone()
-                    hirBackground = histodict[sys][dist][cat][var].Clone()
+                    try:
+                        hirBackground = histodict[sys][dist][cat][var].Clone()
+                    except:
+                    #    print("var not working: ", var)
+                        continue
 
 
                     #data
@@ -467,7 +488,7 @@ if __name__ == "__main__":
                        # colstr = "#000000" #black (?)
                         bkgtit = "Data observed"
                     else:
-                        print("Error: still need to implement dnum = {}, dist = {}".format(dnum, dist))
+                    #    print("Error: still need to implement dnum = {}, dist = {}".format(dnum, dist))
                         system.exit() 
                         #break
 
@@ -477,7 +498,7 @@ if __name__ == "__main__":
                         hirBackground.SetFillStyle(1001)
                         hirBackground.SetFillColor(ROOT.TColor.GetColor(colstr))
                         hBkgTot.Add(hirBackground)
-                        print("added to hBkgTot: {}".format(str(hirBackground)))
+                    #    print("added to hBkgTot: {}".format(str(hirBackground)))
                     elif is_sig:
                     #signal
                         hirBackground.SetLineColor(ROOT.TColor.GetColor(colstr))
@@ -496,8 +517,9 @@ if __name__ == "__main__":
                     else:
                         l.AddEntry(hData, "Data observed", "PE")
                         
-                   # print("Added {} to hBkgTot. Now hBkgTot = {}".format(hirBackground, hBkgTot))
+                    #print("Added {} to hBkgTot. Now hBkgTot = {}".format(hirBackground, hBkgTot))
                     #add entry to the legend.
+                    
 
 
         
@@ -549,7 +571,11 @@ if __name__ == "__main__":
                 else:
                     hSig.Draw("HIST")
                 
-                stack_title = variabledic[var][3]+variabledic[var][2]
+                try:
+                    stack_title = variabledic[var][3]+variabledic[var][2]
+                except:
+                    print "variable not wokring", var
+                    continue
                 #print("hBkgTot = {}".format(str(hBkgTot)))
                 #print("THStack x-axis: {}".format(hBkgTot.GetXaxis()))
                 if not sigOnly:
@@ -577,11 +603,15 @@ if __name__ == "__main__":
                 #print "with cuts ",allcats[cati].cuts
                 #print "data entries ",hData.GetEntries()
                 #print "background entries ",hBackground.GetEntries()
-                fname = dirname+"/"+var+"_"+str(cats[0])+".png"
+                if args.fakeCat == "":
+                    fname = dirname+"/"+var+"_"+str(cats[0])+".png"
+                else:
+                    fname = dirname + "/" + var + "_" + args.fakeCat + ".png"
                 print("trying to save as: {}".format(fname))
                 try:
                     c.SaveAs(fname)
                 except:
                     print("Error: could not save {}".format(fname))
 
-                #hirBackground.Delete()
+                if not sigOnly:
+                    hirBackground.Delete()

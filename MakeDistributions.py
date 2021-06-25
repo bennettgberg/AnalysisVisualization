@@ -340,7 +340,7 @@ def initialize(channel):
             tempcat.name=categories[category]['name']
             tempcat.cuts=categories[category]['cuts']
             tempcat.newvariables=categories[category]['newvariables']
-            tempcat.varis=categories[category]['varis']
+            tempcat.vars=categories[category]['vars']
             #tempcat.systematics=categories[category]['systematics']
             allcats[tempcat.name]=tempcat
 
@@ -388,7 +388,9 @@ def initialize(channel):
         temppro.cuts={sampleDict[sample][0]:""}
         #if "ggTo2mu2tau" in sample:
         if "HToAATo4Tau" in sample:
-            temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(137.5*31.05*0.00005)} # worked before
+            #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(137.5*31.05*0.00005)} # worked before
+            #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(31.05*0.0001)} #.01% br; no multiplication for visibility.
+            temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(31.05*0.005)} #.5% br; corresponds to 2016 paper!
             #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.0001*5.0)} # SM Higgs xsec x BR Haa x 5 for DataMC control plots
             #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.001* 5.0)} # SM Higgs xsec x BR Haa  for signal extraction data MC control plots(AN 17029)
         HAA_processes[temppro.nickname]=temppro
@@ -505,8 +507,8 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
             newVarVals = {}
             masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 
-            for variableHandle in allcats[cat].varis.keys():
-                variable = allcats[cat].varis[variableHandle][0]
+            for variableHandle in allcats[cat].vars.keys():
+                variable = allcats[cat].vars[variableHandle][0]
                 if "[" in variable:
                     #print "adding jagged variable to array ",variable
                     basevar = variable.split("[")[0]
@@ -569,8 +571,8 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
         if(process.nickname=="FF" and datadrivenPackage["bool"]):
             masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 
-            for variableHandle in allcats[cat].varis.keys():
-                variable = allcats[cat].varis[variableHandle][0]
+            for variableHandle in allcats[cat].vars.keys():
+                variable = allcats[cat].vars[variableHandle][0]
                 if "[" in variable:
                     #print "adding jagged variable to array ",variable
                     basevar = variable.split("[")[0]
@@ -688,9 +690,9 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
             newVarVals={}
             masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 
-            for variableHandle in allcats[cat].varis.keys():
+            for variableHandle in allcats[cat].vars.keys():
            #     print("variableHandle: {}".format(variableHandle))
-                variable = allcats[cat].varis[variableHandle][0]
+                variable = allcats[cat].vars[variableHandle][0]
            #     print("variable: {}".format(variable))
                 if "[" in variable:
                     #print "adding jagged variable to array ",variable
@@ -1172,7 +1174,7 @@ def createOutputSystematics(skimmedArraysSet,finalDistributions):
 #    #print(tree)
 #
 #    #for cat, catInfo in allcats.iteritems():
-#    #    for variableHandle in catInfo.varis.keys():
+#    #    for variableHandle in catInfo.vars.keys():
 #    for cat in allcats.keys():
 #        masterArray = tree.arrays()
 #        #print(process)
@@ -1186,8 +1188,8 @@ def createOutputSystematics(skimmedArraysSet,finalDistributions):
 #        skimArrayPerCat = {}
 #        masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
 #
-#        for variableHandle in allcats[cat].varis.keys():
-#            variable = allcats[cat].varis[variableHandle][0]
+#        for variableHandle in allcats[cat].vars.keys():
+#            variable = allcats[cat].vars[variableHandle][0]
 #            if "[" in variable:
 #                #print "adding jagged variable to array ",variable
 #                basevar = variable.split("[")[0]
@@ -1516,8 +1518,11 @@ if __name__ == "__main__":
     parser.add_argument("-mt",  "--mt", default=False,action='store_true',  help="Use Multithreading")
     parser.add_argument("-pt",  "--maxprint", default=False,action='store_true',  help="Print Info on cats and processes")
     parser.add_argument("-comb",  "--combineFiles", default=False, help="Combine root files mode (1) or generate root files mode (0)")
+    parser.add_argument("-dbg",  "--debug", default=False, help="Switch on to turn off multithreading (makes finding errors easier).")
 
     args = parser.parse_args()
+
+    debug = args.debug
 
     if args.combineFiles:
         print("Running in combineFiles mode.")
@@ -1571,16 +1576,18 @@ if __name__ == "__main__":
 
         #skims = pool.map(slimskimstar,payloads)
 
-        pool.map(slimskimstar,payloads)#this works for root output!
+        if not debug:
+            pool.map(slimskimstar,payloads)#this works for root output!
 
+            pool.close()
+            pool.join()
+          #  while not logger_q.empty():
+          #      print logger_q.get()
+        else:
         #don't multithread
-        #for pl in payloads:
-        #    slimskimstar(pl)
+            for pl in payloads:
+                slimskimstar(pl)
 
-        pool.close()
-        pool.join()
-      #  while not logger_q.empty():
-      #      print logger_q.get()
 
 
         print("ready to combine the output! (if no prior errors)")

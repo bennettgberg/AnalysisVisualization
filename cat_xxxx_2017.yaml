@@ -4,7 +4,7 @@ HAA_Inc_xxxx:
     name: "xxxx_inclusive"
     cuts:
         #preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",5.],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",12],["charge_12","<",0]]
-        preselection: [["cat","==",16],[["EQT"],["q_1","q_2"],"mult","<",0],[["EQT"],["q_3","q_4"],"mult","<",0]]
+        preselection: [["cat","==",16],[["EQT"],["q_1","q_2"],"mult","<",0],[["EQT"],["q_3","q_4"],"mult","<",0],["nbtag","<",1.0]]
    #     preselection: [["pt_1",">",20.],["pt_2",">",20.],["pt_3",">",20.],["pt_4",">",20.],["eta_3","absl",2.3],["eta_4","absl",2.3],["eta_1","absl",2.3],["eta_2","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["nbtag","<",1.0],["cat","==",12],["charge_12","<",0]]
        # preselection: []
         categorycuts: []
@@ -15,7 +15,9 @@ HAA_Inc_xxxx:
       #  trigger: &trigger [[["OR"],["muonTriggerWord","band",2],["muonTriggerWord","band",4]]]
         #trigger: &trigger [["muonTriggerWord","band",4]]
         #trigger: &trigger [[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]]]
-        trigger: &trigger [[["OR"], ["muonTriggerWord","band",1], ["muonTriggerWord","band",2], ["muonTriggerWord","band",4], ["muonTriggerWord","band",256], ["muonTriggerWord","band",512], ["muonTriggerWord","band",1024], ["muonTriggerWord","band",2048], ["muonTriggerWord","band",4096]]] 
+        #trigger: &trigger [[["OR"], ["muonTriggerWord","band",1], ["muonTriggerWord","band",2], ["muonTriggerWord","band",4], ["muonTriggerWord","band",256], ["muonTriggerWord","band",512], ["muonTriggerWord","band",1024], ["muonTriggerWord","band",2048], ["muonTriggerWord","band",4096]]] 
+        #trigger: &trigger [[["OR"], ["muonTriggerWord","band",1], ["muonTriggerWord","band",2], ["muonTriggerWord","band",4], ["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32],["muonTriggerWord","band",64],["muonTriggerWord","band",128],["muonTriggerWord","band",256], ["muonTriggerWord","band",512], ["muonTriggerWord","band",1024], ["muonTriggerWord","band",2048], ["muonTriggerWord","band",4096],["electronTriggerWord","band",1],["electronTriggerWord","band",2],["electronTriggerWord","band",4],["electronTriggerWord","band",8],["electronTriggerWord","band",16],["electronTriggerWord","band",32]]] 
+        trigger: &trigger [[["OR"], ["tauTriggerWord1","band",1], ["tauTriggerWord1","band",2], ["tauTriggerWord1","band",4], ["tauTriggerWord1","band",8], ["tauTriggerWord1","band",16], ["tauTriggerWord1","band",32], ["tauTriggerWord1","band",64], ["tauTriggerWord1","band",128], ["tauTriggerWord1","band",256], ["tauTriggerWord1","band",512], ["tauTriggerWord1","band",1024], ["tauTriggerWord1","band",2048], ["tauTriggerWord1","band",4096], ["tauTriggerWord1","band",8192], ["tauTriggerWord1","band",16384], ["tauTriggerWord1","band",32768], ["tauTriggerWord0","band",1], ["tauTriggerWord0","band",2], ["tauTriggerWord0","band",4], ["tauTriggerWord0","band",8], ["tauTriggerWord0","band",16], ["tauTriggerWord0","band",32], ["tauTriggerWord0","band",64], ["tauTriggerWord0","band",128], ["tauTriggerWord0","band",256], ["tauTriggerWord0","band",512], ["tauTriggerWord0","band",1024], ["tauTriggerWord0","band",2048], ["tauTriggerWord0","band",4096], ["tauTriggerWord0","band",8192], ["tauTriggerWord0","band",16384], ["tauTriggerWord0","band",32768], ["tauTriggerWord3","band",1], ["tauTriggerWord3","band",2], ["tauTriggerWord3","band",4], ["tauTriggerWord3","band",8], ["tauTriggerWord2","band",1], ["tauTriggerWord2","band",2], ["tauTriggerWord2","band",4], ["tauTriggerWord2","band",8], ["tauTriggerWord2","band",16], ["tauTriggerWord2","band",32], ["tauTriggerWord2","band",64], ["tauTriggerWord2","band",128], ["tauTriggerWord2","band",256], ["tauTriggerWord2","band",512], ["tauTriggerWord2","band",1024], ["tauTriggerWord2","band",2048], ["tauTriggerWord2","band",4096], ["tauTriggerWord2","band",8192], ["tauTriggerWord2","band",16384], ["tauTriggerWord2","band",32768], ["muonTriggerWord","band",1], ["muonTriggerWord","band",2], ["muonTriggerWord","band",4], ["muonTriggerWord","band",8], ["muonTriggerWord","band",16], ["muonTriggerWord","band",32], ["muonTriggerWord","band",64], ["muonTriggerWord","band",128], ["muonTriggerWord","band",256], ["muonTriggerWord","band",512], ["muonTriggerWord","band",1024], ["muonTriggerWord","band",2048], ["muonTriggerWord","band",4096], ["electronTriggerWord","band",1], ["electronTriggerWord","band",2], ["electronTriggerWord","band",4], ["electronTriggerWord","band",8], ["electronTriggerWord","band",16], ["electronTriggerWord","band",32]]]
        # trigger: &trigger [[["OR"],["whichTriggerWordSubL","band",4],["whichTriggerWordSubL","band",8],["whichTriggerWordSubL","band",16],["whichTriggerWordSubL","band",32]]]
         #trigger: &trigger []
 
@@ -26,22 +28,20 @@ HAA_Inc_xxxx:
     }
 
     systematics: &systematics {
-        #name of systematic for up and down : ["treename",[application to existing var],[application to new varis]]
+        #name of systematic for up and down : ["treename",[application to existing var],[application to new vars]]
         #scale_m_etalt1p2Up: ["scale_m_etalt1p2Up",["mll"],[["mllmtt",["minusArr",[-40.0,-30.0,-20.0,-10.0,0.0,10.0,20.0,30.0,40.0,50.0,60.0],["mll","m_vis"],"[GeV]","mll - m_{vis}"]]]]
 #        Events: ["Events",["mll","mllmtt"]],
 #        scale_m_etalt1p2Up: ["scale_m_etalt1p2Up",["mll","mllmtt"]]
       }
 
-    varis: &varis {
-      #  m_vis: ["m_vis",[50.0,60.0,70.0,80.0,90.0,100.0,110.0,120.0,130.0,140.0,150.0],"[GeV]","M_{vis}"],
-        m_vis: ["m_vis",[[20,0.0,200.0]],"[GeV]","M_{vis}"],
+    vars: &vars {
+       # m_vis: ["m_vis",[[4,80.0,240.0]],"[GeV]","M_{vis}"],
+        m_vis: ["m_vis",[[12,0.0,240.0]],"[GeV]","M_{vis}"],
         AMass_blinded: ["AMass",[130.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot} Blind"],
-      #  AMass: ["AMass",[0.0,20.0,40.0,60.0,80.0,100.0,120.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot}"],
-        AMass: ["AMass",[[30,200.0,500.0]],"[GeV]","M_{4l Tot}"],
-        #AMass: ["AMass",[[50,0.0,500.0]],"[GeV]","M_{4l Tot}"],
-      #  mll: ["mll",[0.0,10.,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.,100.,110.,120.,130.,140.],"[GeV]","M_{#tau_{1}#tau_{2}}"],
-        #mll: ["mll",[[20,0.0,200.0]],"[GeV]","M_{#tau_{1}#tau_{2}}"],
-        mll: ["mll",[[30,120.0,420.0]],"[GeV]","M_{#tau_{1}#tau_{2}}"],
+      #  AMass: ["AMass",[[9,150.0,510.0]],"[GeV]","M_{4l Tot}"],
+        AMass: ["AMass",[[24,0.0,480.0]],"[GeV]","M_{4l Tot}"],
+    #    mll: ["mll",[[4,80.0,240.0]],"[GeV]","M_{#tau_{1}#tau_{2}}"],
+        mll: ["mll",[[12,0.0,240.0]],"[GeV]","M_{#tau_{1}#tau_{2}}"],
        # mll_m15: ["mll_m15",[13.0,13.125,13.25,13.375,13.5,13.625,13.75,13.875,14.0,14.125,14.25,14.375,14.5,14.625,14.75,14.875,15.0,15.125,15.25,15.375,15.5,15.625,15.75,15.875,16.0,16.125,16.25,16.375,16.5,16.625,16.75,16.875,17.0],"[GeV]","M_{#tau_{1}#tau_{2}}"],
        # mll_m20: ["mll_m20",[18.0,18.125,18.25,18.375,18.5,18.625,18.75,18.875,19.0,19.125,19.25,19.375,19.5,19.625,19.75,19.875,20.0,20.125,20.25,20.375,20.5,20.625,20.75,20.875,21.0,21.125,21.25,21.375,21.5,21.625,21.75,21.875,22.0],"[GeV]","M_{#tau_{1}#tau_{2}}"],
        # mll_m25: ["mll_m25",[23.0,23.125,23.25,23.375,23.5,23.625,23.75,23.875,24.0,24.125,24.25,24.375,24.5,24.625,24.75,24.875,25.0,25.125,25.25,25.375,25.5,25.625,25.75,25.875,26.0,26.125,26.25,26.375,26.5,26.625,26.75,26.875,27.0],"[GeV]","M_{#tau_{1}#tau_{2}}"],
@@ -155,7 +155,7 @@ HAA_Inc_mmtt_FF_SS_1_tight:
         categoryCuts: [["cat","==",7],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["idDeepTau2017v2p1VSjet_3",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_3",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_3",">=",*ffworkingpoint]]
         trigger: *trigger
 
-    varis: &ffvaris {
+    vars: &ffvars {
         AMass_blinded: ["AMass",[130.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot} Blind"],
         AMass: ["AMass",[0.0,20.0,40.0,60.0,80.0,100.0,120.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot}"],
         mll: ["mll",[0.0,10.,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.,100.,110.,120.,130.,140.],"[GeV]","M_{#tau_{1}#tau_{2}}"],
@@ -179,7 +179,7 @@ HAA_Inc_mmtt_FF_SS_1_loose:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
         categoryCuts: [["cat","==",7],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0]]
         trigger: *trigger
-    varis: *ffvaris
+    vars: *ffvars
     newvariables: *newvariables
 
 HAA_Inc_mmtt_FF_SS_2_tight:
@@ -188,7 +188,7 @@ HAA_Inc_mmtt_FF_SS_2_tight:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
         categoryCuts: [["cat","==",7],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
         trigger: *trigger
-    varis: *ffvaris
+    vars: *ffvars
     newvariables: *newvariables
 
 #invert tau criteria
@@ -198,5 +198,5 @@ HAA_Inc_mmtt_FF_SS_2_loose:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_3","absl",2.3],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
         categoryCuts: [["cat","==",7],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0]]
         trigger: *trigger
-    varis: *ffvaris
+    vars: *ffvars
     newvariables: *newvariables
