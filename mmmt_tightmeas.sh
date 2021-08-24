@@ -20,10 +20,10 @@ fi
 output0=2016_${mainout}_dm_mmmt
 output1=2016_${mainout}_mmmt
 fo=2016_${mainout}_dm_mmmt
-cat=cat_mmmt_trigger_2016.yaml
+cat=cat_mmmt_tightmeas.yaml
 
 
-python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch mmmt 
+python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch mmmt
 #python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -o $output0 -fo $fo -ch mmmt
 #python MakePlots_skimmed_sys.py -i skimmed_${output0}.root -o $output0 -c $cat --ch mmmt -p $process
 
@@ -31,14 +31,15 @@ python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -
 #cp -r out$output0/pt_*.root FFhistos_$fo/.
 
 #echo "Applying Fake Factors ..."
-python MakeDistributions_v6.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmmt -s -ddZH -fi $fo -fo $output1 -ex
+#python MakeDistributions_HAA_2016.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmmt -s -ddZH -fi $fo
+python MakeDistributions_v6.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmmt -s -ddZH -fi $fo -fo $output1
 
 #echo "Making Plots ..."
 #python MakePlots_skimmed.py -i skimmed_${output1}.root -o $output1 -c $cat --ch mmmt -ddZH -p $process
 #python MakePlots_skimmed.py -i skimmed_${output1}.root -o $output1 -c $cat --ch mmmt -p $process
 #
 #python MakePlots_skimmed_sys.py -i skimmed_${output0}.root -o $output0 -c $cat --ch mmmt -p $process -de
-python MakePlots_skimmed_sys.py -i skimmed_${output1}.root -o $output1 -c $cat --ch mmmt -p $process -de -ddZH
+python MakePlots_skimmed_sys.py -i skimmed_${output1}.root -o $output1 -c $cat --ch mmmt -p $process -de
 
 
 

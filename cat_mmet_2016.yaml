@@ -7,7 +7,16 @@ HAA_Inc_mmet:
         preselection: &preselection [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",7.],["pt_4",">",18.5],["eta_3","absl",2.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",5]]
         categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["Electron_mvaFall17V2noIso_WP90_3",">=",1],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
         #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["Electron_mvaFall17V2noIso_WP90_3",">=",1],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint]]
-        trigger: &trigger [[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]]]
+        #trigger: &trigger [[["OR"],["muonTriggerWord","band",4],["muonTriggerWord","band",8],["muonTriggerWord","band",16],["muonTriggerWord","band",32]]]
+        trigger:  &trigger [[["OR"],
+          ["muonTriggerWord","band",1],
+          ["muonTriggerWord","band",2],
+          ["muonTriggerWord","band",4],
+          ["muonTriggerWord","band",256],
+          ["muonTriggerWord","band",512],
+          ["muonTriggerWord","band",1024],
+          ["muonTriggerWord","band",2048],
+          ["muonTriggerWord","band",4096]]]
 
     newvariables: &newvariables {
         mll-mtt: ["minusArr",[-40.0,-30.0,-20.0,-10.0,0.0,10.0,20.0,30.0,40.0,50.0,60.0],["mll","m_vis"],"[GeV]","mll - m_{vis}"],
@@ -137,13 +146,14 @@ HAA_Inc_mmet_FF_SS_1_tight:
         AMass_blinded: ["AMass",[130.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot} Blind"],
         AMass: ["AMass",[0.0,20.0,40.0,60.0,80.0,100.0,120.,140.,160.,180.,200.,220.0,240.0,260.0,280.0,300.0,320.,340.,360.,380.,400.],"[GeV]","M_{4l Tot}"],
         mll: ["mll",[0.0,10.,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.,100.,110.,120.,130.,140.],"[GeV]","M_{#mu#mu}"],
-        pt_3_ff: ["pt_3",[0.0,5.0,10.0,15.0,20.0,25.0,30.0,35.0,40.0,50.0,60.0,100.0,120.0],"[Gev]","P_{T}(l_{3})"],
+        #pt_3_ff: ["pt_3",[0.0,5.0,10.0,15.0,20.0,25.0,30.0,35.0,40.0,50.0,60.0,100.0,120.0],"[Gev]","P_{T}(l_{3})"],
         pt_3_ff: ["pt_3",[0.0,5.0,20.0,40.0,60.0,100.0,120.0],"[Gev]","P_{T}(l_{3})"],
         jpt_1_ff: ["jpt_1",[[5,0,100]],"[Gev]","Jet P_{T}(l_{1})"],
         pt_3_ff_fine: ["pt_3",[[40,0,100]],"[Gev]","P_{T}(l_{3})"],
         pt_4: ["pt_4",[0.0,25.0,50.,75.,100.,125.,150.,175.,200.],"[GeV]","#tau_{pt}"],
         pt_4_ff: ["pt_4",[0.0,15.0,20.0,25.0,30.0,35.0,40.0,50.0,60.0,80.0,100.0,120.0],"[Gev]","P_{T}(l_{4})"],
-        pt_4_ff: ["pt_4",[0.0,15.0,30.0,50.0,80.0,100.0,120.0],"[Gev]","P_{T}(l_{4})"],
+        #pt_4_ff: ["pt_4",[0.0,15.0,30.0,50.0,80.0,100.0,120.0],"[Gev]","P_{T}(l_{4})"],
+        pt_4_ff: ["pt_4",[0.0,15.0,30.0,50.0,120.0],"[Gev]","P_{T}(l_{4})"],
         jpt_2_ff: ["jpt_2",[[5,0,100]],"[Gev]","Jet P_{T}(l_{2})"],
         pt_4_ff_fine: ["pt_4",[[40,0,100]],"[Gev]","P_{T}(l_{4})"]
 
@@ -180,5 +190,23 @@ HAA_Inc_mmet_FF_SS_2_loose:
         categoryCuts: [["cat","==",5],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0]]
         #categoryCuts: [["cat","==",5],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15],["Electron_mvaFall17V2noIso_WP90_3",">=",1]]
         trigger: *trigger
+    vars: *ffvars
+    newvariables: *newvariables
+
+HAA_Inc_mmet_FF_OS_application:
+    name: "mmet_FF_OS_application"
+    cuts:
+        preselection: *preselection
+        trigger: *trigger
+        categorycuts: [["cat","==",5],[["EQT"],["q_3","q_4"],"mult","<",0],["nbtag","<",1.0]]
+    vars: *ffvars
+    newvariables: *newvariables
+
+HAA_Inc_mmet_FF_SS_validation:
+    name: "mmet_FF_SS_validation"
+    cuts:
+        preselection: *preselection
+        trigger: *trigger
+        categorycuts: [[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["Electron_mvaFall17V2noIso_WP90_3",">=",1],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
     vars: *ffvars
     newvariables: *newvariables

@@ -187,12 +187,13 @@ if __name__ == "__main__":
     for category in categories:
         #print category
         #print categories[category]['name']
-        tempcat = Category()
-        tempcat.name=categories[category]['name']
-        tempcat.cuts=categories[category]['cuts']
-        tempcat.newvariables=categories[category]['newvariables']
-        tempcat.vars=categories[category]['vars']
-        allcats[tempcat.name]=tempcat
+        if "_inclusive" in categories[category]['name']:
+            tempcat = Category()
+            tempcat.name=categories[category]['name']
+            tempcat.cuts=categories[category]['cuts']
+            tempcat.newvariables=categories[category]['newvariables']
+            tempcat.vars=categories[category]['vars']
+            allcats[tempcat.name]=tempcat
 
     print "the categories   ",allcats
     newvars=[]
@@ -218,9 +219,9 @@ if __name__ == "__main__":
     finalhists = {}
     processes = []
     histodict = {}
-    dists = fin.keys()
     cats = [args.channel+"_inclusive"]
     vars = allcats[cats[0]].vars.keys()
+    dists = fin[cats[0]].keys()
 
     for newvar in allcats[cats[0]].newvariables.keys():
         vars.append(newvar)
@@ -230,7 +231,7 @@ if __name__ == "__main__":
     for distLong in dists:
         dist = distLong.split(";")[0]
         #distribution = dist.ReadObj()  #The TTree
-        tree = fin[dist]
+        tree = fin[cats[0]][dist]
         masterArray = tree.arrays()
         histodict[dist]={}
         for cat in cats:
@@ -279,7 +280,7 @@ if __name__ == "__main__":
 
         for cat in cats:
             #signal
-            hSignal = histodict["a40"][cat][var]
+            hSignal = histodict["Nominal_a40"][cat][var]
             hSignals={}
 
             hDataDict={}
@@ -293,10 +294,10 @@ if __name__ == "__main__":
             hrareBackground = ROOT.TH1F()
             h3alphBackground = ROOT.TH1F()
 
-            hBackground = histodict["Bkg"][cat][var].Clone()
-            hirBackground = histodict["irBkg"][cat][var].Clone()
-            h3alphBackground = histodict["TrialphaBkg"][cat][var].Clone()
-            hrareBackground = histodict["rareBkg"][cat][var].Clone()
+            hBackground = histodict["Nominal_Bkg"][cat][var].Clone()
+            hirBackground = histodict["Nominal_irBkg"][cat][var].Clone()
+            h3alphBackground = histodict["Nominal_TrialphaBkg"][cat][var].Clone()
+            hrareBackground = histodict["Nominal_rareBkg"][cat][var].Clone()
 
 
             #data
@@ -329,13 +330,13 @@ if __name__ == "__main__":
             hBkgTot.Add(h3alphBackground)
 
             if args.datadrivenZH:
-                hData = histodict["data_obs"][cat][var]
+                hData = histodict["Nominal_data_obs"][cat][var]
                 #hPrompt = histodict["prompt"][cat][var]
                 #hFake1 = histodict["fake1")
                 #hFake2 = histodict["fake2")
                 #hirBackground.Add(hFake1,-1)
                 #hirBackground.Add(hFake2,-1)
-                hFF = histodict["Bkg"][cat][var]
+                hFF = histodict["Nominal_Bkg"][cat][var]
                 hFF.SetTitle("Jet faking #tau")
                 #hFF.Add(hFF2)
                 #hFF.Add(hFF12,-1)
@@ -347,7 +348,7 @@ if __name__ == "__main__":
                 hFF.SetFillColor(ROOT.TColor.GetColor("#CF8AC8"))
 
             if not args.mc:
-                #hData = histodict["data_obs"][cat][var].Clone()
+                hData = histodict["Nominal_data_obs"][cat][var].Clone()
                 dataMax = hData.GetMaximum()*1.35
                 dataMin = hData.GetMinimum()*1.25
                 if var in ["mll_fine"]:
@@ -459,10 +460,10 @@ if __name__ == "__main__":
             if not args.mc:
                 l.AddEntry(hData)
             l.AddEntry(hSignal)
-            if not (args.datadriven or args.datadrivenZH):
-                l.AddEntry(hBackground)
-            else:
+            if args.datadrivenZH:
                 l.AddEntry(hFF)
+            else:
+                l.AddEntry(hBackground)
             l.AddEntry(h3alphBackground)
             l.AddEntry(hirBackground)
             l.AddEntry(hrareBackground)

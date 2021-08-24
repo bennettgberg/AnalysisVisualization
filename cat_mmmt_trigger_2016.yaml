@@ -137,7 +137,7 @@ HAA_Inc_mmmt_FF_SS_1_tight:
     name: "mmmt_FF_SS_1_tight"
     cuts:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]]]
+        categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]]]
         trigger: *trigger
     #["idDeepTau2017v2p1VSjet_4",">=",ffworkingpoint]]
     vars: &ffvars {
@@ -167,7 +167,7 @@ HAA_Inc_mmmt_FF_SS_1_loose:
     name: "mmmt_FF_SS_1_loose"
     cuts:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0]]
+        categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0]]
     #[["OR"],["iso_3",">",0.15],["mediumId_3","<",1],["isGlobal_3","<",1],["isTracker_3","<",1]],
     #["idDeepTau2017v2p1VSjet_4",">=",ffworkingpoint]]
         trigger: *trigger
@@ -178,8 +178,8 @@ HAA_Inc_mmmt_FF_SS_2_tight:
     name: "mmmt_FF_SS_2_tight"
     cuts:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
-    #[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],
+        categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],
+    #[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],["iso_3","<=",0.15],
     ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
     #["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint]]
         trigger: *trigger
@@ -191,135 +191,154 @@ HAA_Inc_mmmt_FF_SS_2_loose:
     name: "mmmt_FF_SS_2_loose"
     cuts:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15]]
-    #[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],
+        categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0]]
+    #[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],,["iso_3","<=",0.15]
     #["idDeepTau2017v2p1VSjet_4","<",ffworkingpoint]]
         trigger: *trigger
     vars: *ffvars
     newvariables: *newvariables
 
-HAA_Inc_mmmt_FF_SS_2_DM10_tight:
-    name: "mmmt_FF_SS_2_DM10_tight"
-    cuts:
-        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
-    ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint],
-        ["decayMode_4","==",10]]
-        trigger: *trigger
-    vars: *ffvars
-    newvariables: *newvariables
-
-#invert tau criteria
-HAA_Inc_mmmt_FF_SS_2_DM10_loose:
-    name: "mmmt_FF_SS_2_DM10_loose"
-    cuts:
-        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15],
-        ["decayMode_4","==",10]]
-        trigger: *trigger
-    vars: *ffvars
-    newvariables: *newvariables
-
-HAA_Inc_mmmt_FF_SS_2_DM11_tight:
-    name: "mmmt_FF_SS_2_DM11_tight"
-    cuts:
-        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
-    ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint],
-        ["decayMode_4","==",11]]
-        trigger: *trigger
-    vars: *ffvars
-    newvariables: *newvariables
-
-#invert tau criteria
-HAA_Inc_mmmt_FF_SS_2_DM11_loose:
-    name: "mmmt_FF_SS_2_DM11_loose"
-    cuts:
-        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15],
-        ["decayMode_4","==",11]]
-        trigger: *trigger
-    vars: *ffvars
-    newvariables: *newvariables
-
-HAA_Inc_mmmt_FF_SS_2_DM1_tight:
-    name: "mmmt_FF_SS_2_DM1_tight"
-    cuts:
-        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
-    ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint],
-        ["decayMode_4","==",1]]
-        trigger: *trigger
-    vars: *ffvars
-    newvariables: *newvariables
-
-#invert tau criteria
-HAA_Inc_mmmt_FF_SS_2_DM1_loose:
-    name: "mmmt_FF_SS_2_DM1_loose"
-    cuts:
-        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
-        categoryCuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15],
-        ["decayMode_4","==",1]]
-        trigger: *trigger
-    vars: *ffvars
-    newvariables: *newvariables
-
-HAA_Inc_mmmt_FF_OS_1_loose:
-    name: "mmmt_FF_OS_1_loose"
-    cuts:
-        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",6]]
-        #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
-        categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15]]
-        #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint]]
-        #trigger: &trigger [[["OR"],["muonTriggerWord","band",2],["muonTriggerWord","band",4]]]
-        #trigger: &trigger [["muonTriggerWord","band",4]]
-        trigger: *trigger
-    newvariables: *newvariables
-    vars: *ffvars
-
-HAA_Inc_mmmt_FF_OS_2_loose:
-    name: "mmmt_FF_OS_2_loose"
+HAA_Inc_mmmt_FF_OS_application:
+    name: "mmmt_FF_OS_application"
     cuts:
         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",6]]
         categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15]]
-        #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint]]
-        #trigger: &trigger [[["OR"],["muonTriggerWord","band",2],["muonTriggerWord","band",4]]]
-        #trigger: &trigger [["muonTriggerWord","band",4]]
         trigger: *trigger
     newvariables: *newvariables
-
     vars: *ffvars
 
-HAA_Inc_mmmt_DY_en_tight:
-    name: "mmmt_DY_en_tight"
-    cuts: 
-      preselection: [["pt_1",">",5.],
-      ["pt_2",">",5.],
-      ["pt_4",">",18.5],
-      [["EQT"],
-      ["q_1","q_2"],"mult","<",0],
-      ["iso_1","<=",0.2],
-      ["iso_2","<=",0.2]]
-      categoryCuts: [["cat","==",6],
-      ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],
-      ["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],
-      ["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
-      trigger: *trigger
+HAA_Inc_mmmt_FF_SS_validation:
+    name: "mmmt_FF_SS_validation"
+    cuts:
+        preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
+        categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
+    ["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],
+    ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
+        trigger: *trigger
     vars: *ffvars
     newvariables: *newvariables
 
-#invert tau criteria
-HAA_Inc_mmmt_DY_en_loose:
-    name: "mmmt_DY_en_loose"
-    cuts: 
-      preselection: [["pt_1",">",5.],
-      ["pt_2",">",5.],
-      ["pt_4",">",18.5],
-      [["EQT"],
-      ["q_1","q_2"],"mult","<",0],
-      ["iso_1","<=",0.2],
-      ["iso_2","<=",0.2]]
-      categoryCuts: [["cat","==",6]]
-      trigger: *trigger
-    vars: *ffvars
-    newvariables: *newvariables
+# HAA_Inc_mmmt_FF_SS_2_DM10_tight:
+#     name: "mmmt_FF_SS_2_DM10_tight"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
+#         categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
+#     ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint],
+#         ["decayMode_4","==",10]]
+#         trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables
+
+# #invert tau criteria
+# HAA_Inc_mmmt_FF_SS_2_DM10_loose:
+#     name: "mmmt_FF_SS_2_DM10_loose"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
+#         categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15],
+#         ["decayMode_4","==",10]]
+#         trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables
+
+# HAA_Inc_mmmt_FF_SS_2_DM11_tight:
+#     name: "mmmt_FF_SS_2_DM11_tight"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
+#         categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
+#     ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint],
+#         ["decayMode_4","==",11]]
+#         trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables
+
+# #invert tau criteria
+# HAA_Inc_mmmt_FF_SS_2_DM11_loose:
+#     name: "mmmt_FF_SS_2_DM11_loose"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
+#         categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15],
+#         ["decayMode_4","==",11]]
+#         trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables
+
+# HAA_Inc_mmmt_FF_SS_2_DM1_tight:
+#     name: "mmmt_FF_SS_2_DM1_tight"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
+#         categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["iso_3","<=",0.15],["nbtag","<",1.0],
+#     ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint],
+#         ["decayMode_4","==",1]]
+#         trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables
+
+# #invert tau criteria
+# HAA_Inc_mmmt_FF_SS_2_DM1_loose:
+#     name: "mmmt_FF_SS_2_DM1_loose"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0]]
+#         categorycuts: [["cat","==",6],[["EQT"],["q_3","q_4"],"mult",">",0],["nbtag","<",1.0],["iso_3","<=",0.15],
+#         ["decayMode_4","==",1]]
+#         trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables
+
+# HAA_Inc_mmmt_FF_OS_1_loose:
+#     name: "mmmt_FF_OS_1_loose"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",6]]
+#         #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
+#         categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15]]
+#         #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint]]
+#         #trigger: &trigger [[["OR"],["muonTriggerWord","band",2],["muonTriggerWord","band",4]]]
+#         #trigger: &trigger [["muonTriggerWord","band",4]]
+#         trigger: *trigger
+#     newvariables: *newvariables
+#     vars: *ffvars
+
+# HAA_Inc_mmmt_FF_OS_2_loose:
+#     name: "mmmt_FF_OS_2_loose"
+#     cuts:
+#         preselection: [["pt_1",">",5.],["pt_2",">",5.],["pt_3",">",5.],["pt_4",">",18.5],["eta_4","absl",2.3],[["EQT"],["q_1","q_2"],"mult","<",0],["iso_1","<=",0.2],["iso_2","<=",0.2],["nbtag","<",1.0],["cat","==",6]]
+#         categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15]]
+#         #categorycuts: [[["EQT"],["q_3","q_4"],"mult","<",0],["iso_3","<=",0.15],["mediumId_3",">=",1],[["OR"],["isGlobal_3",">=",1],["isTracker_3",">=",1]],["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint]]
+#         #trigger: &trigger [[["OR"],["muonTriggerWord","band",2],["muonTriggerWord","band",4]]]
+#         #trigger: &trigger [["muonTriggerWord","band",4]]
+#         trigger: *trigger
+#     newvariables: *newvariables
+
+#     vars: *ffvars
+
+# HAA_Inc_mmmt_DY_en_tight:
+#     name: "mmmt_DY_en_tight"
+#     cuts: 
+#       preselection: [["pt_1",">",5.],
+#       ["pt_2",">",5.],
+#       ["pt_4",">",18.5],
+#       [["EQT"],
+#       ["q_1","q_2"],"mult","<",0],
+#       ["iso_1","<=",0.2],
+#       ["iso_2","<=",0.2]]
+#       categorycuts: [["cat","==",6],
+#       ["idDeepTau2017v2p1VSjet_4",">=",*ffworkingpoint],
+#       ["idDeepTau2017v2p1VSe_4",">=",*ffworkingpoint],
+#       ["idDeepTau2017v2p1VSmu_4",">=",*ffworkingpoint]]
+#       trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables
+
+# HAA_Inc_mmmt_DY_en_loose:
+#     name: "mmmt_DY_en_loose"
+#     cuts: 
+#       preselection: [["pt_1",">",5.],
+#       ["pt_2",">",5.],
+#       ["pt_4",">",18.5],
+#       [["EQT"],
+#       ["q_1","q_2"],"mult","<",0],
+#       ["iso_1","<=",0.2],
+#       ["iso_2","<=",0.2]]
+#       categorycuts: [["cat","==",6]]
+#       trigger: *trigger
+#     vars: *ffvars
+#     newvariables: *newvariables

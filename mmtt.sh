@@ -32,7 +32,7 @@ python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -
 
 echo "Applying Fake Factors ..."
 #python MakeDistributions_HAA_2016.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo
-python MakeDistributions_v6.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo -fo $output1
+python MakeDistributions_v6.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo -fo $output1 -ex
 
 echo "Making Plots ..."
 #python MakePlots_skimmed.py -i skimmed_${output1}.root -o $output1 -c $cat --ch mmtt -ddZH -p $process
