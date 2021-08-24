@@ -35,10 +35,10 @@ import glob
 #user definitions
 from utils.Parametrization import *
 
+year = 2018 #set by args later; this is just so it's a global variable.
 #directory where all the ntuple files are stored.
 #direc = "/eos/home-s/shigginb/HAA_ntuples/2016_v7/"
 #direc = "/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov7_basic_10_6_4/src/2016_v7/"
-direc = "/eos/uscms/store/user/bgreenbe/haa_4tau_2017/all/"    #_mmonly/"
 
 
 #Setting up operators for cut string iterator
@@ -258,7 +258,7 @@ def getEventWeightDicitonary():
 
     return EventWeights
 
-def initialize(channel):
+def initialize(channel, direc):
     import os
     from copy import copy
     import yaml
@@ -267,7 +267,7 @@ def initialize(channel):
     from utils.ProcessCuts import HAA_ProCuts
 
     #Structure for mapping between processes and weights
-    from utils.Weights import CommonWeights
+   # from utils.Weights import CommonWeights
     from utils.Weights import HAAWeights
 
 
@@ -291,8 +291,8 @@ def initialize(channel):
     sampleDict = {}
     #csvfile = "MCsamples_2016_v7_ZZ.csv"
     #csvfile = "MCsamples_2016_v7.csv"
-    csvfile = "bpgMCsamples_2017_v7.csv"
-    categories = "cat_"+channel+"_2017.yaml"
+    csvfile = "bpgMCsamples_%d_v7.csv"%(year)
+    categories = "cat_"+channel+"_%d.yaml"%(year)
     processes = "processes_special_"+channel+".yaml"
     #categories = "cat_mmet_2016.yaml"
     #processes = "processes_special_mmet.yaml"
@@ -364,7 +364,7 @@ def initialize(channel):
     for sample in sampleDict.keys():
         temppro = Process()
         temppro.nickname=sample
-        temppro.file=direc+sample+"_2017.root"
+        temppro.file=direc+sample+"_%d.root"%(year)
 
         #with ROOT.TFile.Open(temppro.file,"read") as frooin:
         frooin = ROOT.TFile.Open(temppro.file,"read")
@@ -384,13 +384,13 @@ def initialize(channel):
             kf = 1.221
         elif smp in ["DY%dJetsToLL"%(nj) for nj in range(1, 5)]:
             kf = 1.1637
-        temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3],"kfactor":kf} #,"PU":"weightPUtrue"}
+        temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3],"kfactor":kf,"PU":"weightPUtrue"}
         temppro.cuts={sampleDict[sample][0]:""}
         #if "ggTo2mu2tau" in sample:
         if "HToAATo4Tau" in sample:
             #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(137.5*31.05*0.00005)} # worked before
             #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(31.05*0.0001)} #.01% br; no multiplication for visibility.
-            temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(31.05*0.005)} #.5% br; corresponds to 2016 paper!
+            temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(31.05*0.75)} #75% br; corresponds to 2016 paper!
             #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.0001*5.0)} # SM Higgs xsec x BR Haa x 5 for DataMC control plots
             #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.001* 5.0)} # SM Higgs xsec x BR Haa  for signal extraction data MC control plots(AN 17029)
         HAA_processes[temppro.nickname]=temppro
@@ -402,8 +402,9 @@ def initialize(channel):
         #get sum of weights for special processes (sum reg and _ext).
         DYJetsFile = ROOT.TFile.Open(HAA_processes["DYJetsToLL"].file,"read")
         jetWeightMultiplicity["DYJetsToLL"]=DYJetsFile.Get("hWeights").GetSumOfWeights()
-        DYJetsFilex = ROOT.TFile.Open(HAA_processes["DYJetsToLL_ext1"].file,"read")
-        jetWeightMultiplicity["DYJetsToLL"] += DYJetsFilex.Get("hWeights").GetSumOfWeights()
+        if year == 2017:
+            DYJetsFilex = ROOT.TFile.Open(HAA_processes["DYJetsToLL_ext1"].file,"read")
+            jetWeightMultiplicity["DYJetsToLL"] += DYJetsFilex.Get("hWeights").GetSumOfWeights()
        # DY1JetsFile = ROOT.TFile.Open(HAA_processes["DY1JetsToLL"].file,"read")
        # jetWeightMultiplicity["DY1JetsToLL"]=DY1JetsFile.Get("hWeights").GetSumOfWeights()
        # DY2JetsFile = ROOT.TFile.Open(HAA_processes["DY2JetsToLL"].file,"read")
@@ -419,8 +420,9 @@ def initialize(channel):
         WJetsFile = ROOT.TFile.Open(HAA_processes["WJetsToLNu"].file,"read")
       #  print("opened WJets file.")
         jetWeightMultiplicity["WJetsToLNu"]=WJetsFile.Get("hWeights").GetSumOfWeights()
-        WJetsFilex = ROOT.TFile.Open(HAA_processes["WJetsToLNu_ext1"].file,"read")
-        jetWeightMultiplicity["WJetsToLNu"] += WJetsFilex.Get("hWeights").GetSumOfWeights()
+        if year == 2017:
+            WJetsFilex = ROOT.TFile.Open(HAA_processes["WJetsToLNu_ext1"].file,"read")
+            jetWeightMultiplicity["WJetsToLNu"] += WJetsFilex.Get("hWeights").GetSumOfWeights()
       #  W1JetsFile = ROOT.TFile.Open(HAA_processes["W1JetsToLNu"].file,"read")
       #  jetWeightMultiplicity["W1JetsToLNu"]=W1JetsFile.Get("hWeights").GetSumOfWeights()
       #  W2JetsFile = ROOT.TFile.Open(HAA_processes["W2JetsToLNu"].file,"read")
@@ -435,7 +437,7 @@ def initialize(channel):
 
     Bkg = ["DY","W","TT","ST","EWK","Top"]
     irBkg = ["ZZ","ZHToTauTau","vbf","WHTT","Signal","ggZH"]
-    TrialphaBkg = ["ttZ","ttW","WWZ","WZZ","ZZZ","WWW4F","HZJ"]
+    TrialphaBkg = ["ttZ","ttW","WWZ","WZZ","ZZZ","WWW4F","HZJ"] #doesn't exist for 2018 rn.
     rareBkg = ["Other","rare","WZ","QCD"]
     finalDistributions = {}
     finalDistributions["Bkg"]=Bkg
@@ -490,9 +492,14 @@ def f(process, categories):
 def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic):
 
     from utils.functions import functs
-    from utils.Weights import CommonWeights
+   # from utils.Weights import CommonWeights
     from ROOT import gInterpreter
-    commonweight = CommonWeights["lumi"][0]
+    #2018 lumi
+    commonweight = 59740 #CommonWeights["lumi"][0]
+    if year == 2017:
+        commonweight = 41800 #2017 lumi
+    elif year == 2016:
+        commonweight = 35900 #2016 lumi
     skimArrayPerCat = {}
     print "working on process obj ",process.nickname
     for cat in allcats.keys():
@@ -745,7 +752,9 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                     continue
                     #weightfinal =  weightfinal * (1 / float(weightDict[scalefactor]))
                 elif scalefactor in ["PU"]:
-                    masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor]))
+                    #masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor]))
+                        #need to multiply by Generator_weight, no?????
+                    masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor])*returnArray(masterArray,"Generator_weight"))
                     #pass
                 elif scalefactor =="theoryXsec":
                     weightfinal =  weightfinal * float(weightDict[scalefactor])
@@ -830,6 +839,9 @@ def makeCutsOnTreeArray(process, masterArray,allcats,weightHistoDict,systematic)
                 #events with > 0 LHE_Njets should use same weighting as the corresponding exclusive file.
                 for nj in range(1, 5):
                     masknj = masterArray["LHE_Njets"]==nj
+                    if debug:
+                        print("bare_name: {}".format(bare_name))
+                        print("jetWeightMultiplicities: {}".format(jetWeightMultiplicity))
                     norm1 = jetWeightMultiplicity[bare_name]/HAA_processes[bare_name].weights["xsec"]
                     njname = "DY%dJetsToLL"%nj if bare_name == "DYJetsToLL" else "W%dJetsToLNu"%nj
                     norm2 = sow / HAA_processes[njname].weights["xsec"]
@@ -1331,71 +1343,71 @@ def createOutputSystematics(skimmedArraysSet,finalDistributions):
 #
 #    return skimArrayPerCat
 
-def createOutput(skimmedArrays,finalDistributions):
-    import root_numpy
-
-    finalSkims={}
-    cats = []
-    for skimArrayPerCat in skimmedArrays:
-        #print skimArrayPerCat.keys()
-        for catNicPro in skimArrayPerCat.keys():
-            #print "key ",catNicPro
-            channel = catNicPro.split(":")[0].split("_")[0]
-            #print "channel ",channel
-            cat = catNicPro.split(":")[0]
-            cats.append(cat)
-            try:
-                finalSkims[cat]={}
-            except:
-                continue
-            process= catNicPro.split(":")[-1]
-            #print "cat ",cat
-            #print "process ",process
-
-            for catDist in finalDistributions.keys():
-                for processOut in finalDistributions[catDist]:
-                    #if (catDist not in finalSkims[cat]):
-                    if (processOut==process) and (catDist not in finalSkims[cat]):
-                        #finalSkims[cat][catDist] = processSkims[process]
-                        #print "first output to finalskims ", catNicPro,"  for process ",process," finalDist cat ",catDist
-                        finalSkims[cat][catDist] = skimArrayPerCat[catNicPro]
-                        continue
-                    #elif (catDist in finalSkims[cat]):
-                    elif (processOut==process) and (catDist in finalSkims[cat]):
-                        #print "adding to finalskims ", catNicPro,"  for process ",process," finalDist cat ",catDist
-                        for branch in finalSkims[cat][catDist].keys():
-                            #finalSkims[cat][catDist][branch]=np.concatenate((finalSkims[cat][catDist][branch],processSkims[process][branch]))
-                            finalSkims[cat][catDist][branch]=np.concatenate((finalSkims[cat][catDist][branch],skimArrayPerCat[catNicPro][branch]))
-                    else:
-                        continue
-
-
-    for cat in cats:
-        localtest="ZZ"
-        skimFile = ROOT.TFile("skimmed_"+localtest+"_"+cat+".root","recreate")
-        skimFile.cd()
-
-        dataTypes =[[],[]]
-        #print finalSkims[cat].values()
-        random_sample = finalSkims[cat].values()[0]
-        for branch in random_sample.keys():
-            dataTypes[0].append(branch)
-            dataTypes[1].append(random_sample[branch].dtype)
-        for catDist in finalSkims[cat].keys():
-            #print "on the final dist ",catDist
-            data = np.zeros(len(finalSkims[cat][catDist][branch]),dtype={'names':dataTypes[0],'formats':dataTypes[1]})
-            for branch in data.dtype.names:
-                #print "working on branch ",branch
-                #print "branch datatype ",type(finalSkims[cat][catDist][branch])
-                if len(finalSkims[cat][catDist][branch].shape) == 1:   # flat array important for jagged arrays of input data
-                    data[branch] = finalSkims[cat][catDist][branch]
-                else:
-                    data[branch] = finalSkims[cat][catDist][branch][:,0]
-            treeOut = root_numpy.array2tree(data, name=catDist)
-            treeOut.Write()
-        skimFile.Close()
-
-    return 1
+#def createOutput(skimmedArrays,finalDistributions):
+#    import root_numpy
+#
+#    finalSkims={}
+#    cats = []
+#    for skimArrayPerCat in skimmedArrays:
+#        #print skimArrayPerCat.keys()
+#        for catNicPro in skimArrayPerCat.keys():
+#            #print "key ",catNicPro
+#            channel = catNicPro.split(":")[0].split("_")[0]
+#            #print "channel ",channel
+#            cat = catNicPro.split(":")[0]
+#            cats.append(cat)
+#            try:
+#                finalSkims[cat]={}
+#            except:
+#                continue
+#            process= catNicPro.split(":")[-1]
+#            #print "cat ",cat
+#            #print "process ",process
+#
+#            for catDist in finalDistributions.keys():
+#                for processOut in finalDistributions[catDist]:
+#                    #if (catDist not in finalSkims[cat]):
+#                    if (processOut==process) and (catDist not in finalSkims[cat]):
+#                        #finalSkims[cat][catDist] = processSkims[process]
+#                        #print "first output to finalskims ", catNicPro,"  for process ",process," finalDist cat ",catDist
+#                        finalSkims[cat][catDist] = skimArrayPerCat[catNicPro]
+#                        continue
+#                    #elif (catDist in finalSkims[cat]):
+#                    elif (processOut==process) and (catDist in finalSkims[cat]):
+#                        #print "adding to finalskims ", catNicPro,"  for process ",process," finalDist cat ",catDist
+#                        for branch in finalSkims[cat][catDist].keys():
+#                            #finalSkims[cat][catDist][branch]=np.concatenate((finalSkims[cat][catDist][branch],processSkims[process][branch]))
+#                            finalSkims[cat][catDist][branch]=np.concatenate((finalSkims[cat][catDist][branch],skimArrayPerCat[catNicPro][branch]))
+#                    else:
+#                        continue
+#
+#
+#    for cat in cats:
+#        localtest="ZZ"
+#        skimFile = ROOT.TFile("skimmed_"+localtest+"_"+cat+".root","recreate")
+#        skimFile.cd()
+#
+#        dataTypes =[[],[]]
+#        #print finalSkims[cat].values()
+#        random_sample = finalSkims[cat].values()[0]
+#        for branch in random_sample.keys():
+#            dataTypes[0].append(branch)
+#            dataTypes[1].append(random_sample[branch].dtype)
+#        for catDist in finalSkims[cat].keys():
+#            #print "on the final dist ",catDist
+#            data = np.zeros(len(finalSkims[cat][catDist][branch]),dtype={'names':dataTypes[0],'formats':dataTypes[1]})
+#            for branch in data.dtype.names:
+#                #print "working on branch ",branch
+#                #print "branch datatype ",type(finalSkims[cat][catDist][branch])
+#                if len(finalSkims[cat][catDist][branch].shape) == 1:   # flat array important for jagged arrays of input data
+#                    data[branch] = finalSkims[cat][catDist][branch]
+#                else:
+#                    data[branch] = finalSkims[cat][catDist][branch][:,0]
+#            treeOut = root_numpy.array2tree(data, name=catDist)
+#            treeOut.Write()
+#        skimFile.Close()
+#
+#    return 1
 
 def combineRootFiles(systematics, finalDistributions, rootfiledir, channel):
    import os
@@ -1517,12 +1529,15 @@ if __name__ == "__main__":
     parser.add_argument("-s",  "--skim", default=False,action='store_true',  help="skim input files to make more TTrees")
     parser.add_argument("-mt",  "--mt", default=False,action='store_true',  help="Use Multithreading")
     parser.add_argument("-pt",  "--maxprint", default=False,action='store_true',  help="Print Info on cats and processes")
-    parser.add_argument("-comb",  "--combineFiles", default=False, help="Combine root files mode (1) or generate root files mode (0)")
-    parser.add_argument("-dbg",  "--debug", default=False, help="Switch on to turn off multithreading (makes finding errors easier).")
+    parser.add_argument("-comb",  "--combineFiles", default=False, action='store_true', help="Combine root files mode (1) or generate root files mode (0)")
+    parser.add_argument("-dbg",  "--debug", default=False, action='store_true', help="Switch on to turn off multithreading (makes finding errors easier).")
+    parser.add_argument("-yr",  "--year", default=2017, help="which year")
 
     args = parser.parse_args()
 
     debug = args.debug
+    year = int(args.year)
+    direc = "/eos/uscms/store/user/bgreenbe/haa_4tau_%d/all/"%(year)    #_mmonly/"
 
     if args.combineFiles:
         print("Running in combineFiles mode.")
@@ -1538,7 +1553,7 @@ if __name__ == "__main__":
 
 
     allcats,HAA_processes,finalDistributions,\
-    weightHistoDict,jetWeightMultiplicity = initialize(args.channel)
+    weightHistoDict,jetWeightMultiplicity = initialize(args.channel, direc)
 
     print("Done with initialize.")
 

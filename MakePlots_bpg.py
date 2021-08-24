@@ -33,10 +33,16 @@ def add_lumi(year):
         luminum = 41.8
     elif year == "2018":
         luminum = 59.74
-        print("year 2016")
+        print("year 2018")
+    elif year == "1718":
+        luminum = 59.74 + 41.8
     else:
         print("year: %d"%year)
-    lumi.AddText(str(year)+" " + str(luminum) + " fb^{-1} (13 TeV)")
+    if year == "1718":
+        yrstr = "2017+2018"
+    else:
+        yrstr = year
+    lumi.AddText(yrstr + " " + str(luminum) + " fb^{-1} (13 TeV)")
     return lumi
 
 def add_CMS():
@@ -179,6 +185,9 @@ if __name__ == "__main__":
     parser.add_argument("-nd",  "--noData", default=False, action='store_true',  help="Show data on the plot (False) or don't (True)")
     parser.add_argument("-so",  "--sigOnly", default=False, action='store_true',  help="True to include only signal; else False.")
     parser.add_argument("-fc",  "--fakeCat", default="",  help="Category for the fake factor plotting.")
+    parser.add_argument("-yr",  "--year", default="2017",  help="Which year (2016, 2017, or 2018")
+    parser.add_argument("-nZ",  "--noZZ", default=False,action='store_true',  help="Include this argument to exclude the ZZ bkg")
+    parser.add_argument("-tn",  "--testname", default="",  help="Testname (esp. for FF, so don't need to include filename, or can include multiple files)")
     args = parser.parse_args()
 
     ROOT.gStyle.SetFrameLineWidth(2)
@@ -186,7 +195,9 @@ if __name__ == "__main__":
     ROOT.gStyle.SetOptStat(0)
     ROOT.gROOT.SetBatch(True)
 
-    yr = "2017"
+    yr = str(args.year) #"2017"
+    if yr == "1718":
+        yr = "2017"
 
     #only plot this signal mass.
     mass = 40
@@ -205,7 +216,7 @@ if __name__ == "__main__":
     noData = args.noData #False
 
 
-    catfile = "cat_%s_2017.yaml"%(args.channel)
+    catfile = "cat_%s_%s.yaml"%(args.channel, yr)
     #importing analysis categories and conventions
     with io.open(catfile,'r') as catsyam:
         categories = yaml.load(catsyam)
@@ -247,15 +258,25 @@ if __name__ == "__main__":
         input_file = "skimmed_%s_%s.root"%(args.channel, args.output)
     else:
         input_file = args.input
-    if args.fakeCat == "":
+    #year 1718 signifies user wants us to add together 2017 and 2018.
+    if args.fakeCat != "" and args.year == "1718" and args.testname != "":
+        infiles = ["skimmed_%d_%s_%s.root"%(yyyy, args.testname, args.channel) for yyyy in [2017, 2018]]        
+        #print("infiles: {}".format(infiles))
+        fim = uproot.open(infiles[0]) #just open the first one for now just to get the names and junk.
+        fin = fim[args.fakeCat]
+        
+    elif args.fakeCat == "":
         fin = uproot.open(input_file)
+        infiles = [input_file] 
     else:
+        infiles = [input_file]
         fim = uproot.open(input_file)
         fin = fim[args.fakeCat]
-        dists = fin.keys()
+        #dists = fin.keys()
         #print("dists: {}".format(dists))
         #system.exit()
 
+    #print("fin: {}, infiles: {}".format(fin, infiles))
 
     histolist = {}
     finalhists = {}
@@ -299,22 +320,25 @@ if __name__ == "__main__":
     for newvar in allcats[cats[0]].newvariables.keys():
         vars.append(newvar)
 
+    #keep the integrals of each distribution so we can sort by integral later.
+    integrals = {}
     #for ivar,var in enumerate(cat.vars.keys()):
     #for dist in fin.GetListOfKeys():
     for sys in systematics:
    
         histodict[sys]={}
+        integrals[sys] = {}
         for distLong in dists:
             #if the dist is one we're not doing rn, continue.
         #    if distLong in bad_masses: continue
             #print("Now looping over dist: {}".format(distLong))
             dist = distLong.split(";")[0]
             #distribution = dist.ReadObj()  #The TTree
-            tree = fin[dist]
-            masterArray = tree.arrays()
             histodict[sys][dist]={}
+            integrals[sys][dist]={}
             for cat in cats:
                 histodict[sys][dist][cat]={}
+                integrals[sys][dist][cat]={}
                 for variableHandle in vars:
                    # print variableHandle
                     if variableHandle in allcats[cats[0]].newvariables.keys():
@@ -327,33 +351,57 @@ if __name__ == "__main__":
                     if type(bins[0])==list:
                        # print("Making new TH1D! title = {}".format(title))
                         histodict[sys][dist][cat][variableHandle] = ROOT.TH1D(title,title,bins[0][0],bins[0][1],bins[0][2])
-                        try:
-                            val = masterArray[var]
-                            root_numpy.fill_hist(histodict[sys][dist][cat][variableHandle],val,masterArray["finalweight"])
-                            passvars.append(var)
-                        except:
-                            print "problem with variable so skipping ",var
-                            continue
+                        integrals[sys][dist][cat][variableHandle] = 0 
                     else:
+                       # print("ERROR: Integral not calculated in this branch!")
                         tmpbin = np.asarray(bins)
                         histodict[sys][dist][cat][variableHandle] = ROOT.TH1D(title,title,len(tmpbin)-1,tmpbin)
+                        integrals[sys][dist][cat][variableHandle] = 0 
+
+    #print("histodict before filling: {}".format(histodict))
+    for ii,ff in enumerate(infiles):
+        fim = uproot.open(ff)
+        if args.fakeCat == "":
+            fin = fim
+        else:
+            fin = fim[args.fakeCat]
+        for sys in systematics:
+            for distLong in dists:
+                dist = distLong.split(";")[0]
+                try:
+                    tree = fin[dist]
+                except:
+                    continue
+                masterArray = tree.arrays()
+                for cat in cats:
+                    for variableHandle in vars:
+                        if variableHandle in allcats[cats[0]].newvariables.keys():
+                            var = variableHandle
+                            #bins = allcats[cat].newvariables[variableHandle][1]
+                        else:
+                            var = allcats[cat].vars[variableHandle][0]
+                            #bins = allcats[cat].vars[variableHandle][1]
+        
                         try:
                             val = masterArray[var]
+                            #print("val: {}".format(val))
+                            #print("masterArray[finalweight]: {}".format(masterArray["finalweight"]))
                             root_numpy.fill_hist(histodict[sys][dist][cat][variableHandle],val,masterArray["finalweight"])
-                            passvars.append(var)
+                            integrals[sys][dist][cat][variableHandle] = histodict[sys][dist][cat][variableHandle].Integral() 
+                            #print("just filled hist {}, {}, {}, {}: {}, int: {}".format(sys, dist, cat, variableHandle, histodict[sys][dist][cat][variableHandle], integrals[sys][dist][cat][variableHandle]))
+                            #print("3rd bin: {}".format(histodict[sys][dist][cat][variableHandle][3]))
+                            if ii == 0:
+                                passvars.append(var)
                         except:
                             print "problem with variable so skipping ",var
                             continue
-                    #histodict[sys][variablehandle+":"+allcats[cat].name+":"+dist] = root.TH1D(str(process),str(process),bins[0][0],bins[0][1],bins[0][2])
-                    #root_numpy.fill_hist(histodict[variablehandle+":"+allcats[cat].name+":"+dist],val,masterArray["finalweight"])
 
-
-
+    #print("histodict after filling: {}".format(histodict))
     #for varCatDist in histodict.keys():
 
     #var is now the variable handle
     for sys in systematics:
-        dirname = "outplots_"+args.output+"_"+sys+"%s%s"%("" if not sigOnly else "_sigOnly", "" if noData else "_data")
+        dirname = "outplots_"+args.output+"_"+sys+"%s%s%s"%("" if not sigOnly else "_sigOnly", "" if noData else "_data", "_noZZ" if args.noZZ else "")
         try:
             os.mkdir(dirname)
         except:
@@ -440,8 +488,25 @@ if __name__ == "__main__":
                 #signal isn't stacked with the backgrounds.
                 hSig = ROOT.TH1F()
                 hData = ROOT.TH1F()
+                #sort dists by Integral!
+                sorted_dists = []
+                try:
+                    for di in dists:
+                        idx = 0
+                        #find greatest integral to go on the bottom.
+                        while idx < len(sorted_dists) and integrals[sys][di][cat][var] < integrals[sys][sorted_dists[idx]][cat][var]:
+                            idx += 1
+                        sorted_dists.insert(idx, di)
+                except:
+                    print("Error: cat {}, var {} failed.".format(cat, var))
+                    continue
+                    
+                #print("Integrals: {} \nsorted_dists: {}".format(integrals[sys], sorted_dists))
+                    
+
                 #repeat once for each different distribution.
-                for dnum,dist in enumerate(dists):
+                #for dnum,dist in enumerate(dists):
+                for dnum,dist in enumerate(sorted_dists):
                     #print "divising MC into categories "
                     #hirBackground = ROOT.TH1F()
 
@@ -465,10 +530,15 @@ if __name__ == "__main__":
                     is_data = False
                     if dist == sys + "_Bkg":
                         colstr = "#CF8AC8"
-                        bkgtit = "DY+Jets" 
+                        if args.fakeCat == "":
+                            bkgtit = "DY+Jets" 
+                        else:
+                            bkgtit = "Jets faking taus"
 #################                    #irBkg
                    # else: continue
                     elif dist == sys + "_irBkg":
+                        if args.noZZ:
+                            continue
                         colstr = "#13E2FE"
                         bkgtit = "ZZ or ZH to 4l"
                     #TrialphaBkg
@@ -545,7 +615,7 @@ if __name__ == "__main__":
                 pad1.Draw()
                 #print("Drew pad1.")
                 pad1.cd()
-                lumi=add_lumi(yr)
+                lumi=add_lumi(args.year)
                 cms=add_CMS()
                 pre=add_Preliminary(args.channel)
 
@@ -613,5 +683,5 @@ if __name__ == "__main__":
                 except:
                     print("Error: could not save {}".format(fname))
 
-                if not sigOnly:
+                if not sigOnly and hirBackground:
                     hirBackground.Delete()

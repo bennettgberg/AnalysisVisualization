@@ -36,6 +36,7 @@ import glob
 #user definitions
 from utils.Parametrization import *
 
+year = 2017 #will be changed by args later
 #use constant value instead of fitting for FF or nah (can be set True with -const 1)
 const = False
 
@@ -255,6 +256,7 @@ def getEventWeightDicitonary():
     return EventWeights
 
 def initialize(args):
+    print("*********************************************YEAR: {}".format(year))
     import os
     from copy import copy
     import yaml
@@ -359,7 +361,7 @@ def initialize(args):
             temppro = Process()
             temppro.nickname=sample
             #temppro.file=dir+sample+"_2016.root"
-            temppro.file=dir+sample+"_2017.root"
+            temppro.file=dir+sample+"_%d.root"%year
 
             #with ROOT.TFile.Open(temppro.file,"read") as frooin:
             frooin = ROOT.TFile.Open(temppro.file,"read")
@@ -388,7 +390,8 @@ def initialize(args):
             temppro.nickname=sample
             #temppro.file=sample+"_2016.root"
             #temppro.file=dir+sample+"_2016.root"
-            temppro.file=dir+sample+"_2017.root"
+            temppro.file=dir+sample+"_%d.root"%year
+            print("filename: {}".format(temppro.file))
             temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3],"PU":"weightPUtrue"}
             if args.channel=="mmtt":
                 truetau = [
@@ -420,6 +423,7 @@ def initialize(args):
                 #for extraction!
                 #temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.0001)} # SM Higgs xsec x BR Haa (17-029 paper)
                 #
+            #print("first block: temppro nickname {}".format(temppro.nickname))
             HAA_processes[temppro.nickname]=temppro
 
     if (args.datameasureZH):
@@ -473,18 +477,23 @@ def initialize(args):
                 HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","!=",0]]
 
 
+    print("HAA_processes before processes_special: {}".format(HAA_processes.keys()))
     #loading special processes ... fake factor and data!
     for process in processes_special:
         temppro = Process()
         temppro.nickname=processes_special[process]['nickname']
+        print("loading processes_special...nickname: {}".format(temppro.nickname))
+    #    print(temppro)
         temppro.cuts=processes_special[process]['cuts']
         temppro.weights=processes_special[process]['weights']
-        temppro.file=dir+processes_special[process]['file']
+        temppro.file= dir + "data_obs_" + str(year) + ".root"  #this is stupid: dir+processes_special[process]['file']
         HAA_processes[temppro.nickname]=temppro
+#        print("HAA_processes: {}".format(HAA_processes))
     #print "==========================================================================================="
     #print " All the processes !!!!!  ",HAA_processes
     #print "==========================================================================================="
 
+    print("HAA_processes after processes special: {}".format(HAA_processes.keys()))
 
     #file list for easy reading 
     for proObj in HAA_processes.keys():
@@ -573,6 +582,7 @@ def initialize(args):
     for inc_group in [DYinc, WJets]:
         sumOfWeights = np.zeros(5)
         for sample in inc_group:
+            if sample not in weightHistoDict: continue
             weights = weightHistoDict[sample]
             sumOfWeights += [w.GetSumOfWeights() for w in weights]
         sumOfWeights[sumOfWeights==0] = 1e-10 # if value is 0 to stop infs
@@ -663,88 +673,91 @@ def initialize(args):
     if args.datadrivenZH or args.makeFakeHistos:
         print "MUST HAVE CREATED FF DISTRIBUTIONS BEFORE!" 
         histodict = {}
-        #inputFFile = ROOT.TFile.Open("FFskim_"+str(args.ffin)+".root","read")
-#        with uproot.open("skimmed_"+str(args.ffin)+".root") as inputFFile:
-#            histodict = createFakeFactorHistos(allcats, inputFFile)
-        #inputFFile.Close()
+        if not const:
+           # inputFFile = ROOT.TFile.Open("FFskim_"+str(args.ffin)+".root","read")
+            with uproot.open("skimmed_"+str(args.ffin)+".root") as inputFFile:
+                histodict = createFakeFactorHistos(allcats, inputFFile)
+           # inputFFile.Close()
         datadrivenPackage={}
         datadrivenPackage["bool"]=args.datadrivenZH
-        #ff_file_3 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_3_ff.root","read")
-        #ff_file_4 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_4_ff.root","read")
+        if not const:
+            print("Opening FFhistos files.")
+            ff_file_3 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_3_ff.root","read")
+            ff_file_4 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_4_ff.root","read")
 
-        # ss_1_tight = ff_file_3.Get(args.channel+"_FF_SS_1_tight/data_obs")
-        # ss_1_loose = ff_file_3.Get(args.channel+"_FF_SS_1_loose/data_obs")
-        # ss_2_tight = ff_file_4.Get(args.channel+"_FF_SS_2_tight/data_obs")
-        # ss_2_loose = ff_file_4.Get(args.channel+"_FF_SS_2_loose/data_obs")
+            #ss_1_tight = ff_file_3.Get(args.channel+"_FF_SS_1_tight/data_obs")
+            #ss_1_loose = ff_file_3.Get(args.channel+"_FF_SS_1_loose/data_obs")
+            #ss_2_tight = ff_file_4.Get(args.channel+"_FF_SS_2_tight/data_obs")
+            #ss_2_loose = ff_file_4.Get(args.channel+"_FF_SS_2_loose/data_obs")
 
-#        ss_1_tight = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_data_obs"]["pt_3_ff"]
-#        ss_1_loose = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_data_obs"]["pt_3_ff"]
-#        ss_2_tight = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_data_obs"]["pt_4_ff"]
-#        ss_2_loose = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_data_obs"]["pt_4_ff"] 
-#
-#        # ss_1_tight_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_tight/prompt1")
-#        # ss_1_loose_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_loose/prompt1")
-#        # ss_2_tight_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_tight/prompt2")
-#        # ss_2_loose_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_loose/prompt2")
-#
-#        ss_1_tight_prompt = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_prompt1"]["pt_3_ff"]
-#        ss_1_loose_prompt = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_prompt1"]["pt_3_ff"]
-#        ss_2_tight_prompt = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_prompt2"]["pt_4_ff"]
-#        ss_2_loose_prompt = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_prompt2"]["pt_4_ff"]
-#
-#        print("Would be subtracting promptMC if it weren't commented out.")
-###bpg: try not doing this!!!!!!!!
-#        #subtracting prompt MC execpt for low stat channel
-#        # if args.channel!="mmem":
-##        ss_1_tight.Add(ss_1_tight_prompt,-1)
-##        ss_2_tight.Add(ss_2_tight_prompt,-1)
-##        ss_1_loose.Add(ss_1_loose_prompt,-1)
-##        ss_2_loose.Add(ss_2_loose_prompt,-1)
-#
-#
-#        f_1= ss_1_tight.Clone()
-#        f_1.Divide(ss_1_loose)
-#        f_2 = ss_2_tight.Clone()
-#        f_2.Divide(ss_2_loose)
-#
-#        f_1.GetYaxis().SetTitleOffset(1.4)
-#        f_2.GetYaxis().SetTitleOffset(1.4)
-#        f_1.GetYaxis().SetMaxDigits(2)
-#        f_2.GetYaxis().SetMaxDigits(2)
-#        #ROOT.TGaxis().SetMaxDigits(2)
-#
-#        f_1.SetName(args.channel+" FakeRateLeg1")
-#        f_1.SetTitle(args.channel+" Fake Rate Measurement Leg1")
-#        f_1.GetXaxis().SetTitle("p_T Leg1")
-#        f_1.GetYaxis().SetTitle("Fake Rate for Leg1")
-#        f_2.SetName(args.channel+" FakeRateLeg2")
-#        f_2.SetTitle(args.channel+" Fake Rate Measurement Leg2")
-#        f_2.GetXaxis().SetTitle("p_T Leg2")
-#        f_2.GetYaxis().SetTitle("Fake Rate for Leg2")
-#
-#        tf_1 = ROOT.TF1("tf_1","[0]",f_1.GetXaxis().GetXmin(),f_1.GetXaxis().GetXmax())
-#        tf_2 = ROOT.TF1("tf_2","[0]",f_2.GetXaxis().GetXmin(),f_2.GetXaxis().GetXmax())
-#
-#        fakemeasurefile = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/fakemeasure.root","RECREATE")
-#        fakemeasurefile.cd()
-#        c=ROOT.TCanvas("canvas","",0,0,600,600)
-#        ROOT.gStyle.SetOptFit()
-#        f_1.Draw()
-#        f_1.Fit("tf_1")
-#        c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate1.png")
-#        f_2.Draw()
-#        f_2.Fit("tf_2")
-#        c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate2.png")
-#        tf_1.Write(tf_1.GetName(),ROOT.TObject.kOverwrite)
-#        tf_2.Write(tf_2.GetName(),ROOT.TObject.kOverwrite)
-#        f_1.Write(f_1.GetName(),ROOT.TObject.kOverwrite)
-#        f_2.Write(f_2.GetName(),ROOT.TObject.kOverwrite)
-#        datadrivenPackage["fakerate1"]=f_1.Clone()
-#        datadrivenPackage["fakerate2"]=f_2.Clone()
-#        datadrivenPackage["fitrate1"]=tf_1
-#        datadrivenPackage["fitrate2"]=tf_2
-#        datadrivenPackage["fakemeasurefile"]=fakemeasurefile
-        #fakemeasurefile.Close()
+            ss_1_tight = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_data_obs"]["pt_3_ff"]
+            ss_1_loose = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_data_obs"]["pt_3_ff"]
+            ss_2_tight = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_data_obs"]["pt_4_ff"]
+            ss_2_loose = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_data_obs"]["pt_4_ff"] 
+    
+            # ss_1_tight_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_tight/prompt1")
+            # ss_1_loose_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_loose/prompt1")
+            # ss_2_tight_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_tight/prompt2")
+            # ss_2_loose_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_loose/prompt2")
+    
+            ss_1_tight_prompt = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_prompt1"]["pt_3_ff"]
+            ss_1_loose_prompt = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_prompt1"]["pt_3_ff"]
+            ss_2_tight_prompt = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_prompt2"]["pt_4_ff"]
+            ss_2_loose_prompt = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_prompt2"]["pt_4_ff"]
+    
+            #print("Would be subtracting promptMC if it weren't commented out.")
+            #subtracting prompt MC execpt for low stat channel
+            # if args.channel!="mmem":
+    #bpg experimenting with not doing this!
+            ss_1_tight.Add(ss_1_tight_prompt,-1)
+            ss_2_tight.Add(ss_2_tight_prompt,-1)
+            ss_1_loose.Add(ss_1_loose_prompt,-1)
+            ss_2_loose.Add(ss_2_loose_prompt,-1)
+    
+    
+            f_1= ss_1_tight.Clone()
+            f_1.Divide(ss_1_loose)
+            f_2 = ss_2_tight.Clone()
+            f_2.Divide(ss_2_loose)
+    
+            f_1.GetYaxis().SetTitleOffset(1.4)
+            f_2.GetYaxis().SetTitleOffset(1.4)
+            f_1.GetYaxis().SetMaxDigits(2)
+            f_2.GetYaxis().SetMaxDigits(2)
+            #ROOT.TGaxis().SetMaxDigits(2)
+    
+            f_1.SetName(args.channel+" FakeRateLeg1")
+            f_1.SetTitle(args.channel+" Fake Rate Measurement Leg1")
+            f_1.GetXaxis().SetTitle("p_T Leg1")
+            f_1.GetYaxis().SetTitle("Fake Rate for Leg1")
+            f_2.SetName(args.channel+" FakeRateLeg2")
+            f_2.SetTitle(args.channel+" Fake Rate Measurement Leg2")
+            f_2.GetXaxis().SetTitle("p_T Leg2")
+            f_2.GetYaxis().SetTitle("Fake Rate for Leg2")
+    
+            tf_1 = ROOT.TF1("tf_1","[0]",f_1.GetXaxis().GetXmin(),f_1.GetXaxis().GetXmax())
+            tf_2 = ROOT.TF1("tf_2","[0]",f_2.GetXaxis().GetXmin(),f_2.GetXaxis().GetXmax())
+    
+            fakemeasurefile = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/fakemeasure.root","RECREATE")
+            fakemeasurefile.cd()
+            c=ROOT.TCanvas("canvas","",0,0,600,600)
+            ROOT.gStyle.SetOptFit()
+            f_1.Draw()
+            f_1.Fit("tf_1")
+            c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate1.png")
+            f_2.Draw()
+            f_2.Fit("tf_2")
+            c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate2.png")
+            tf_1.Write(tf_1.GetName(),ROOT.TObject.kOverwrite)
+            tf_2.Write(tf_2.GetName(),ROOT.TObject.kOverwrite)
+            f_1.Write(f_1.GetName(),ROOT.TObject.kOverwrite)
+            f_2.Write(f_2.GetName(),ROOT.TObject.kOverwrite)
+            datadrivenPackage["fakerate1"]=f_1.Clone()
+            datadrivenPackage["fakerate2"]=f_2.Clone()
+            datadrivenPackage["fitrate1"]=tf_1
+            datadrivenPackage["fitrate2"]=tf_2
+            datadrivenPackage["fakemeasurefile"]=fakemeasurefile
+            #fakemeasurefile.Close()
 
     #EventWeights = getEventWeightDicitonary()
 
@@ -827,9 +840,17 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
     from utils.Weights import CommonWeights
     from ROOT import gInterpreter
     import copy
-    commonweight = CommonWeights["lumi"][0]
+    #commonweight = CommonWeights["lumi"][0]
+    #2018 lumi
+    commonweight = 59740 #CommonWeights["lumi"][0]
+    if year == 2017:
+        commonweight = 41800 #2017 lumi
+    elif year == 2016:
+        commonweight = 35900 #2016 lumi
     skimArrayPerCat = {}
     #print "working on process obj ",processObj.nickname
+
+#    print("HAA_processes at beginning of makeCutsOnTreeArray: {}".format(processObj.keys()))
 
     for process in processObj.cuts.keys():
         procut = processObj.cuts[process]
@@ -922,17 +943,19 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
 
 
-            if(process=="FF" and datadrivenPackage["bool"]):
-                print("process FF!!!!!!!!!!!!!!!!!")
-                print("process name = {}".format(process))
-                print("cat name = {}".format(cat))
+            #if(process=="FF" and datadrivenPackage["bool"]):
+        #??????????????????
+            if("FF" in process and datadrivenPackage["bool"]):
+               # print("process FF!!!!!!!!!!!!!!!!!")
+               # print("process name = {}".format(process))
+               # print("cat name = {}".format(cat))
                 masterArray['finalweight']=np.full(len(masterArray['evt']),1.0)
                 #print("length of masterArray: {}".format(len(masterArray)))
 
 
                 tempmask=np.full(len(masterArray["evt"]),1.0)
 
-                print("cuts to be applied for FF_1: {}".format(HAA_processes["FF"].cuts["FF_1"]))
+               # print("cuts to be applied for FF_1: {}".format(HAA_processes["FF"].cuts["FF_1"]))
                 #the actual events that pass the FF_1 criteria
                 tempmask_1 = cutOnArray(masterArray,HAA_processes["FF"].cuts["FF_1"])
                 #print tempmask_1[:1000]
@@ -960,14 +983,14 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #print("ptarr_1: {}".format(ptarr_1))
 
                 if const:
-                    print("Warning: using constant value 0.153 for fake rate instead of measurement.")
+               #     print("Warning: using constant value 0.153 for fake rate instead of measurement.")
 #                    ffweight_1 = np.ones(len(tempmask_1))
                     #ffweight_1 = ptFun(datadrivenPackage["fakerate1"],ptarr_1)
                    # ffweight_1 = ffweight_1/(1.0000000001 - ffweight_1)
                     ffweight_1 = np.ones(len(tempmask_1))*(0.153/(1-0.153))
                 else:
                     ffweight_1 = np.ones(len(tempmask_1))*(datadrivenPackage["fitrate1"].GetParameter(0)/(1-datadrivenPackage["fitrate1"].GetParameter(0)))
-                print("ffweight_1: {}".format(ffweight_1))
+               # print("ffweight_1: {}".format(ffweight_1[:1000]))
 
 
 
@@ -984,13 +1007,13 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                     ffweight_2 = np.ones(len(tempmask_2))*(0.153/(1-0.153))
                 else:
                     ffweight_2 = np.ones(len(tempmask_2))*(datadrivenPackage["fitrate2"].GetParameter(0)/(1-datadrivenPackage["fitrate2"].GetParameter(0)))
-                print("ffweight_2: {}".format(ffweight_2))
+               # print("ffweight_2: {}".format(ffweight_2[:1000]))
 
 
                 #minus sign or nah??????
                 ffweight = -1.0 * ffweight_1 * ffweight_2
                # ffweight = 1.0 * ffweight_1 * ffweight_2
-                print("ffweight 0: {}".format(ffweight))
+               # print("ffweight 0: {}".format(ffweight[:1000]))
 
                 #replace 0s with constant fit value
                 #ffweight_1 *= fitmask_1
@@ -1007,28 +1030,33 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #fitmask_1 *= fitmask_2
                 #ffweight *= fitmask_1
                 ffweight *= tempmask_12
-                #print("ffweight 1: {}".format(ffweight))
+               # print("ffweight 1: {}".format(np.any(ffweight)))
 
                 #ffweight_1[~tempmask_1] = 0.0
                 ffweight_1 *= tempmask_1
-                #print("ffweight_1 1: {}".format(ffweight_1))
+               # print("ffweight_1 1: {}".format(np.any(ffweight_1)))
                 #print "ffweight_1 ",ffweight_1[:1000]
                 #ffweight_2[~tempmask_2] = 0.0
                 ffweight_2 *= tempmask_2
+               # print("ffweight_2 1: {}".format(np.any(ffweight_2)))
                 #finalWeight = ffweight_1 + ffweight_2
                 finalWeight = ffweight_1 + ffweight_2 + ffweight
                 #print("pair 1-2: ",  np.any(np.all((tempmask_1,tempmask_2), axis=0)))
                 #print("pair 1-12: ", np.any(np.all((tempmask_1,tempmask_12), axis=0)))
                 #print("pair 12-2: ", np.any(np.all((tempmask_12,tempmask_2), axis=0)))
+               
+               # print("any tempmask_1: {}".format(np.any(tempmask_1)))
+               # print("any tempmask_2: {}".format(np.any(tempmask_2)))
+               # print("any tempmask_12: {}".format(np.any(tempmask_12)))
+               # print("any pair 1-2: ",  np.any(tempmask_1 & tempmask_2))
+               # print("any pair 1-12: ",  np.any(tempmask_1 & tempmask_12))
+               # print("any pair 12-2: ",  np.any(tempmask_12 & tempmask_2))
 
-                #finalWeight -= ffweight
-
-
-                print "check on fake factor final weight ",finalWeight[:1000]
+               # print "check on fake factor final weight ",finalWeight[:1000]
 
 
                 masterArray["finalweight"] *= finalWeight
-                print "summed final weight ",np.sum(finalWeight)
+               # print "summed final weight ",np.sum(finalWeight)
 
                 keepEvents = ~np.where(finalWeight==0.0)[0]
 
@@ -1037,7 +1065,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 for key in masterArray.keys():
                     skimArray[key] = masterArray[key][keepEvents]
 
-                print("after skim", len(skimArray["mll"]), processObj.file)
+               # print("after skim", len(skimArray["mll"]), processObj.file)
                 if len(skimArray["mll"])==0:
                     print("WARNING: continuing because length of skim array is 0.")
                     continue
@@ -1048,8 +1076,6 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #return skimArray
                 skimArrayPerCat[systematic+":"+cat+":"+processObj.nickname+":"+process] = skimArray
                 #print("made it to end of 'FF' block.")
-
-
 
 
             if process not in ["data_obs","FF","FF_1","FF_2","FF_12"]:
@@ -1082,7 +1108,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                     if scalefactor == "kfactor":
                         weightfinal =  weightfinal * (1 / float(weightDict[scalefactor]))
                     elif scalefactor in ["PU"]:
-                        masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor]))
+                        masterArray["finalweight"] *= (returnArray(masterArray,weightDict[scalefactor])*returnArray(masterArray,"Generator_weight"))
                     elif scalefactor =="theoryXsec":
                         weightfinal =  weightfinal * float(weightDict[scalefactor])
 
@@ -1480,7 +1506,7 @@ def combineRootFiles(systematics, allcats, processes,
                                     else:
                                         continue
 
-   print "final skims example ", finalSkims["Nominal"]["mmtt_inclusive"]["irBkg"]
+  # print "final skims example ", finalSkims["Nominal"]["mmtt_inclusive"]["irBkg"]
    skimFile = ROOT.TFile("skimmed_"+outputstring+".root","recreate")
    skimFile.cd()
    for cat, catObj in allcats.iteritems():
@@ -1549,7 +1575,9 @@ if __name__ == "__main__":
     parser.add_argument("-mt",  "--mt", default=False,action='store_true',  help="Use Multithreading")
     parser.add_argument("-pt",  "--maxprint", default=False,action='store_true',  help="Print Info on cats and processes")
     parser.add_argument("-co",  "--constant", default=False,action='store_true',  help="True to use constant value instead of fitting.")
+    parser.add_argument("-yr",  "--year", default=2017, help="which year")
     args = parser.parse_args()
+    year = int( args.year )
     allcats={}
     HAA_processes={}
     finalDistributions={}
@@ -1652,7 +1680,7 @@ if __name__ == "__main__":
         #shutil.rmtree("massOutputDir_"+args.outname)
 
 
-    if args.datadrivenZH or args.makeFakeHistos:
+    if (args.datadrivenZH or args.makeFakeHistos) and not const:
         datadrivenPackage["fakemeasurefile"].Close()
 
     print("computation time")
