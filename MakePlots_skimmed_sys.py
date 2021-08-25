@@ -28,7 +28,12 @@ def add_lumi(year,doRatio=True):
     lumi.SetTextColor(    1 )
     lumi.SetTextSize(0.04)
     lumi.SetTextFont (   42 )
-    lumi.AddText(str(year)+" 35.9 fb^{-1} (13 TeV)")
+    if year == "2016":
+        lumi.AddText(str(year)+" 35.9 fb^{-1} (13 TeV)")
+    if year == "2017":
+        lumi.AddText(str(year)+" 41.8 fb^{-1} (13 TeV)")
+    if year == "2018":
+        lumi.AddText(str(year)+" 59.7 fb^{-1} (13 TeV)")
     return lumi
 
 def add_CMS(doRatio=True):
@@ -169,6 +174,7 @@ if __name__ == "__main__":
     parser.add_argument("-o",  "--output", default="",  help="postfix string")
     parser.add_argument("-ch",  "--channel", default="mmmt",  help="postfix string")
     parser.add_argument("-c",  "--categories", default="categories.yaml",  help="categories yaml file")
+    parser.add_argument("-year",  "--year", default="2016",  help="Year")
     parser.add_argument("-csv",  "--csvfile", default="MCsamples_2016_v6_yaml.csv",  help="categories yaml file")
     parser.add_argument("-p",  "--processes", default="processes_special.yaml",  help="processes yaml file")
     parser.add_argument("-dd",  "--datadriven", default=False,action='store_true',  help="Use DataDriven Method")
@@ -562,7 +568,7 @@ if __name__ == "__main__":
 
                 pad1.Draw()
                 pad1.cd()
-                lumi=add_lumi("2016",doRatio)
+                lumi=add_lumi(args.year,doRatio)
                 cms=add_CMS(doRatio)
                 pre=add_Preliminary(args.channel, doRatio)
 

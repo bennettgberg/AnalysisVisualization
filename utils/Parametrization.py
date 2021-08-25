@@ -41,3 +41,25 @@ class Process():
         self.file = ""
         self.classification = ""
         self.color = []
+
+from ROOT import TFile, TTree
+import sys
+
+class dupeDetector() :
+
+    def __init__(self):
+        self.nCalls = 0
+        self.runEventList = {}
+
+    def checkEvent(self,entry) :
+        self.nCalls += 1
+        runEvent = "{0:d}:{1:d}:{2:d}".format(entry.run,entry.evt,entry.cat)
+        try :
+            return self.runEventList[runEvent]
+        except KeyError :
+            self.runEventList[runEvent] = True
+            return False
+
+    def printSummary(self) :
+        print("Duplicate Event Summary: Calls={0:d} Unique Events={1:d}".format(self.nCalls,len(self.runEventList.keys())))
+        return

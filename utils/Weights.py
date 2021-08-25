@@ -13,14 +13,82 @@
 '''
 #########################
 CommonWeights={}
-#CommonWeights["lumi"]=["59740"]
-#CommonWeights["lumi"]=[35900]#pb^-1
-CommonWeights["lumi"]=[41800]#pb^-1
+CommonWeights["lumi2018"]=[59740]
+CommonWeights["lumi2016"]=[35900]#pb^-1
+CommonWeights["lumi2017"]=[41800]#pb^-1
 #CommonWeights["lumi"]=["1"]#pb^-1
 #CommonWeights["mcweight"]=["__WEIGHT__*GENWEIGHT*puweight"]
 #CommonWeights["mcweight"]=["LHEweight*weight"]
 CommonWeights["string"]=[["Generator_weight"],["weight"]]
 
+jet_inclusive_samples = {}
+
+jet_inclusive_samples["2018"] = [
+                        "DY1JetsToLL" ,
+                        "DY2JetsToLL" ,
+                        "DY3JetsToLL" ,
+                        "DY4JetsToLL" ,
+                        "WJetsToLNu" ,
+                        "W1JetsToLNu" ,
+                        "W3JetsToLNu",
+                        ]
+
+jet_inclusive_samples["2017"] = ["DYJetsToLL_ext1",
+                        "DY1JetsToLL" ,
+                        "DY2JetsToLL" ,
+                        "DY3JetsToLL" ,
+                        "DY4JetsToLL" ,
+                        "WJetsToLNu" ,
+                        "WJetsToLNu_ext1" ,
+                        "W1JetsToLNu" ,
+                        #"W2JetsToLNu_ext1" ,
+                        "W3JetsToLNu",
+                        #"W4JetsToLNu_ext1",
+                        #"W4JetsToLNu_ext2"
+                        ]
+
+jet_inclusive_samples["2016"] = ["DYJetsToLLext1",
+                        "DYJetsToLLext2" ,
+                        "DY1JetsToLL" ,
+                        "DY2JetsToLL" ,
+                        "DY3JetsToLL" ,
+                        "DY4JetsToLL" ,
+                        "WJetsToLNu" ,
+                        "WJetsToLNu_ext2" ,
+                        "W1JetsToLNu" ,
+                        "W2JetsToLNu_ext1" ,
+                        "W3JetsToLNu",
+                        "W3JetsToLNu_ext1",
+                        "W4JetsToLNu",
+                        "W4JetsToLNu_ext1",
+                        "W4JetsToLNu_ext2"
+                        ]
+
+# jet_inclusive_samples["2016"] = ["DYJetsToLLext1",    #v6
+#                         "DYJetsToLLext2" ,
+#                         "DY1JetsToLL" ,
+#                         "DY2JetsToLL" ,
+#                         "DY3JetsToLL" ,
+#                         "DY4JetsToLL" ,
+#                         "WJetsToLNu" ,
+#                         "WJetsToLNuext" ,
+#                         "WJetsToLNu_ext2" ,
+#                         "W1JetsToLNu" ,
+#                         "W2JetsToLNuext1" ,
+#                         "W3JetsToLNu",
+#                         "W4JetsToLNu_ext1",
+#                         "W4JetsToLNu_ext2"
+#                         ]
+jetIncOnly = {}
+jetIncOnly["2018"] = [["DYJetsToLL"],["WJetsToLNu"]]
+jetIncOnly["2017"] = [["DYJetsToLL_ext1"],["WJetsToLNu","WJetsToLNu_ext1"]]
+#jetIncOnly["2016"] = [["DYJetsToLLext1","DYJetsToLLext2"],["WJetsToLNu","WJetsToLNuext","WJetsToLNu_ext2"]] #v6
+jetIncOnly["2016"] = [["DYJetsToLLext1","DYJetsToLLext2"],["WJetsToLNu","WJetsToLNu_ext2"]]
+
+
+#To Do here: combine the extended samples for everything before ... then feed into cut array
+#STEPS
+#combine all the extended samples first!
 
 #SMHTTWeights={}
 #SMHTTWeights["data_obs"]=[""]
@@ -30,7 +98,7 @@ CommonWeights["string"]=[["Generator_weight"],["weight"]]
 #SMHTTWeights["ZTL"]=CommonWeights["mcweight"]
 #SMHTTWeights["ZL"]=CommonWeights["mcweight"]
 
-#Where do I place energy scale shifts? 
+#Where do I place energy scale shifts?
 HAAWeights={}
 #HAAWeights["data_obs"]=[""]
 #HAAWeights["TTT"]=CommonWeights["mcweight"]
