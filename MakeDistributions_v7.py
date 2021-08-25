@@ -37,6 +37,8 @@ import glob
 from utils.Parametrization import *
 
 
+#use constant value instead of fitting for FF or nah (can be set True with -const)
+const = False
 
 #Setting up operators for cut string iterator
 ops = { "==": operator.eq, "!=": operator.eq, ">": operator.gt, "<": operator.lt, ">=": operator.ge, "<=": operator.le, "band": operator.and_,"bor":operator.or_}
@@ -415,7 +417,7 @@ def initialize(args):
             frooin = ROOT.TFile.Open(temppro.file,"read")
             temppro.weights={"xsec":sampleDict[sample][1],"nevents":sampleDict[sample][3]}
             temppro.cuts={sampleDict[sample][0]:""}
-            if "ggTo2mu2tau" in sample:
+            if "HToAATo4Tau" in sample:
                 if args.extract:
                     temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.0001)} # SM Higgs xsec [pb] x BR Haa x 5 for DataMC control plots
 
@@ -452,7 +454,7 @@ def initialize(args):
                             ["gen_match_4","==",5]
                             ]]
             temppro.cuts={sampleDict[sample][0]:truetau} #ONLY SELECT PRMOPT FOR MC!
-            if "ggTo2mu2tau" in sample:
+            if "HToAATo4Tau" in sample:
                 #for visualization!
                 if args.extract:
                     temppro.weights={"xsec":1,"nevents":250000,"theoryXsec":(48.37*0.0001)} # SM Higgs xsec x BR Haa x 5 for DataMC control plots
@@ -467,7 +469,7 @@ def initialize(args):
         except:
             print("directory exists")
         for proObj in HAA_processes.keys():
-            if proObj!="data_obs" and proObj!="FF" and "ggTo2mu2tau" not in proObj:
+            if proObj!="data_obs" and proObj!="FF" and "HToAATo4Tau" not in proObj:
                 if args.channel=="mmmt" or args.channel=="mmet":
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","==",15]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","==",5]]
@@ -475,7 +477,7 @@ def initialize(args):
                     HAA_processes[proObj].cuts["fake2"] = [["gen_match_4","!=",5]]
 
                 if args.channel=="mmtt":
-                    if "ggTo2mu2tau" in proObj:
+                    if "HToAATo4Tau" in proObj:
                         continue
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","==",5]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","==",5]]
@@ -484,14 +486,14 @@ def initialize(args):
                 if args.channel=="mmem":
                     HAA_processes[proObj].cuts["fake1_"+str(proObj)] = [["gen_match_3","!=",15]]
                     HAA_processes[proObj].cuts["fake2_"+str(proObj)] = [["gen_match_4","!=",15]]
-                    if "ggTo2mu2tau" in proObj:
+                    if "HToAATo4Tau" in proObj:
                         continue
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","==",15]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","==",15]]
                 else: # default case is close enough
                     HAA_processes[proObj].cuts["fake1_"+str(proObj)] = [["gen_match_3","==",0]]
                     HAA_processes[proObj].cuts["fake2_"+str(proObj)] = [["gen_match_4","==",0]]
-                    if "ggTo2mu2tau" in proObj:
+                    if "HToAATo4Tau" in proObj:
                         continue
                     HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","!=",0]]
                     HAA_processes[proObj].cuts["prompt2"] = [["gen_match_4","!=",0]]
@@ -500,7 +502,7 @@ def initialize(args):
             if proObj!="data_obs" and proObj!="FF" and not args.skim:
                 HAA_processes[proObj].cuts["fake1_"+str(proObj)] = [["gen_match_3","==",0]]
                 HAA_processes[proObj].cuts["fake2_"+str(proObj)] = [["gen_match_4","==",0]]
-                if "ggTo2mu2tau" in proObj:
+                if "HToAATo4Tau" in proObj:
                     print "skipping signal prompt mc"
                     continue  #this hasn't been added yet ... this is needed to omit signal!!
                 HAA_processes[proObj].cuts["prompt1"] = [["gen_match_3","!=",0]]
@@ -711,88 +713,90 @@ def initialize(args):
     if args.datadrivenZH or args.makeFakeHistos:
         print "MUST HAVE CREATED FF DISTRIBUTIONS BEFORE!"
         histodict = {}
-        #inputFFile = ROOT.TFile.Open("FFskim_"+str(args.ffin)+".root","read")
-        with uproot.open("skimmed_"+str(args.ffin)+".root") as inputFFile:
-            histodict = createFakeFactorHistos(allcats, inputFFile)
-        #inputFFile.Close()
+        if not const:
+            #inputFFile = ROOT.TFile.Open("FFskim_"+str(args.ffin)+".root","read")
+            with uproot.open("skimmed_"+str(args.ffin)+".root") as inputFFile:
+                histodict = createFakeFactorHistos(allcats, inputFFile)
+            #inputFFile.Close()
         datadrivenPackage={}
         datadrivenPackage["bool"]=args.datadrivenZH
-        #ff_file_3 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_3_ff.root","read")
-        #ff_file_4 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_4_ff.root","read")
+        if not const:
+            ff_file_3 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_3_ff.root","read")
+            ff_file_4 = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/pt_4_ff.root","read")
 
-        # ss_1_tight = ff_file_3.Get(args.channel+"_FF_SS_1_tight/data_obs")
-        # ss_1_loose = ff_file_3.Get(args.channel+"_FF_SS_1_loose/data_obs")
-        # ss_2_tight = ff_file_4.Get(args.channel+"_FF_SS_2_tight/data_obs")
-        # ss_2_loose = ff_file_4.Get(args.channel+"_FF_SS_2_loose/data_obs")
+            # ss_1_tight = ff_file_3.Get(args.channel+"_FF_SS_1_tight/data_obs")
+            # ss_1_loose = ff_file_3.Get(args.channel+"_FF_SS_1_loose/data_obs")
+            # ss_2_tight = ff_file_4.Get(args.channel+"_FF_SS_2_tight/data_obs")
+            # ss_2_loose = ff_file_4.Get(args.channel+"_FF_SS_2_loose/data_obs")
 
-        ss_1_tight = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_data_obs"]["pt_3_ff"]
-        ss_1_loose = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_data_obs"]["pt_3_ff"]
-        ss_2_tight = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_data_obs"]["pt_4_ff"]
-        ss_2_loose = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_data_obs"]["pt_4_ff"]
+            ss_1_tight = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_data_obs"]["pt_3_ff"]
+            ss_1_loose = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_data_obs"]["pt_3_ff"]
+            ss_2_tight = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_data_obs"]["pt_4_ff"]
+            ss_2_loose = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_data_obs"]["pt_4_ff"]
 
-        # ss_1_tight_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_tight/prompt1")
-        # ss_1_loose_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_loose/prompt1")
-        # ss_2_tight_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_tight/prompt2")
-        # ss_2_loose_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_loose/prompt2")
+            # ss_1_tight_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_tight/prompt1")
+            # ss_1_loose_prompt = ff_file_3.Get(args.channel+"_FF_SS_1_loose/prompt1")
+            # ss_2_tight_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_tight/prompt2")
+            # ss_2_loose_prompt = ff_file_4.Get(args.channel+"_FF_SS_2_loose/prompt2")
 
-        ss_1_tight_prompt = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_prompt1"]["pt_3_ff"]
-        ss_1_loose_prompt = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_prompt1"]["pt_3_ff"]
-        ss_2_tight_prompt = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_prompt2"]["pt_4_ff"]
-        ss_2_loose_prompt = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_prompt2"]["pt_4_ff"]
+            ss_1_tight_prompt = histodict[args.channel+"_FF_SS_1_tight"]["Nominal_prompt1"]["pt_3_ff"]
+            ss_1_loose_prompt = histodict[args.channel+"_FF_SS_1_loose"]["Nominal_prompt1"]["pt_3_ff"]
+            ss_2_tight_prompt = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_prompt2"]["pt_4_ff"]
+            ss_2_loose_prompt = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_prompt2"]["pt_4_ff"]
 
-        #subtracting prompt MC execpt for low stat channel
-        # if args.channel!="mmem":
-        ss_1_tight.Add(ss_1_tight_prompt,-1)
-        ss_2_tight.Add(ss_2_tight_prompt,-1)
-        ss_1_loose.Add(ss_1_loose_prompt,-1)
-        ss_2_loose.Add(ss_2_loose_prompt,-1)
+            #subtracting prompt MC execpt for low stat channel
+            # if args.channel!="mmem":
+            ss_1_tight.Add(ss_1_tight_prompt,-1)
+            ss_2_tight.Add(ss_2_tight_prompt,-1)
+            ss_1_loose.Add(ss_1_loose_prompt,-1)
+            ss_2_loose.Add(ss_2_loose_prompt,-1)
 
 
-        f_1= ss_1_tight.Clone()
-        f_1.Divide(ss_1_loose)
-        f_2 = ss_2_tight.Clone()
-        f_2.Divide(ss_2_loose)
+            f_1= ss_1_tight.Clone()
+            f_1.Divide(ss_1_loose)
+            f_2 = ss_2_tight.Clone()
+            f_2.Divide(ss_2_loose)
 
-        f_1.GetYaxis().SetTitleOffset(1.4)
-        f_2.GetYaxis().SetTitleOffset(1.4)
-        f_1.GetYaxis().SetMaxDigits(2)
-        f_2.GetYaxis().SetMaxDigits(2)
-        #ROOT.TGaxis().SetMaxDigits(2)
+            f_1.GetYaxis().SetTitleOffset(1.4)
+            f_2.GetYaxis().SetTitleOffset(1.4)
+            f_1.GetYaxis().SetMaxDigits(2)
+            f_2.GetYaxis().SetMaxDigits(2)
+            #ROOT.TGaxis().SetMaxDigits(2)
 
-        f_1.SetName(args.channel+" FakeRateLeg1")
-        f_1.SetTitle(args.channel+" Fake Rate Measurement Leg1")
-        f_1.GetXaxis().SetTitle("p_T Leg1")
-        f_1.GetYaxis().SetTitle("Fake Rate for Leg1")
-        f_2.SetName(args.channel+" FakeRateLeg2")
-        f_2.SetTitle(args.channel+" Fake Rate Measurement Leg2")
-        f_2.GetXaxis().SetTitle("p_T Leg2")
-        f_2.GetYaxis().SetTitle("Fake Rate for Leg2")
+            f_1.SetName(args.channel+" FakeRateLeg1")
+            f_1.SetTitle(args.channel+" Fake Rate Measurement Leg1")
+            f_1.GetXaxis().SetTitle("p_T Leg1")
+            f_1.GetYaxis().SetTitle("Fake Rate for Leg1")
+            f_2.SetName(args.channel+" FakeRateLeg2")
+            f_2.SetTitle(args.channel+" Fake Rate Measurement Leg2")
+            f_2.GetXaxis().SetTitle("p_T Leg2")
+            f_2.GetYaxis().SetTitle("Fake Rate for Leg2")
 
-        tf_1 = ROOT.TF1("tf_1","[0]",f_1.GetXaxis().GetXmin(),f_1.GetXaxis().GetXmax())
-        tf_2 = ROOT.TF1("tf_2","[0]",f_2.GetXaxis().GetXmin(),f_2.GetXaxis().GetXmax())
+            tf_1 = ROOT.TF1("tf_1","[0]",f_1.GetXaxis().GetXmin(),f_1.GetXaxis().GetXmax())
+            tf_2 = ROOT.TF1("tf_2","[0]",f_2.GetXaxis().GetXmin(),f_2.GetXaxis().GetXmax())
 
-        fakemeasurefile = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/fakemeasure.root","RECREATE")
-        fakemeasurefile.cd()
-        c=ROOT.TCanvas("canvas","",0,0,600,600)
-        #ROOT.gStyle.SetOptFit()
-        ROOT.gStyle.SetOptStat(0)
-        #ROOT.gStyle.SetOptFit(1)
-        f_1.Draw()
-        f_1.Fit("tf_1")
-        c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate1.png")
-        f_2.Draw()
-        f_2.Fit("tf_2")
-        c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate2.png")
-        tf_1.Write(tf_1.GetName(),ROOT.TObject.kOverwrite)
-        tf_2.Write(tf_2.GetName(),ROOT.TObject.kOverwrite)
-        f_1.Write(f_1.GetName(),ROOT.TObject.kOverwrite)
-        f_2.Write(f_2.GetName(),ROOT.TObject.kOverwrite)
-        datadrivenPackage["fakerate1"]=f_1.Clone()
-        datadrivenPackage["fakerate2"]=f_2.Clone()
-        datadrivenPackage["fitrate1"]=tf_1
-        datadrivenPackage["fitrate2"]=tf_2
-        datadrivenPackage["fakemeasurefile"]=fakemeasurefile
-        #fakemeasurefile.Close()
+            fakemeasurefile = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/fakemeasure.root","RECREATE")
+            fakemeasurefile.cd()
+            c=ROOT.TCanvas("canvas","",0,0,600,600)
+            #ROOT.gStyle.SetOptFit()
+            ROOT.gStyle.SetOptStat(0)
+            #ROOT.gStyle.SetOptFit(1)
+            f_1.Draw()
+            f_1.Fit("tf_1")
+            c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate1.png")
+            f_2.Draw()
+            f_2.Fit("tf_2")
+            c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate2.png")
+            tf_1.Write(tf_1.GetName(),ROOT.TObject.kOverwrite)
+            tf_2.Write(tf_2.GetName(),ROOT.TObject.kOverwrite)
+            f_1.Write(f_1.GetName(),ROOT.TObject.kOverwrite)
+            f_2.Write(f_2.GetName(),ROOT.TObject.kOverwrite)
+            datadrivenPackage["fakerate1"]=f_1.Clone()
+            datadrivenPackage["fakerate2"]=f_2.Clone()
+            datadrivenPackage["fitrate1"]=tf_1
+            datadrivenPackage["fitrate2"]=tf_2
+            datadrivenPackage["fakemeasurefile"]=fakemeasurefile
+            #fakemeasurefile.Close()
 
     #EventWeights = getEventWeightDicitonary()
 
@@ -1033,10 +1037,12 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #fitmask_1 = fitmask_1.astype(int)
                 ptarr_1 = masterArray["pt_3"]
 
-                ffweight_1 = ptFun(datadrivenPackage["fakerate1"],ptarr_1)
-                ffweight_1 = ffweight_1/(1.0000000001 - ffweight_1)
-                #ffweight_1 = np.ones(len(ffweight_1))*(0.153/(1-0.153))
-                #ffweight_1 = np.ones(len(tempmask_1))*(datadrivenPackage["fitrate1"].GetParameter(0)/(1-datadrivenPackage["fitrate1"].GetParameter(0)))
+                if const:
+                    ffweight_1 = ptFun(datadrivenPackage["fakerate1"],ptarr_1)
+                    ffweight_1 = ffweight_1/(1.0000000001 - ffweight_1)
+                else:
+                    #ffweight_1 = np.ones(len(ffweight_1))*(0.153/(1-0.153))
+                    ffweight_1 = np.ones(len(tempmask_1))*(datadrivenPackage["fitrate1"].GetParameter(0)/(1-datadrivenPackage["fitrate1"].GetParameter(0)))
 
 
 
@@ -1045,10 +1051,12 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #fitmask_2 = fitmask_2.astype(int)
                 ptarr_2 = masterArray["pt_4"]
 
-                ffweight_2 = ptFun(datadrivenPackage["fakerate2"],ptarr_2)
-                ffweight_2 = ffweight_2/(1.0000000001 - ffweight_2)
+                if const:
+                    ffweight_2 = ptFun(datadrivenPackage["fakerate2"],ptarr_2)
+                    ffweight_2 = ffweight_2/(1.0000000001 - ffweight_2)
                 #ffweight_2 = np.ones(len(ffweight_2))*(0.153/(1-0.153))
-                #ffweight_2 = np.ones(len(tempmask_2))*(datadrivenPackage["fitrate2"].GetParameter(0)/(1-datadrivenPackage["fitrate2"].GetParameter(0)))
+                else:
+                    ffweight_2 = np.ones(len(tempmask_2))*(datadrivenPackage["fitrate2"].GetParameter(0)/(1-datadrivenPackage["fitrate2"].GetParameter(0)))
 
 
                 ffweight = -1.0 * ffweight_1 * ffweight_2
@@ -1385,7 +1393,7 @@ def combineRootFiles(systematics, allcats, processes,
                     if str(globfile).split("/")[1]==sys+"_"+cat+"_"+nickname+"_"+process:
                         #print "found match ",sys+"_"+cat+"_"+nickname+"_"+process
                         with uproot.open(globfile) as fin:
-                            tree = fin[sys+"_"+cat+"_"+nickname+"_"+process]
+                            tree = fin[sys+"_"+cat+"_"+nickname+"_"+process + "_t"]
                             mainArrays = tree.arrays()
                             #print "tree ",sys+"_"+process," entries ",len(mainArrays["mll"])
                             for catDist, final in finalDistributions.iteritems():
@@ -1456,7 +1464,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="This file generates root files containing Histograms ... files in utils contain selections and settings")
     parser.add_argument("-o",  "--outname", default="",  help="postfix string")
     parser.add_argument("-fi",  "--ffin", default="",  help="fake factor files")
-    parser.add_argument("-year",  "--year", default="2016",  help="Year")
+    parser.add_argument("-yr",  "--year", default="2016",  help="Year")
     parser.add_argument("-fo",  "--ffout", default="",  help="fake factor files to output")
     parser.add_argument("-c",  "--categories", default="categories_array.yaml",  help="categories yaml file")
     parser.add_argument("-ch",  "--channel", default="mmmt",  help="Please list the channel for fake factor histograms")
@@ -1474,6 +1482,7 @@ if __name__ == "__main__":
     parser.add_argument("-s",  "--skim", default=False,action='store_true',  help="skim input files to make more TTrees")
     parser.add_argument("-mt",  "--mt", default=False,action='store_true',  help="Use Multithreading")
     parser.add_argument("-pt",  "--maxprint", default=False,action='store_true',  help="Print Info on cats and processes")
+    parser.add_argument("-co",  "--constant", default=False,action='store_true',  help="True to use constant value instead of fitting.")
 
     args = parser.parse_args()
     allcats={}
@@ -1485,6 +1494,7 @@ if __name__ == "__main__":
     EventWeights={}
     datadrivenPackage={}
 
+    const = args.constant
 
     allcats,HAA_processes,finalDistributions,\
     weightHistoDict,jetWeightMultiplicity,datadrivenPackage = initialize(args)
@@ -1500,10 +1510,10 @@ if __name__ == "__main__":
     payloadsdict={}
     payloads=[]
 
-    systematics =[ "Events","scale_eUp","scale_eDown","scale_m_etalt1p2Up","scale_m_etalt1p2Down",
-                   "scale_m_eta1p2to2p1Up","scale_m_eta1p2to2p1Down","scale_m_etagt2p1Up","scale_m_etagt2p1Down",
-                   "scale_t_1prongUp","scale_t_1prongDown","scale_t_1prong1pizeroUp","scale_t_1prong1pizeroDown",
-                   "scale_t_3prongUp","scale_t_3prongDown","scale_t_3prong1pizeroUp","scale_t_3prong1pizeroDown"]
+    systematics =[ "Events" ] #,"scale_eUp","scale_eDown","scale_m_etalt1p2Up","scale_m_etalt1p2Down",
+               #    "scale_m_eta1p2to2p1Up","scale_m_eta1p2to2p1Down","scale_m_etagt2p1Up","scale_m_etagt2p1Down",
+               #    "scale_t_1prongUp","scale_t_1prongDown","scale_t_1prong1pizeroUp","scale_t_1prong1pizeroDown",
+               #    "scale_t_3prongUp","scale_t_3prongDown","scale_t_3prong1pizeroUp","scale_t_3prong1pizeroDown"]
     #systematics =[ "Events","scale_t_3prong1pizeroUp","scale_t_3prong1pizeroDown"]
     #if args.datameasureZH or args.datadrivenZH:
     #    systematics =[ "Events"]

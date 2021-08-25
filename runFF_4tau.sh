@@ -1,7 +1,7 @@
 echo "Running Fake Factor Sequence ..."
 echo "Measuring Fake Factors ..."
 year=2017 #2017
-catname='mmet' #'mmem' #'mmet' #'mmtt'
+catname='mmtt' #'mmem' #'mmet' #'mmtt'
 #common
 #input=/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov6_10_2_9/src/nano6_2016/
 input=/eos/uscms/store/user/bgreenbe/haa_4tau_${year}/all/
@@ -15,7 +15,7 @@ csv=samples_${year}_v7.csv
 #channel specific
 if [ -z $1 ]
 then
-    mainout='testaa'
+    mainout='testab'
     echo "User may want to provide an output string via single argument"
 else
     mainout=$1
@@ -34,7 +34,7 @@ cat=cat_${catname}_${year}.yaml
 #python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch mmtt
 
 ##UNCOMMENT BELOW LINE to measure fake rate!!!!!!
-#python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch $catname -yr $year
+python MakeDistributions_v7.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch $catname -yr $year
 
 #python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -o $output0 -fo $fo -ch mmtt
 #python MakePlots_skimmed_sys.py -i skimmed_${output0}.root -o $output0 -c $cat --ch mmtt -p $process
@@ -46,7 +46,7 @@ cat=cat_${catname}_${year}.yaml
 #python MakeDistributions_HAA_2016.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo
 #python MakeDistributions_v6.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo -fo $output1
 #UNCOMMENT BELOW LINE to apply fake rate!!! And remove -co argument to actually use the measurements from above.
-#python MakeDistributions_v6.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -yr $year
+python MakeDistributions_v7.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -yr $year
 #echo "python MakeDistributions_v6.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -co"
 
 #echo "Making Plots ..."
@@ -59,8 +59,8 @@ cat=cat_${catname}_${year}.yaml
 #Uncomment to plot!!
 for fakecat in "${catname}_inclusive" #"${catname}_FF_SS_1_loose" "${catname}_FF_SS_1_tight" "${catname}_FF_SS_2_loose" "${catname}_FF_SS_2_tight" "${catname}_validation"  
 do
-    year=1718
-    output1=${year}_${mainout}_${catname}
+    #year=1718
+    #output1=${year}_${mainout}_${catname}
     python MakePlots_bpg.py -i skimmed_${output1}.root -o $output1 --ch $catname -p $process -fc $fakecat -yr $year -tn $mainout #-nd
 done
 
