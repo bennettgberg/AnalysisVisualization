@@ -383,7 +383,7 @@ def initialize(args):
         tempcat.vars=categories[category]['vars']
         #tempcat.systematics=categories[category]['systematics']
         allcats[tempcat.name]=tempcat
-        print allcats[tempcat.name].cuts
+        #print allcats[tempcat.name].cuts
         # if args.extract and (args.channel=="mmmt" or args.channel=="mmet":
         #     allcats[tempcat.name].cuts["categorycuts"].append(["AMass","<=",120.0])
         # if args.extract and args.channel=="mmtt":
@@ -577,14 +577,14 @@ def initialize(args):
 
     jetWeightMultiplicity = {}
     NJetWeights = {}
-    print inc_samps
+    #print inc_samps
     for inc_group in inc_samps:
         sumOfWeights = np.zeros(5)
         for sample in inc_group:
             weights = weightHistoDict[sample]
             sumOfWeights += [w.GetSumOfWeights() for w in weights]
         sumOfWeights[sumOfWeights==0] = 1e-10 # if value is 0 to stop infs
-        print(sumOfWeights)
+        #print(sumOfWeights)
         for sample in inc_group:
             jetWeightMultiplicity[sample] = sumOfWeights
 
@@ -775,6 +775,7 @@ def initialize(args):
             tf_1 = ROOT.TF1("tf_1","[0]",f_1.GetXaxis().GetXmin(),f_1.GetXaxis().GetXmax())
             tf_2 = ROOT.TF1("tf_2","[0]",f_2.GetXaxis().GetXmin(),f_2.GetXaxis().GetXmax())
 
+            print("opening fakemeasurefile.")
             fakemeasurefile = ROOT.TFile.Open("FFhistos_"+str(args.ffin)+"/fakemeasure.root","RECREATE")
             fakemeasurefile.cd()
             c=ROOT.TCanvas("canvas","",0,0,600,600)
@@ -839,30 +840,30 @@ def createFakeFactorHistos(allcats, inputFFile):
     #             histodict[cat]={}
     #             histodict[cat][treename]={}
     histodict = {c:{t: dict() for t in treetypes} for c in allcats.keys()}
-    print "histodict ",histodict
+    #print "histodict ",histodict
 
 
     #creating the Fake Factor histograms from pre-defined numpy arrays
     for cat in histodict.keys():
-        print cat
+        #print cat
         if "inclusive" in cat: continue
         for treename in treetypes:
             tree = inputFFile[cat][treename]
             fakefactorArray = tree.arrays()
-            print "cats ",cat,"  tree name ",treename
-            print "entries ",len(fakefactorArray["finalweight"])
+           # print "cats ",cat,"  tree name ",treename
+           # print "entries ",len(fakefactorArray["finalweight"])
             #vars = fakefactorArray.keys()
             vars = allcats[cat].vars
             for variableHandle in vars:
                 #print variableHandle
                 var = allcats[cat].vars[variableHandle][0]
                 #var = variableHandle
-                print var,"  ",variableHandle
-                if "jpt" in variableHandle and "ff" in variableHandle:
-                    firstnum = variableHandle.split("_")[1]
-                    secondnum = str(int(firstnum)-1)
-                    var = variableHandle+"_"+secondnum
-                    print var
+                #print var,"  ",variableHandle
+             #   if "jpt" in variableHandle and "ff" in variableHandle:            #why this here??????????????
+             #       firstnum = variableHandle.split("_")[1]
+             #       secondnum = str(int(firstnum)-1)
+             #       var = variableHandle+"_"+secondnum
+             #       #print var
                 bins = allcats[cat].vars[variableHandle][1]
                 if type(bins[0])==list:
                     histodict[cat][treename][variableHandle] = ROOT.TH1D(str(variableHandle),str(variableHandle),bins[0][0],bins[0][1],bins[0][2])
@@ -902,9 +903,9 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
         for cat in allcats.keys():
             masterArray = inputArray.copy()
             cuts=[]
-            print "working on category ",cat
-            print "with vars ",allcats[cat].vars
-            print "starting length of dictionary ",len(masterArray["mll"])
+            #print "working on category ",cat
+            #print "with vars ",allcats[cat].vars
+            #print "starting length of dictionary ",len(masterArray["mll"])
 
             for cuttype in allcats[cat].cuts.keys():
                 for cut in allcats[cat].cuts[cuttype]:
@@ -972,7 +973,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
                 skipEvents = np.where(mask==0)[0]
                 skimArray={}
-                print("before skim", len(masterArray["finalweight"]))
+                #print("before skim", len(masterArray["finalweight"]))
                 for key in masterArray.keys():
                     try:
                         skimArray[key] = masterArray[key][mask]
@@ -980,7 +981,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         print "length problem? length of key in master ",len(masterArray[key])," length of mask ",len(mask)
                         print "skipping branch ",key
                         continue
-                print("after skim", len(skimArray["mll"]), processObj.file)
+                #print("after skim", len(skimArray["mll"]), processObj.file)
                 if len(skimArray["mll"])==0:
                     continue
 
@@ -1079,23 +1080,23 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
                 #ffweight_1[~tempmask_1] = 0.0
                 ffweight_1 *= tempmask_1
-                print "ffweight_1 ",ffweight_1[:1000]
+                #print "ffweight_1 ",ffweight_1[:1000]
                 #ffweight_2[~tempmask_2] = 0.0
                 ffweight_2 *= tempmask_2
                 #finalWeight = ffweight_1 + ffweight_2
                 finalWeight = ffweight_1 + ffweight_2 + ffweight
-                print("pair 1-2: ",  np.any(np.all((tempmask_1,tempmask_2), axis=0)))
-                print("pair 1-12: ", np.any(np.all((tempmask_1,tempmask_12), axis=0)))
-                print("pair 12-2: ", np.any(np.all((tempmask_12,tempmask_2), axis=0)))
+                #print("pair 1-2: ",  np.any(np.all((tempmask_1,tempmask_2), axis=0)))
+                #print("pair 1-12: ", np.any(np.all((tempmask_1,tempmask_12), axis=0)))
+                #print("pair 12-2: ", np.any(np.all((tempmask_12,tempmask_2), axis=0)))
 
                 #finalWeight -= ffweight
 
 
-                print "check on fake factor final weight ",finalWeight[:1000]
+                #print "check on fake factor final weight ",finalWeight[:1000]
 
 
                 masterArray["finalweight"] *= finalWeight
-                print "summed final weight ",np.sum(finalWeight)
+                #print "summed final weight ",np.sum(finalWeight)
 
                 keepEvents = ~np.where(finalWeight==0.0)[0]
 
@@ -1103,7 +1104,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 for key in masterArray.keys():
                     skimArray[key] = masterArray[key][keepEvents]
 
-                print("after skim", len(skimArray["mll"]), processObj.file)
+                #print("after skim", len(skimArray["mll"]), processObj.file)
                 if len(skimArray["mll"])==0:
                     continue
 
@@ -1185,10 +1186,10 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         else:
                             njetmask = masterArray["njets"]==i_jet
                         masterArray["finalweight"] [njetmask] *= weight
-                        print "events that pass ",i_jet," jets ",np.count_nonzero(masterArray["finalweight"] [njetmask])
+                        #print "events that pass ",i_jet," jets ",np.count_nonzero(masterArray["finalweight"] [njetmask])
 
-                    print "jet weight array ",jetweights
-                    print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," events that pass ", np.count_nonzero(masterArray["finalweight"])
+                    #print "jet weight array ",jetweights
+                    #print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," events that pass ", np.count_nonzero(masterArray["finalweight"])
 
 
                 elif not type(weightHistoDict[nickname])==list:
@@ -1199,13 +1200,13 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                             sumOfWeights += sowhist.GetSumOfWeights()
                     if sumOfWeights != 0.0:
                         weightfinal = weightfinal * HAA_processes[nickname].weights["xsec"]/ sumOfWeights
-                        print "xsec/SoW ",HAA_processes[nickname].weights["xsec"]/ sumOfWeights
+                        #print "xsec/SoW ",HAA_processes[nickname].weights["xsec"]/ sumOfWeights
 
                 masterArray["finalweight"] *= weightfinal
                 #print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," SoW ",sumOfWeights," events that pass ", np.count_nonzero(masterArray["finalweight"])
 
                 #multiply by scalar weight
-                print "finalweight before per event scaling ",masterArray["finalweight"][:100]
+                #print "finalweight before per event scaling ",masterArray["finalweight"][:100]
 
 
                 #eventWeightDict = process.eventWeights
@@ -1231,15 +1232,16 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         if scalefactor!="fake" and scalefactor!="fake1" and scalefactor!="fake2":
                             weightMask[np.where(weightMask==0.0)]=1.0
                         else:
-                            print "subtracting fakes "
-                            print weightMask[:100]
+                            pass
+                            #print "subtracting fakes "
+                            #print weightMask[:100]
 
                         masterArray["finalweight"] *= weightMask
                 #print "finalweight after per event scaling ",masterArray["finalweight"][:100]
-                print "summed final weight ",np.sum(masterArray["finalweight"])
-                print " scalar weightfinal ",weightfinal
+                #print "summed final weight ",np.sum(masterArray["finalweight"])
+                #print " scalar weightfinal ",weightfinal
 
-                print("before skim", len(masterArray["finalweight"]))
+                #print("before skim", len(masterArray["finalweight"]))
                 for key,value in masterArray.iteritems():
                     if ( key in plottedVars or key == "finalweight" ) \
                         and (len(mask)==len(value)):
@@ -1252,7 +1254,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         #print "length problem? length of key in master ",len(masterArray[key])," length of mask ",len(mask)
                         #print "skipping branch ",key
                     #    continue
-                print("after skim", len(skimArray["mll"]), processObj.file)
+                #print("after skim", len(skimArray["mll"]), processObj.file)
                 #for key in skimArray.keys():
                 #    if key not in plottedVars and key != "finalweight":
                 #        del skimArray[key]
@@ -1268,7 +1270,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 def slimskim(process,allcats,weightHistoDict,systematic):
 
     skimArrayPerSysCats={}
-    print "working on systematic ",systematic
+    #print "working on systematic ",systematic
     work_dict = {}
     #fin = uproot.open(process.file)
     with uproot.open(process.file) as fin:
@@ -1348,7 +1350,7 @@ def createSlimOutput(skimArrayPerSysCats,outputdir):
       #skimArrayPerCat[systematic+":"+cat+":"+process.nickname+":"+process] = skimArray
       #name = key.split(":")
       #root_numpy.array2tree(data,name=key.split(":")[0]+"_"+key.split(":")[-1])
-      root_numpy.array2tree(data,name=filename)
+      root_numpy.array2tree(data,name=(filename+"_t"))
       fileout.Write()
       fileout.Close()
       del data
@@ -1539,18 +1541,19 @@ if __name__ == "__main__":
 
     if not args.debug:
         m = mp.Manager()
-        logger_q = m.Queue()
-        parallelable_data = [(1, logger_q), (2, logger_q)]
+        #logger_q = m.Queue()
+        #parallelable_data = [(1, logger_q), (2, logger_q)]
         pool  = mp.Pool(12)
+        #pool  = mp.Pool(4)
 
         pool.map(slimskimstar,payloads)#this works for root output!
         pool.close()
         pool.join()
-        while not logger_q.empty():
-            print logger_q.get()
+        #while not logger_q.empty():
+        #    print logger_q.get()
     else:
         for payload in payloads:
-            print "working on payload ", payload
+            #print "working on payload ", payload
             slimskimstar(payload)
 
 
@@ -1571,8 +1574,10 @@ if __name__ == "__main__":
 
         #shutil.rmtree("massOutputDir_"+args.outname)
 
-
-    datadrivenPackage["fakemeasurefile"].Close()
+    if args.datadrivenZH or args.makeFakeHistos:
+        if not const:
+            print("closing fakemeasurefile.")
+            datadrivenPackage["fakemeasurefile"].Close()
 
     print("computation time")
     print(datetime.datetime.now() - begin_time)
