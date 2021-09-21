@@ -311,6 +311,19 @@ if __name__ == "__main__":
         #    print("removing data observed!")
             dists.remove(sys+"_data_obs")
 
+   # #TODO: temprorarily remove all bkg's except Bkg to see if it's negs or poss.
+   # nd = 0
+   # while nd < len(dists):
+   #     
+   #     dist = dists[nd]
+   #     if dist == "Nominal_Bkg":
+   #         dists.remove(dist)
+   #         print("dist to remove: " + dist)
+   #         print("now dists = " + str(dists))
+   #         nd -= 1
+   #     nd += 1
+
+    print("dists: " + str(dists))
         
     #print("dists: {}".format(dists))
     cats = [args.channel+"_inclusive"]
@@ -368,6 +381,7 @@ if __name__ == "__main__":
         for sys in systematics:
             for distLong in dists:
                 dist = distLong.split(";")[0]
+                print("dist: " + dist)
                 try:
                     tree = fin[dist]
                 except:
@@ -631,7 +645,7 @@ if __name__ == "__main__":
                         realmax = max(realmax, hData.GetMaximum())
                     hBkgTot.SetMaximum(1.1*realmax) 
                     if y_max > -1:
-                    #MUST us SetMaximum and draw a second time for ROOT's stupid fucking bitch ass to understand
+                    #MUST us SetMaximum and draw a second time for ROOT's stupid ass to understand
                         hBkgTot.SetMaximum(y_max) 
                         hBkgTot.Draw("HIST")
                     if not noSig:

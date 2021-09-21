@@ -676,7 +676,7 @@ def initialize(args):
         jetWeightMultiplicity["W4JetsToLNu_ext2"]+=W4JetsFileext1.Get("hWeights").GetSumOfWeights()
 
 
-    Bkg = ["DY","W","TT","ST","EWK"]
+    Bkg = ["DY","W","TT","ST","EWK","Top"]
     irBkg = ["ZZ","ZHToTauTau","vbf","WHTT"]
     TrialphaBkg = ["ttZ","ttW","WWZ","WZZ","ZZZ","WWW_4F","HZJ"]
     rareBkg = ["Other","rare","WZ"]
@@ -782,10 +782,16 @@ def initialize(args):
             #ROOT.gStyle.SetOptFit()
             ROOT.gStyle.SetOptStat(0)
             #ROOT.gStyle.SetOptFit(1)
-            f_1.Draw()
+            if 0 == 1: #not "mmem" in args.ffin:
+                f_1.Draw()
+            else:
+                f_1.Draw("PE")
             f_1.Fit("tf_1")
             c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate1.png")
-            f_2.Draw()
+            if 0 == 1: # not "mmem" in args.ffin:
+                f_2.Draw()
+            else:
+                f_2.Draw("PE")
             f_2.Fit("tf_2")
             c.SaveAs("FFhistos_"+str(args.ffin)+"/"+args.channel+"_fakerate2.png")
             tf_1.Write(tf_1.GetName(),ROOT.TObject.kOverwrite)
@@ -798,6 +804,9 @@ def initialize(args):
             datadrivenPackage["fitrate2"]=tf_2
             datadrivenPackage["fakemeasurefile"]=fakemeasurefile
             #fakemeasurefile.Close()
+
+            ##print("WARNING: exiting before doing anything besides making the FFhistos files!!!!!")
+            ##sys.exit()
 
     #EventWeights = getEventWeightDicitonary()
 
@@ -1039,8 +1048,9 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 ptarr_1 = masterArray["pt_3"]
 
                 if const:
-                    ffweight_1 = ptFun(datadrivenPackage["fakerate1"],ptarr_1)
-                    ffweight_1 = ffweight_1/(1.0000000001 - ffweight_1)
+                    #ffweight_1 = ptFun(datadrivenPackage["fakerate1"],ptarr_1)
+                    ffweight_1 = np.ones(len(tempmask_1))*(0.153/(1-0.153))
+                    #ffweight_1 = ffweight_1/(1.0000000001 - ffweight_1)
                 else:
                     #ffweight_1 = np.ones(len(ffweight_1))*(0.153/(1-0.153))
                     ffweight_1 = np.ones(len(tempmask_1))*(datadrivenPackage["fitrate1"].GetParameter(0)/(1-datadrivenPackage["fitrate1"].GetParameter(0)))
@@ -1053,9 +1063,9 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 ptarr_2 = masterArray["pt_4"]
 
                 if const:
-                    ffweight_2 = ptFun(datadrivenPackage["fakerate2"],ptarr_2)
-                    ffweight_2 = ffweight_2/(1.0000000001 - ffweight_2)
-                #ffweight_2 = np.ones(len(ffweight_2))*(0.153/(1-0.153))
+                    #ffweight_2 = ptFun(datadrivenPackage["fakerate2"],ptarr_2)
+                    #ffweight_2 = ffweight_2/(1.0000000001 - ffweight_2)
+                    ffweight_2 = np.ones(len(tempmask_2))*(0.153/(1-0.153))
                 else:
                     ffweight_2 = np.ones(len(tempmask_2))*(datadrivenPackage["fitrate2"].GetParameter(0)/(1-datadrivenPackage["fitrate2"].GetParameter(0)))
 
@@ -1260,7 +1270,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #        del skimArray[key]
 
                 #catching events with strange weights... like just lumi ?? strange.
-                skimArray["finalweight"][np.where(skimArray["finalweight"]>2.0)]=0.0
+                #skimArray["finalweight"][np.where(skimArray["finalweight"]>2.0)]=0.0
                 skimArrayPerCat[systematic+":"+cat+":"+processObj.nickname+":"+process] = skimArray
     #exit()
     return skimArrayPerCat
@@ -1543,8 +1553,9 @@ if __name__ == "__main__":
         m = mp.Manager()
         #logger_q = m.Queue()
         #parallelable_data = [(1, logger_q), (2, logger_q)]
-        pool  = mp.Pool(12)
+        #pool  = mp.Pool(12)
         #pool  = mp.Pool(4)
+        pool  = mp.Pool(4)
 
         pool.map(slimskimstar,payloads)#this works for root output!
         pool.close()
