@@ -15,7 +15,7 @@ csv=samples_${year}_v7.csv
 #channel specific
 if [ -z $1 ]
 then
-    mainout='testao'    #'testan'
+    mainout='testaq'    #'testan'
     echo "User may want to provide an output string via single argument"
 else
     mainout=$1
@@ -46,7 +46,7 @@ cat=cat_${catname}_${year}.yaml
 #python MakeDistributions_HAA_2016.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo
 #python MakeDistributions_v6.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo -fo $output1
 #UNCOMMENT BELOW LINE to apply fake rate!!! And remove -co argument to actually use the measurements from above.
-#python MakeDistributions_v7.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -yr $year #-dbg
+python MakeDistributions_v7.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -yr $year #-dbg
 #echo "python MakeDistributions_v6.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -co"
 
 #echo "Making Plots ..."
@@ -57,7 +57,7 @@ cat=cat_${catname}_${year}.yaml
 #python MakePlots_skimmed_sys.py -i skimmed_${output1}.root -o $output1 -c $cat --ch $catname -p $process
 
 #Uncomment to plot!!
-for fakecat in "${catname}_inclusive" #"${catname}_FF_SS_1_loose" "${catname}_FF_SS_1_tight" "${catname}_FF_SS_2_loose" "${catname}_FF_SS_2_tight" #"${catname}_validation"  
+for fakecat in "${catname}_inclusive" "${catname}_FF_SS_validation" #"${catname}_FF_SS_1_loose" "${catname}_FF_SS_1_tight" "${catname}_FF_SS_2_loose" "${catname}_FF_SS_2_tight"   
 do
     #year=1718
     #output1=${year}_${mainout}_${catname}

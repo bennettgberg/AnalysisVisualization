@@ -204,7 +204,7 @@ if __name__ == "__main__":
 
     #show ONLY signal
     sigOnly = args.sigOnly # False #True
-    noSig = False
+    noSig = False #True #False
 
     #maximum value to set the y-axis to (-1 to auto-set)
     y_max = int(args.maxY) #10000 #250
@@ -505,12 +505,21 @@ if __name__ == "__main__":
                 #sort dists by Integral!
                 sorted_dists = []
                 try:
+                    #the sig will be the first item, to try to fix this root bug.
+                    signame = "" #will be filled in later if it's in dists (else won't be inserted).
                     for di in dists:
+                        #if it's the sig, continue bc we'll put this at the front after this loop.
+                        if di == (sys + "_a%d"%mass):  
+                            signame = di
+                            continue
                         idx = 0
                         #find greatest integral to go on the bottom.
                         while idx < len(sorted_dists) and integrals[sys][di][cat][var] < integrals[sys][sorted_dists[idx]][cat][var]:
                             idx += 1
                         sorted_dists.insert(idx, di)
+                    #now insert the sig, if it's here.
+                    if signame != "":
+                        sorted_dists.append(signame)
                 except:
                     print("Error: cat {}, var {} failed.".format(cat, var))
                     continue
@@ -538,7 +547,7 @@ if __name__ == "__main__":
                     #set different colors for each distribution number.
                     colstr = ""
                     bkgtit = ""
-                    #print("dist = {}, dnum = {}".format(dist, dnum))
+                    print("dist = {}, dnum = {}".format(dist, dnum))
                     #Bkg
                     is_sig = False
                     is_data = False
@@ -565,6 +574,7 @@ if __name__ == "__main__":
                         bkgtit = "TTXX, WZ to Inv, 4#alpha"
                     elif dist == (sys + "_a%d"%mass):  #in ["%s_a%d"%(sys, mss) for mss in range(15, 61, 5)]:
                         is_sig = True
+                        print("is_sig!!")
                         colstr = "#0000FF" #blue
                         bkgtit = "Signal " + dist
                     elif dist == (sys + "_data_obs"):

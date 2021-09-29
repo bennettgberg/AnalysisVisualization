@@ -744,6 +744,14 @@ def initialize(args):
             ss_2_tight_prompt = histodict[args.channel+"_FF_SS_2_tight"]["Nominal_prompt2"]["pt_4_ff"]
             ss_2_loose_prompt = histodict[args.channel+"_FF_SS_2_loose"]["Nominal_prompt2"]["pt_4_ff"]
 
+            binerr = ss_1_tight.GetBinError(4)
+            bincon = ss_1_tight.GetBinContent(4)
+
+            binerrl = ss_1_loose.GetBinError(4)
+            binconl = ss_1_loose.GetBinContent(4)
+            print("tight bin cont,err before subtracting: {}, {}".format(bincon, binerr))
+            print("loose bin cont,err before subtracting: {}, {}".format(binconl, binerrl))
+
             #subtracting prompt MC execpt for low stat channel
             # if args.channel!="mmem":
             ss_1_tight.Add(ss_1_tight_prompt,-1)
@@ -751,10 +759,21 @@ def initialize(args):
             ss_1_loose.Add(ss_1_loose_prompt,-1)
             ss_2_loose.Add(ss_2_loose_prompt,-1)
 
-
             f_1= ss_1_tight.Clone()
+
+            #make sure the error bars are computed correctly!
+            f_1.Sumw2()
+
+            binerr = ss_1_tight.GetBinError(4)
+            bincon = ss_1_tight.GetBinContent(4)
+            print("tight bin cont,err before dividing: {},{}".format(bincon, binerr))
+            binerrl = ss_1_loose.GetBinError(4)
+            binconl = ss_1_loose.GetBinContent(4)
+            print("loose bin cont,err before dividing: {}, {}".format(binconl, binerrl))
+            
             f_1.Divide(ss_1_loose)
             f_2 = ss_2_tight.Clone()
+            f_2.Sumw2()
             f_2.Divide(ss_2_loose)
 
             f_1.GetYaxis().SetTitleOffset(1.4)
@@ -762,6 +781,11 @@ def initialize(args):
             f_1.GetYaxis().SetMaxDigits(2)
             f_2.GetYaxis().SetMaxDigits(2)
             #ROOT.TGaxis().SetMaxDigits(2)
+
+            #get error bars!
+            binerr = f_1.GetBinError(4)
+            bincon = f_1.GetBinContent(4)
+            print("bin cont,err after division: {},{}".format(bincon, binerr))
 
             f_1.SetName(args.channel+" FakeRateLeg1")
             f_1.SetTitle(args.channel+" Fake Rate Measurement Leg1")

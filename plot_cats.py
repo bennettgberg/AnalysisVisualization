@@ -10,7 +10,7 @@ testn = "test131"
 year = 2017
 
 
-
+#makeCatFiles does NOT make the validation section!!!
 def makeCatFiles(cat):
     #get category number
     catn = tf.catToNumber(cat)
@@ -132,7 +132,7 @@ def cpTest(cat, oldnum, rmprocesses=[]):
 #job to copy the 'mass' files from! (if don't have to rerun)
 cpjob = -1 # 120 #118 #-1 #119
 for ct in ['mmem', 'mmmt', 'mmet', 'mmtt']: #'mmtt', 'mmem', 'mmet', 'mtmt', 'mtet', 'mtem', 'etet', 'etem', 'emem', 'mmtt', 'mmmt', 'mmet', 'mmem', 'ttmt', 'ttet', 'ttem']:
-    makeCatFiles(ct)
+    #makeCatFiles(ct) ####does NOT make validation section!!!!!!!
     #allBkgs = True
     #noData = False #False
     #sigOnly = False
