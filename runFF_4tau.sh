@@ -15,7 +15,7 @@ csv=samples_${year}_v7.csv
 #channel specific
 if [ -z $1 ]
 then
-    mainout='testaq'    #'testan'
+    mainout='testar'    #'testan'
     echo "User may want to provide an output string via single argument"
 else
     mainout=$1
@@ -34,7 +34,7 @@ cat=cat_${catname}_${year}.yaml
 #python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch mmtt
 
 ##UNCOMMENT BELOW LINE to measure fake rate!!!!!!
-#python MakeDistributions_v7.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch $catname -yr $year #-dbg
+python MakeDistributions_v7.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch $catname -yr $year #-dbg
 
 #python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -o $output0 -fo $fo -ch mmtt
 #python MakePlots_skimmed_sys.py -i skimmed_${output0}.root -o $output0 -c $cat --ch mmtt -p $process
