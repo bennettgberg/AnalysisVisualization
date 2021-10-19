@@ -1,21 +1,23 @@
 echo "Running Fake Factor Sequence ..."
 echo "Measuring Fake Factors ..."
 year=2018 #2017
-catname='mmem' #'mmtt' #'mmem' #'mmet' #'mmtt'
+catname='mmet' #'mmtt' #'mmem' #'mmet' #'mmtt'
 #common
 #input=/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov6_10_2_9/src/nano6_2016/
 input=/eos/uscms/store/user/bgreenbe/haa_4tau_${year}/all/
 #input=/afs/cern.ch/work/s/shigginb/cmssw/HAA/nanov7_basic_10_6_4/src/2016_v7/
 process=processes_special_${catname}_${year}.yaml
 #csv=MCsamples_2016_v6.csv
+#CORRECT csv below!!!!!
 csv=samples_${year}_v7.csv
+#echo "WARNING: using zh paper csv!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 #csv=MCsamples_2016_v6_yaml.csv
 #csv=MCsamples_2016_v6_JetsInc.csv
 #csv=MCsamples_2016_v6_NJets.csv
 #channel specific
 if [ -z $1 ]
 then
-    mainout='testar'    #'testan'
+    mainout='testbd'    #'testan'
     echo "User may want to provide an output string via single argument"
 else
     mainout=$1
@@ -28,13 +30,17 @@ output1=${year}_${mainout}_${catname}
 #fo=2016_${mainout}_dm_mmtt
 #cat=cat_mmtt_2016.yaml
 fo=${year}_${mainout}_dm_${catname}
+####CHANGED NAME!!!!
+#fo=${year}_${mainout}_${catname}
 cat=cat_${catname}_${year}.yaml
 
 
 #python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch mmtt
 
 ##UNCOMMENT BELOW LINE to measure fake rate!!!!!!
-python MakeDistributions_v7.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch $catname -yr $year #-dbg
+python MakeDistributions_v7.py -c $cat  -csv $csv  -i $input -p $process -dmZH -o $output0 -fo $fo -ch $catname -yr $year -pc 4 #-dbg
+#trying NO ff for cat mmem
+#python MakeDistributions_v7.py -c $cat  -csv $csv  -i $input -p $process -o $output1 -fo $fo -ch $catname -yr $year -pc 4 #-dbg
 
 #python MakeDistributions_v6.py -c $cat  -csv $csv  -i $input -p $process -o $output0 -fo $fo -ch mmtt
 #python MakePlots_skimmed_sys.py -i skimmed_${output0}.root -o $output0 -c $cat --ch mmtt -p $process
@@ -45,8 +51,9 @@ python MakeDistributions_v7.py -c $cat  -csv $csv  -i $input -p $process -dmZH -
 #echo "Applying Fake Factors ..."
 #python MakeDistributions_HAA_2016.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo
 #python MakeDistributions_v6.py -c $cat -csv $csv -i $input -p $process -o $output1 -ch mmtt -s -ddZH -fi $fo -fo $output1
+#python MakeDistributions_v7.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -yr $year -pc 4 #-dbg
 #UNCOMMENT BELOW LINE to apply fake rate!!! And remove -co argument to actually use the measurements from above.
-python MakeDistributions_v7.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -yr $year #-dbg
+python MakeDistributions_v7.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddSM -fi $fo -fo $output1 -yr $year -pc 4 #-dbg
 #echo "python MakeDistributions_v6.py -csv $csv -i $input -p $process -c $cat -o $output1 -ch $catname -s -ddZH -fi $fo -fo $output1 -co"
 
 #echo "Making Plots ..."

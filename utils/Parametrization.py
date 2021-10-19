@@ -201,10 +201,10 @@ class fakefactor() :
                       ).astype(int)*338
                       #(338, <ROOT.TKey object ("hpt_dm1_VLe_VLmu_deepmedium_hpt_dm1_VLe_VLmu_deepveryveryveryloose") at 0x4a7fe50>)
             index1_2 = (
-                     (masterArray["decayMode_4"]==10)*(masterArray["cat"]==7)*\
-                     (masterArray["idDeepTau2017v2p1VSjet_4"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSmu_4"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSe_4"]>=15) \
+                     (masterArray["decayMode_3"]==10)*(masterArray["cat"]==7)*\
+                     (masterArray["idDeepTau2017v2p1VSjet_3"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSmu_3"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSe_3"]>=15) \
                       ).astype(int)*356
                       #(356, <ROOT.TKey object ("hpt_dm10_VLe_VLmu_deepmedium_hpt_dm10_VLe_VLmu_deepveryveryveryloose") at 0x4a82450>)
             index1_3 = (
@@ -215,17 +215,17 @@ class fakefactor() :
                       ).astype(int)*374
                       #(374, <ROOT.TKey object ("hpt_dm11_VLe_VLmu_deepmedium_hpt_dm11_VLe_VLmu_deepveryveryveryloose") at 0x49e05d0>)
             index2_0 = ( # medium
-                     (masterArray["decayMode_3"]==0)*(masterArray["cat"]==7)*\
-                     (masterArray["idDeepTau2017v2p1VSjet_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSmu_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSe_3"]>=15) \
+                     (masterArray["decayMode_4"]==0)*(masterArray["cat"]==7)*\
+                     (masterArray["idDeepTau2017v2p1VSjet_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSmu_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSe_4"]>=15) \
                       ).astype(int)*320
                       #(320, <ROOT.TKey object ("hpt_dm0_VLe_VLmu_deepmedium_hpt_dm0_VLe_VLmu_deepveryveryveryloose") at 0x4a5da10>)
             index2_1 = (
-                     (masterArray["decayMode_3"]==1)*(masterArray["cat"]==7)*\
-                     (masterArray["idDeepTau2017v2p1VSjet_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSmu_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSe_3"]>=15) \
+                     (masterArray["decayMode_4"]==1)*(masterArray["cat"]==7)*\
+                     (masterArray["idDeepTau2017v2p1VSjet_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSmu_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSe_4"]>=15) \
                       ).astype(int)*338
                       #(338, <ROOT.TKey object ("hpt_dm1_VLe_VLmu_deepmedium_hpt_dm1_VLe_VLmu_deepveryveryveryloose") at 0x4a7fe50>)
             index2_2 = (
@@ -236,10 +236,10 @@ class fakefactor() :
                       ).astype(int)*356
                       #(356, <ROOT.TKey object ("hpt_dm10_VLe_VLmu_deepmedium_hpt_dm10_VLe_VLmu_deepveryveryveryloose") at 0x4a82450>)
             index2_3 = (
-                     (masterArray["decayMode_3"]==11)*(masterArray["cat"]==7)*\
-                     (masterArray["idDeepTau2017v2p1VSjet_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSmu_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSe_3"]>=15) \
+                     (masterArray["decayMode_4"]==11)*(masterArray["cat"]==7)*\
+                     (masterArray["idDeepTau2017v2p1VSjet_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSmu_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSe_4"]>=15) \
                       ).astype(int)*374
                       #(374, <ROOT.TKey object ("hpt_dm11_VLe_VLmu_deepmedium_hpt_dm11_VLe_VLmu_deepveryveryveryloose") at 0x49e05d0>)
 
@@ -247,20 +247,20 @@ class fakefactor() :
             index2 = index2_0+index2_1+index2_2+index2_3
 
         if channel=="mmet":
-            leg1histo = self.fakehisto_ele["efr_numerator_efr_denominator"]
+            #leg1histo = self.fakehisto_ele["efr_numerator_efr_denominator"] #why???
             index1 = np.full(len(masterArray["evt"]),0)
             index2_0 = ( # medium
-                     (masterArray["decayMode_3"]==0)*(masterArray["cat"]==5)*\
-                     (masterArray["idDeepTau2017v2p1VSjet_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSmu_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSe_3"]>=15) \
+                     (masterArray["decayMode_4"]==0)*(masterArray["cat"]==5)*\
+                     (masterArray["idDeepTau2017v2p1VSjet_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSmu_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSe_4"]>=15) \
                       ).astype(int)*248
                       #(248, <ROOT.TKey object ("hpt_dm0_Te_VLmu_deepmedium_hpt_dm0_Te_VLmu_deepveryveryveryloose") at 0x4a1b020>)
             index2_1 = (
-                     (masterArray["decayMode_3"]==1)*(masterArray["cat"]==5)*\
-                     (masterArray["idDeepTau2017v2p1VSjet_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSmu_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSe_3"]>=15) \
+                     (masterArray["decayMode_4"]==1)*(masterArray["cat"]==5)*\
+                     (masterArray["idDeepTau2017v2p1VSjet_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSmu_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSe_4"]>=15) \
                       ).astype(int)*266
                       #(266, <ROOT.TKey object ("hpt_dm1_Te_VLmu_deepmedium_hpt_dm1_Te_VLmu_deepveryveryveryloose") at 0x4a08e50>)
             index2_2 = (
@@ -271,10 +271,10 @@ class fakefactor() :
                       ).astype(int)*284
                       #(284, <ROOT.TKey object ("hpt_dm10_Te_VLmu_deepmedium_hpt_dm10_Te_VLmu_deepveryveryveryloose") at 0x4a5afe0>)
             index2_3 = (
-                     (masterArray["decayMode_3"]==11)*(masterArray["cat"]==5)*\
-                     (masterArray["idDeepTau2017v2p1VSjet_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSmu_3"]>=15)* \
-                     (masterArray["idDeepTau2017v2p1VSe_3"]>=15) \
+                     (masterArray["decayMode_4"]==11)*(masterArray["cat"]==5)*\
+                     (masterArray["idDeepTau2017v2p1VSjet_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSmu_4"]>=15)* \
+                     (masterArray["idDeepTau2017v2p1VSe_4"]>=15) \
                       ).astype(int)*302
                       #(302, <ROOT.TKey object ("hpt_dm11_Te_VLmu_deepmedium_hpt_dm11_Te_VLmu_deepveryveryveryloose") at 0x4a774f0>)
 

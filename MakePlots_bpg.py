@@ -311,12 +311,12 @@ if __name__ == "__main__":
         #    print("removing data observed!")
             dists.remove(sys+"_data_obs")
 
-   # #TODO: temprorarily remove all bkg's except Bkg to see if it's negs or poss.
+   ## temprorarily remove all bkg's except one to debug and junk.
    # nd = 0
    # while nd < len(dists):
    #     
    #     dist = dists[nd]
-   #     if dist == "Nominal_Bkg":
+   #     if not dist == "Nominal_rareBkg": #"Nominal_Bkg":
    #         dists.remove(dist)
    #         print("dist to remove: " + dist)
    #         print("now dists = " + str(dists))
@@ -488,6 +488,7 @@ if __name__ == "__main__":
                 if not sigOnly:
              #       print("Making hBkgTot!!!!!")
                     hBkgTot = ROOT.THStack()
+                    hbkgerr = ROOT.TH1F() #hist to capture sum of all bkgs so can get MC error.
              #       print("Made hBkgTot!!!!!")
              #   else:
              #       print("sigOnly true????!!!!!!!!!!???????? " + str(sigOnly))
@@ -505,21 +506,26 @@ if __name__ == "__main__":
                 #sort dists by Integral!
                 sorted_dists = []
                 try:
-                    #the sig will be the first item, to try to fix this root bug.
+                    #the sig will be the last item, to try to fix this root bug. data will be the first.
                     signame = "" #will be filled in later if it's in dists (else won't be inserted).
                     for di in dists:
                         #if it's the sig, continue bc we'll put this at the front after this loop.
                         if di == (sys + "_a%d"%mass):  
                             signame = di
                             continue
+                        if di == (sys + "_data_obs"):
+                            #data_obs will be inserted at the front right after this loop.
+                            continue
                         idx = 0
                         #find greatest integral to go on the bottom.
                         while idx < len(sorted_dists) and integrals[sys][di][cat][var] < integrals[sys][sorted_dists[idx]][cat][var]:
                             idx += 1
                         sorted_dists.insert(idx, di)
-                    #now insert the sig, if it's here.
+                    #now append the sig, if it's here.
                     if signame != "":
                         sorted_dists.append(signame)
+                    if not noData:
+                        sorted_dists.insert(0, sys + "_data_obs")
                 except:
                     print("Error: cat {}, var {} failed.".format(cat, var))
                     continue
@@ -537,6 +543,7 @@ if __name__ == "__main__":
                     #hirBackground = histodict[sys][sys+"_"+dist][cat][var].Clone()
                     try:
                         hirBackground = histodict[sys][dist][cat][var].Clone()
+                        #initialize hbkgerr if it hasn't already been initialized.
                     except:
                     #    print("var not working: ", var)
                         continue
@@ -592,6 +599,20 @@ if __name__ == "__main__":
                         hirBackground.SetFillStyle(1001)
                         hirBackground.SetFillColor(ROOT.TColor.GetColor(colstr))
                         hBkgTot.Add(hirBackground)
+                        if (not noData and dnum == 1) or (noData and dnum == 0):
+                            hbkgerr.Sumw2() #will this get the stat errors right? ans: no :(
+                            hbkgerr = hirBackground.Clone()
+                            #hbkgerr.Sumw2() #will this get the stat errors right? ans: no :(
+                            if var == "AMass":
+                                print("started with bkg " + str(hirBackground))
+                                print("Starting bin 1 content: " + str(hbkgerr.GetBinContent(1)))
+                                print("cumulative error on hbkgerr bin 1: " + str(hbkgerr.GetBinError(1)))
+                        else:
+                            hbkgerr.Add(hirBackground) #add this background onto the total
+                            if var == "AMass":
+                                print("added bkg " + str(hirBackground))
+                                print("New bin 1 content: " + str(hbkgerr.GetBinContent(1)))
+                                print("cumulative error on hbkgerr bin 1: " + str(hbkgerr.GetBinError(1)))
                     #    print("added to hBkgTot: {}".format(str(hirBackground)))
                     elif is_sig:
                     #signal
@@ -655,9 +676,13 @@ if __name__ == "__main__":
                         realmax = max(realmax, hData.GetMaximum())
                     hBkgTot.SetMaximum(1.1*realmax) 
                     if y_max > -1:
-                    #MUST us SetMaximum and draw a second time for ROOT's stupid ass to understand
+                    #MUST use SetMaximum and draw a second time for ROOT's stupid ass to understand
                         hBkgTot.SetMaximum(y_max) 
                         hBkgTot.Draw("HIST")
+                    #draw MC error right after drawing the THStack.
+                    hbkgerr.SetFillStyle(3013)
+                    hbkgerr.SetFillColor(ROOT.TColor.GetColor("#263238"))
+                    hbkgerr.Draw("same E2")  #hopefully this will show MC errors
                     if not noSig:
                         hSig.Draw("same HIST")
                     if not noData:
