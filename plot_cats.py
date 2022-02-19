@@ -6,7 +6,7 @@ import os, sys
 import tauFun2 as tf
 
 #test name
-testn = "test131"
+testn = "testbj"
 year = 2017
 
 
@@ -131,12 +131,12 @@ def cpTest(cat, oldnum, rmprocesses=[]):
 
 #job to copy the 'mass' files from! (if don't have to rerun)
 cpjob = -1 # 120 #118 #-1 #119
-for ct in ['mmem', 'mmmt', 'mmet', 'mmtt']: #'mmtt', 'mmem', 'mmet', 'mtmt', 'mtet', 'mtem', 'etet', 'etem', 'emem', 'mmtt', 'mmmt', 'mmet', 'mmem', 'ttmt', 'ttet', 'ttem']:
+for ct in ['mmem']: #, 'mmmt', 'mmet', 'mmtt']: #'mmtt', 'mmem', 'mmet', 'mtmt', 'mtet', 'mtem', 'etet', 'etem', 'emem', 'mmtt', 'mmmt', 'mmet', 'mmem', 'ttmt', 'ttet', 'ttem']:
     #makeCatFiles(ct) ####does NOT make validation section!!!!!!!
-    #allBkgs = True
-    #noData = False #False
-    #sigOnly = False
-    #debug = False # False
+    allBkgs = True
+    noData = False #False
+    sigOnly = False
+    debug = False # False
     #if cpjob > 0:
     #    #cpTest(ct, cpjob, ["ZZ", "WZPythia", "WZ_ext1", "WZTo3LNu_pow"])
     #    #cpTest(ct, cpjob, ["WZTo3LNu_pow"])
@@ -146,6 +146,6 @@ for ct in ['mmem', 'mmmt', 'mmet', 'mmtt']: #'mmtt', 'mmem', 'mmet', 'mtmt', 'mt
     #    #justComb true to just combine the files, not rerun anything.
     #    runTest(ct, allBkgs, debug, True)
     #else:
-    #    runTest(ct, allBkgs, debug)
+    #runTest(ct, allBkgs, debug)
     # #   pass
-    #makePlots(ct, noData, sigOnly)
+    makePlots(ct, noData, sigOnly)

@@ -293,7 +293,8 @@ def initialize(channel, direc):
     #csvfile = "MCsamples_2016_v7.csv"
     csvfile = "bpgMCsamples_%d_v7.csv"%(year)
     categories = "cat_"+channel+"_%d.yaml"%(year)
-    processes = "processes_special_"+channel+".yaml"
+    #processes = "processes_special_"+channel+".yaml"
+    processes = "processes_special_"+channel+ "_" + str(year) + ".yaml"
     #categories = "cat_mmet_2016.yaml"
     #processes = "processes_special_mmet.yaml"
 

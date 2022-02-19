@@ -24,6 +24,7 @@ CommonWeights["string"]=[["Generator_weight"],["weight"]]
 jet_inclusive_samples = {}
 
 jet_inclusive_samples["2018"] = [
+                        "DYJetsToLL", #bpg added ???
                         "DY1JetsToLL" ,
                         "DY2JetsToLL" ,
                         "DY3JetsToLL" ,
@@ -34,6 +35,7 @@ jet_inclusive_samples["2018"] = [
                         ]
 
 jet_inclusive_samples["2017"] = ["DYJetsToLL_ext1",
+                        "DYJetsToLL", #bpg added ???
                         "DY1JetsToLL" ,
                         "DY2JetsToLL" ,
                         "DY3JetsToLL" ,
@@ -45,6 +47,12 @@ jet_inclusive_samples["2017"] = ["DYJetsToLL_ext1",
                         "W3JetsToLNu",
                         #"W4JetsToLNu_ext1",
                         #"W4JetsToLNu_ext2"
+                        #bpg adding all the below ----v
+                        "DYJetsToLL_ext1", #bpg added ???
+                        "DY1JetsToLL_ext1" ,
+                        "DY2JetsToLL_ext1" ,
+                        "DY3JetsToLL_ext1" ,
+                        #"DY4JetsToLL_ext1" , #DNE fsr
                         ]
 
 jet_inclusive_samples["2016"] = ["DYJetsToLLext1",
@@ -81,7 +89,8 @@ jet_inclusive_samples["2016"] = ["DYJetsToLLext1",
 #                         ]
 jetIncOnly = {}
 jetIncOnly["2018"] = [["DYJetsToLL"],["WJetsToLNu"]]
-jetIncOnly["2017"] = [["DYJetsToLL_ext1"],["WJetsToLNu","WJetsToLNu_ext1"]]
+#jetIncOnly["2017"] = [["DYJetsToLL_ext1"],["WJetsToLNu","WJetsToLNu_ext1"]] ##wtf is this -bpg
+jetIncOnly["2017"] = [["DYJetsToLL","DYJetsToLL_ext1"],["WJetsToLNu","WJetsToLNu_ext1"]]
 #jetIncOnly["2016"] = [["DYJetsToLLext1","DYJetsToLLext2"],["WJetsToLNu","WJetsToLNuext","WJetsToLNu_ext2"]] #v6
 jetIncOnly["2016"] = [["DYJetsToLLext1","DYJetsToLLext2"],["WJetsToLNu","WJetsToLNu_ext2"]]
 

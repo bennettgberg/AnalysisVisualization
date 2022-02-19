@@ -351,8 +351,8 @@ def initialize(args):
     for line in open(csvfile,'r').readlines() :
             # structure for csv to sampleDict conversion
             #[nickname]        = [category,xsec,numberOfEvents,finishedEvents,idk?,DASDataset]
-            print "reading line "
-            print line
+            #print "reading line "
+            #print line
             if "#" in line[0]: continue
             if len(line.split(',')[2].split("*"))>1:
                 tempval=1.0
@@ -623,7 +623,18 @@ def initialize(args):
         jetWeightMultiplicity["DY3JetsToLL"]=DY3JetsFile.Get("hWeights").GetSumOfWeights()
         DY4JetsFile = ROOT.TFile.Open(filelist["DY4JetsToLL"],"read")
         jetWeightMultiplicity["DY4JetsToLL"]=DY4JetsFile.Get("hWeights").GetSumOfWeights()
+#bpg adding DY _ext files
+        for nj in range(1, 4): #no 4Jets ext file for some reason
+            DYnjJetsExt = ROOT.TFile.Open(filelist["DY%dJetsToLL_ext1"%nj],"read")
+            jetWeightMultiplicity["DY%dJetsToLL"%nj] += DYnjJetsExt.Get("hWeights").GetSumOfWeights()
+            jetWeightMultiplicity["DY%dJetsToLL_ext1"%nj] = DYnjJetsExt.Get("hWeights").GetSumOfWeights()
+            DYnjJetsFile = ROOT.TFile.Open(filelist["DY%dJetsToLL"%nj],"read")
+            jetWeightMultiplicity["DY%dJetsToLL_ext1"%nj] += DYnjJetsFile.Get("hWeights").GetSumOfWeights()
 
+        jetWeightMultiplicity["DYJetsToLL"] += jetWeightMultiplicity["DYJetsToLL_ext1"]
+        jetWeightMultiplicity["DYJetsToLL_ext1"] += jetWeightMultiplicity["DYJetsToLL"]
+
+#ignoring W _ext files bc they contribute 0 anyways
         W1JetsFile = ROOT.TFile.Open(filelist["W1JetsToLNu"],"read")
         jetWeightMultiplicity["W1JetsToLNu"]=W1JetsFile.Get("hWeights").GetSumOfWeights()
 
@@ -704,7 +715,7 @@ def initialize(args):
         finalDistributions["prompt2"]=["prompt2"]
     if args.datadrivenZH or args.datadrivenSM:
         #add Bkg to rareBkg!!!!!! or nah????
-        for pr in Bkg: rareBkg.append(pr)
+        #for pr in Bkg: rareBkg.append(pr)
         Bkg = ["FF"]
 
         finalDistributions["Bkg"]=Bkg
@@ -960,17 +971,29 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
             if procut!="":
                 cuts.append(procut[0])
             if args.extract and args.channel=="mmmt":
-                cuts.append(["AMass","<=",120.0])
-                cuts.append(["mll-mtt",">",0.0])
-            elif args.extract and args.channel=="mmtt":
-                cuts.append(["AMass","<=",130.0])
-                cuts.append(["mll-mtt",">",0.0])
-            elif args.extract and args.channel=="mmet":
-                cuts.append(["AMass","<=",120.0])
-                cuts.append(["mll-mtt",">",0.0])
-            elif args.extract and args.channel=="mmem":
+                #cuts.append(["AMass","<=",120.0])
+                #cuts.append(["mllmtt",">",0.0])
                 cuts.append(["AMass","<=",110.0])
-                cuts.append(["mll-mtt",">",0.0])
+                cuts.append(["mllmtt",">",-25.0])
+                cuts.append(["mllmtt","<",25.0])
+            elif args.extract and args.channel=="mmtt":
+                #cuts.append(["AMass","<=",130.0])
+                #cuts.append(["mllmtt",">",0.0])
+                cuts.append(["AMass","<=",110.0])
+                cuts.append(["mllmtt",">",-35.0])
+                cuts.append(["mllmtt","<",5.0])
+            elif args.extract and args.channel=="mmet":
+                #cuts.append(["AMass","<=",120.0])
+                #cuts.append(["mllmtt",">",0.0])
+                cuts.append(["AMass","<=",110.0])
+                cuts.append(["mllmtt",">",-35.0])
+                cuts.append(["mllmtt","<",25.0])
+            elif args.extract and args.channel=="mmem":
+                #cuts.append(["AMass","<=",110.0])
+                #cuts.append(["mllmtt",">",0.0])
+                cuts.append(["AMass","<=",110.0])
+                cuts.append(["mllmtt",">",-25.0])
+                cuts.append(["mllmtt","<",15.0])
             #print(process)
             #print(process.cuts)
             #print(masterArray.keys())
@@ -1050,27 +1073,59 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 cuts_1 = HAA_processes["FF"].cuts["FF_1"]
                 cuts_2 = HAA_processes["FF"].cuts["FF_2"]
                 cuts_12 = HAA_processes["FF"].cuts["FF_12"]
-                if args.extract and (args.channel=="mmmt" or args.channel=="mmet"):
-                    cuts_1.append(["AMass","<=",120.0])
-                    cuts_1.append(["mll-mtt",">",0.0])
-                    cuts_2.append(["AMass","<=",120.0])
-                    cuts_2.append(["mll-mtt",">",0.0])
-                    cuts_12.append(["AMass","<=",120.0])
-                    cuts_12.append(["mll-mtt",">",0.0])
-                if args.extract and args.channel=="mmtt":
-                    cuts_1.append(["AMass","<=",130.0])
-                    cuts_1.append(["mll-mtt",">",0.0])
-                    cuts_2.append(["AMass","<=",130.0])
-                    cuts_2.append(["mll-mtt",">",0.0])
-                    cuts_12.append(["AMass","<=",130.0])
-                    cuts_12.append(["mll-mtt",">",0.0])
-                if args.extract and args.channel=="mmem":
-                    cuts_1.append(["AMass","<=",110.0])
-                    cuts_1.append(["mll-mtt",">",0.0])
-                    cuts_2.append(["AMass","<=",110.0])
-                    cuts_2.append(["mll-mtt",">",0.0])
-                    cuts_12.append(["AMass","<=",110.0])
-                    cuts_12.append(["mll-mtt",">",0.0])
+                #if args.extract and (args.channel=="mmmt" or args.channel=="mmet"):
+                #    cuts_1.append(["AMass","<=",120.0])
+                #    cuts_1.append(["mllmtt",">",0.0])
+                #    cuts_2.append(["AMass","<=",120.0])
+                #    cuts_2.append(["mllmtt",">",0.0])
+                #    cuts_12.append(["AMass","<=",120.0])
+                #    cuts_12.append(["mllmtt",">",0.0])
+                #if args.extract and args.channel=="mmtt":
+                #    cuts_1.append(["AMass","<=",130.0])
+                #    cuts_1.append(["mllmtt",">",0.0])
+                #    cuts_2.append(["AMass","<=",130.0])
+                #    cuts_2.append(["mllmtt",">",0.0])
+                #    cuts_12.append(["AMass","<=",130.0])
+                #    cuts_12.append(["mllmtt",">",0.0])
+                #if args.extract and args.channel=="mmem":
+                #    cuts_1.append(["AMass","<=",110.0])
+                #    cuts_1.append(["mllmtt",">",0.0])
+                #    cuts_2.append(["AMass","<=",110.0])
+                #    cuts_2.append(["mllmtt",">",0.0])
+                #    cuts_12.append(["AMass","<=",110.0])
+                #    cuts_12.append(["mllmtt",">",0.0])
+            #extraction cuts for 4tau
+                if args.extract:
+                    #first 4l mass
+                    if not args.channel == "mmem":
+                        cuts_1.append(["AMass", "<=", 110.0])
+                        cuts_2.append(["AMass", "<=", 110.0])
+                        cuts_12.append(["AMass", "<=", 110.0])
+                    else:
+                        cuts_1.append(["AMass", "<=", 90.0])
+                    #now mllmtt cut (different for each cat)
+                    if args.channel in ["mmmt", "mmem"]:
+                        cuts_1.append(["mllmtt",">",-25])
+                        cuts_2.append(["mllmtt",">",-25])
+                        cuts_12.append(["mllmtt",">",-25])
+                    elif args.channel in ["mmet", "mmtt"]:
+                        cuts_1.append(["mllmtt",">",-35])
+                        cuts_2.append(["mllmtt",">",-35])
+                        cuts_12.append(["mllmtt",">",-35])
+                    
+                    if args.channel in ["mmet", "mmmt"]:
+                        cuts_1.append(["mllmtt","<",25])
+                        cuts_2.append(["mllmtt","<",25])
+                        cuts_12.append(["mllmtt","<",25])
+                    elif args.channel == "mmtt":
+                        cuts_1.append(["mllmtt","<",5])
+                        cuts_2.append(["mllmtt","<",5])
+                        cuts_12.append(["mllmtt","<",5])
+                    elif args.channel == "mmem":
+                        cuts_1.append(["mllmtt","<",15])
+                        cuts_2.append(["mllmtt","<",15])
+                        cuts_12.append(["mllmtt","<",15])
+                        
                 tempmask_1 = cutOnArray(masterArray,cuts_1)
                 #print tempmask_1[:1000]
                 tempmask_2 = cutOnArray(masterArray,cuts_2)
@@ -1169,27 +1224,58 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 cuts_1 = HAA_processes["FF"].cuts["FF_1"]
                 cuts_2 = HAA_processes["FF"].cuts["FF_2"]
                 cuts_12 = HAA_processes["FF"].cuts["FF_12"]
-                if args.extract and (args.channel=="mmmt" or args.channel=="mmet"):
-                    cuts_1.append(["AMass","<=",120.0])
-                    cuts_1.append(["mll-mtt",">",0.0])
-                    cuts_2.append(["AMass","<=",120.0])
-                    cuts_2.append(["mll-mtt",">",0.0])
-                    cuts_12.append(["AMass","<=",120.0])
-                    cuts_12.append(["mll-mtt",">",0.0])
-                if args.extract and args.channel=="mmtt":
-                    cuts_1.append(["AMass","<=",130.0])
-                    cuts_1.append(["mll-mtt",">",0.0])
-                    cuts_2.append(["AMass","<=",130.0])
-                    cuts_2.append(["mll-mtt",">",0.0])
-                    cuts_12.append(["AMass","<=",130.0])
-                    cuts_12.append(["mll-mtt",">",0.0])
-                if args.extract and args.channel=="mmem":
-                    cuts_1.append(["AMass","<=",110.0])
-                    cuts_1.append(["mll-mtt",">",0.0])
-                    cuts_2.append(["AMass","<=",110.0])
-                    cuts_2.append(["mll-mtt",">",0.0])
-                    cuts_12.append(["AMass","<=",110.0])
-                    cuts_12.append(["mll-mtt",">",0.0])
+                #if args.extract and (args.channel=="mmmt" or args.channel=="mmet"):
+                #    cuts_1.append(["AMass","<=",120.0])
+                #    cuts_1.append(["mllmtt",">",0.0])
+                #    cuts_2.append(["AMass","<=",120.0])
+                #    cuts_2.append(["mllmtt",">",0.0])
+                #    cuts_12.append(["AMass","<=",120.0])
+                #    cuts_12.append(["mllmtt",">",0.0])
+                #if args.extract and args.channel=="mmtt":
+                #    cuts_1.append(["AMass","<=",130.0])
+                #    cuts_1.append(["mllmtt",">",0.0])
+                #    cuts_2.append(["AMass","<=",130.0])
+                #    cuts_2.append(["mllmtt",">",0.0])
+                #    cuts_12.append(["AMass","<=",130.0])
+                #    cuts_12.append(["mllmtt",">",0.0])
+                #if args.extract and args.channel=="mmem":
+                #    cuts_1.append(["AMass","<=",110.0])
+                #    cuts_1.append(["mllmtt",">",0.0])
+                #    cuts_2.append(["AMass","<=",110.0])
+                #    cuts_2.append(["mllmtt",">",0.0])
+                #    cuts_12.append(["AMass","<=",110.0])
+                #    cuts_12.append(["mllmtt",">",0.0])
+            #extraction cuts for 4tau
+                if args.extract:
+                    #first 4l mass
+                    if not args.channel == "mmem":
+                        cuts_1.append(["AMass", "<=", 110.0])
+                        cuts_2.append(["AMass", "<=", 110.0])
+                        cuts_12.append(["AMass", "<=", 110.0])
+                    else:
+                        cuts_1.append(["AMass", "<=", 90.0])
+                    #now mllmtt cut (different for each cat)
+                    if args.channel in ["mmmt", "mmem"]:
+                        cuts_1.append(["mllmtt",">",-25])
+                        cuts_2.append(["mllmtt",">",-25])
+                        cuts_12.append(["mllmtt",">",-25])
+                    elif args.channel in ["mmet", "mmtt"]:
+                        cuts_1.append(["mllmtt",">",-35])
+                        cuts_2.append(["mllmtt",">",-35])
+                        cuts_12.append(["mllmtt",">",-35])
+                    
+                    if args.channel in ["mmet", "mmmt"]:
+                        cuts_1.append(["mllmtt","<",25])
+                        cuts_2.append(["mllmtt","<",25])
+                        cuts_12.append(["mllmtt","<",25])
+                    elif args.channel == "mmtt":
+                        cuts_1.append(["mllmtt","<",5])
+                        cuts_2.append(["mllmtt","<",5])
+                        cuts_12.append(["mllmtt","<",5])
+                    elif args.channel == "mmem":
+                        cuts_1.append(["mllmtt","<",15])
+                        cuts_2.append(["mllmtt","<",15])
+                        cuts_12.append(["mllmtt","<",15])
                 tempmask_1 = cutOnArray(masterArray,cuts_1)
                 tempmask_2 = cutOnArray(masterArray,cuts_2)
                 tempmask_12 = cutOnArray(masterArray,cuts_12)
@@ -1198,11 +1284,11 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
 
 
                 ffhistosmask_1, ffhistosmask_2 = fakefactorObj.getHistoMask(args.channel,processObj,masterArray)
-                print ffhistosmask_2[:1000]
+                #print ffhistosmask_2[:1000]
 
                 ffweight_1,ffweight_2 = fakefactorObj.getFakeWeight(args.channel,ptarr_1,ptarr_2,ffhistosmask_1,ffhistosmask_2)
-                print "ffweight_1 ",ffweight_1
-                print "ffweight_2 ",ffweight_2
+                #print "ffweight_1 ",ffweight_1
+                #print "ffweight_2 ",ffweight_2
                 #exit()
                 ffweight_1 = ffweight_1/(1.0000000001 - ffweight_1)
                 ffweight_2 = ffweight_2/(1.0000000001 - ffweight_2)
@@ -1227,7 +1313,7 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 #skipEvents = np.where(mask==0)[0]
                 mask = cutOnArray(masterArray,[["finalweight","!=",0.]])
                 masterArray["mask"]=mask
-                print mask[:1000]
+                #print mask[:1000]
                 skimArray={}
                 for key in masterArray.keys():
                     #skimArray[key] = masterArray[key][keepEvents]
@@ -1283,6 +1369,8 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                 if nickname in inclusive_samples:
                     jetweights = 5*[0]
                     if nickname.startswith("DY"):
+                        if nickname == "DYJetsToLL":
+                            print("DYJetsToLL starts with DY!")
                         jet0Xsec = 4673.65
                         if args.year=="2016":
                             jetweights[0] = jet0Xsec/jetWeightMultiplicity["DYJetsToLLext1"][0]
@@ -1322,8 +1410,10 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                         masterArray["finalweight"] [njetmask] *= weight
                         #print "events that pass ",i_jet," jets ",np.count_nonzero(masterArray["finalweight"] [njetmask])
 
-                    #print "jet weight array ",jetweights
-                    #print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," events that pass ", np.count_nonzero(masterArray["finalweight"])
+                    if nickname == "DYJetsToLL":
+                        print "jet weight array ",jetweights
+                        print  " sample name ",nickname,"xsec ",HAA_processes[nickname].weights["xsec"]," events that pass ", np.count_nonzero(masterArray["finalweight"])
+                        print(masterArray["finalweight"])
 
 
                 elif not type(weightHistoDict[nickname])==list:
@@ -1331,11 +1421,12 @@ def makeCutsOnTreeArray(processObj, inputArray,allcats,weightHistoDict,systemati
                     sumOfWeights = 0.0
                 #add up the sums of weights from all the extended and non-extended files in this family.
                     for nic,sowhist in weightHistoDict.iteritems():
-                        #if nickname in nic or nic in nickname: #bpg added 2nd clause--not gonna cut it!!
                         extensions = ["_ext1", "_ext2", "_ext3", "ext1", "ext", "ext2"]
                         for ext in extensions:
-                         #sum sow from all versions of this process. 
-                            if nickname.strip(ext) in nic or nic.strip(ext) in nickname: 
+                         #if this process is related to nickname, add its SoW and move on! 
+                            #if nickname.strip(ext) in nic or nic.strip(ext) in nickname: 
+                            if nickname.replace(ext, "") in nic or nic.replace(ext, "") in nickname: 
+                                #print "adding ",nic,"   to   ",nickname
                                 sumOfWeights += sowhist.GetSumOfWeights()
                                 break
                     if sumOfWeights != 0.0:

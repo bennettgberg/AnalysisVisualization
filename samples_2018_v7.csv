@@ -36,10 +36,10 @@ W2JetsToLNu,W,2793,23290710.0,23268794.8,,/W2JetsToLNu_TuneCP5_13TeV-madgraphMLM
 W3JetsToLNu,W,992.5,14508481.0,14489896.9,,/W3JetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21-v1/NANOAODSIM
 W4JetsToLNu,W,604,10082747.0,10059699.5,,/W4JetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21-v1/NANOAODSIM
 WJetsToLNu,W,61526.7,71026861.0,70962102.7,,/WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21-v1/NANOAODSIM
-WWZ_ext1,ZZ,0.1651,250000.0,41782.7,,/WWZ_TuneCP5_13TeV-amcatnlo-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext1-v1/NANOAODSIM
-WZZ_ext1,Other,0.05565,54000.0,3063.3,,/WZZ_TuneCP5_13TeV-amcatnlo-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext1-v1/NANOAODSIM
+WWZ_ext1,WWZ,0.1651,250000.0,41782.7,,/WWZ_TuneCP5_13TeV-amcatnlo-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext1-v1/NANOAODSIM
+WZZ_ext1,WZZ,0.05565,54000.0,3063.3,,/WZZ_TuneCP5_13TeV-amcatnlo-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext1-v1/NANOAODSIM
 ZHToTauTau,Signal,0.7612*0.0627,4761815.0,3757651.7,,/ZHToTauTau_M125_13TeV_powheg_pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21-v1/NANOAODSIM
-ZZZ_ext1,Other,0.01398,152000.0,2234.8,,/ZZZ_TuneCP5_13TeV-amcatnlo-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext1-v1/NANOAODSIM
+ZZZ_ext1,ZZZ,0.01398,152000.0,2234.8,,/ZZZ_TuneCP5_13TeV-amcatnlo-pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext1-v1/NANOAODSIM
 WW,rare,75.8,7850000.0,7846119.0,,/WW_TuneCP5_13TeV-pythia8/RunIIAutumn18NanoAODv5_v2-DeepTauv2p1_TauPOG-v1/USER
 ZZTo4L_ext1,ZZ,1.325,6689900.0,8862775.9,,/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext1-v1/NANOAODSIM
 ZZTo4L_ext2,ZZ,1.325,98870000.0,130979976.1,,/ZZTo4L_TuneCP5_13TeV_powheg_pythia8/RunIIAutumn18NanoAODv7-Nano02Apr2020_102X_upgrade2018_realistic_v21_ext2-v1/NANOAODSIM
@@ -56,4 +56,4 @@ HToAATo4Tau_M-45,a45,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTa
 HToAATo4Tau_M-50,a50,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTau_M-50_FilterMu15Mu5_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v3/MINIAODSIM
 HToAATo4Tau_M-55,a55,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTau_M-55_FilterMu15Mu5_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v3/MINIAODSIM
 HToAATo4Tau_M-60,a60,12.14,990064.0,679.0,,/SUSYGluGluToHToAA_AToTauTau_AToTauTau_M-60_FilterMu15Mu5_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v3/MINIAODSIM
-data_obs,data_obs,23.43,3807850.0,3807850.0,,/SingleElectron/Run2018D-Nano25Oct2019-v1/NANOAOD
+#data_obs,data_obs,23.43,3807850.0,3807850.0,,/SingleElectron/Run2018D-Nano25Oct2019-v1/NANOAOD

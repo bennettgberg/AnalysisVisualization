@@ -72,26 +72,6 @@ def add_Preliminary(channel="mmmt"):
     lumi.AddText("Preliminary "+channel)
     return lumi
 
-def make_legend():
-        output = ROOT.TLegend(0.165, 0.45, 0.350, 0.75, "", "brNDC")
-        output.SetLineWidth(0)
-        output.SetLineStyle(0)
-        output.SetFillStyle(0)
-        output.SetFillColor(0)
-        output.SetBorderSize(0)
-        output.SetTextFont(62)
-        return output
-
-def make_legend_inset():
-        output = ROOT.TLegend(0.6, 0.5, 0.98, 0.85, "", "brNDC")
-        output.SetLineWidth(0)
-        output.SetLineStyle(0)
-        output.SetFillStyle(0)
-        output.SetFillColor(0)
-        output.SetBorderSize(0)
-        output.SetTextFont(62)
-        return output
-
 def add_categ(text):
        categ  = ROOT.TPaveText(0.6, 0.2+0.013, 0.89, 0.40+0.155, "NDC")
        categ.SetBorderSize(   0 )
@@ -137,29 +117,6 @@ def assignColor(h):
         h.SetFillColor(ROOT.TColor.GetColor(HAA_processes["DYJetsToLL"].color[0]))
     return h
 
-def makeHisto(h,hS,hB,hD):
-    #k=h.Clone()
-    name = h.GetName()
-    #print "setting attributes for ",name
-    if "a15" in name or "a20" in name or "a25" in name or "a30" in name or "a35" in name or "a40" in name:
-        h = assignColor(h)
-        hS.Add(h)
-    if "ZL" in name or "ZTT" in name or "TTT" in name or "TTL" in name or "ZTL" in name or "jetFakes" in name:
-        h = assignColor(h)
-        hB.Add(h)
-
-
-
-
-    return h,hS,hB,hD
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
 
     #Change these to input category files ?? via parser?
@@ -188,6 +145,7 @@ if __name__ == "__main__":
     parser.add_argument("-yr",  "--year", default="2017",  help="Which year (2016, 2017, or 2018")
     parser.add_argument("-nZ",  "--noZZ", default=False,action='store_true',  help="Include this argument to exclude the ZZ bkg")
     parser.add_argument("-tn",  "--testname", default="",  help="Testname (esp. for FF, so don't need to include filename, or can include multiple files)")
+    parser.add_argument("-sys",  "--systematics", default=False,action='store_true',  help="Run over all systematics instead of just Nominal")
     args = parser.parse_args()
 
     ROOT.gStyle.SetFrameLineWidth(2)
@@ -199,8 +157,8 @@ if __name__ == "__main__":
     if yr == "1718":
         yr = "2017"
 
-    #only plot this signal mass.
-    mass = 40
+    #only plot these signal masses.
+    masses = [60, 50, 40, 30, 20]
 
     #show ONLY signal
     sigOnly = args.sigOnly # False #True
@@ -283,6 +241,11 @@ if __name__ == "__main__":
     processes = []
     histodict = {}
     systematics = ["Nominal"] #,"scale_m_etalt1p2Up"]
+    if args.systematics:
+        systematics =[ "scale_eUp","scale_eDown","scale_m_etalt1p2Up","scale_m_etalt1p2Down",
+                       "scale_m_eta1p2to2p1Up","scale_m_eta1p2to2p1Down","scale_m_etagt2p1Up","scale_m_etagt2p1Down",
+                       "scale_t_1prongUp","scale_t_1prongDown","scale_t_1prong1pizeroUp","scale_t_1prong1pizeroDown",
+                       "scale_t_3prongUp","scale_t_3prongDown","scale_t_3prong1pizeroUp","scale_t_3prong1pizeroDown"]
     #get all the distributions
     dists = fin.keys()
     #get rid of the useless ;1 at the end of each dist
@@ -291,9 +254,14 @@ if __name__ == "__main__":
     #remove all the distributions we aren't dealing with (all the signals except the one mass)
     for sys in systematics:
         #list of masses that we aren't doing rn.
-        bad_masses = [sys + "_a%d"%mss for mss in range(15, mass, 5)]
-        for mss in range(mass+5, 61, 5): bad_masses.append(sys + "_a%d"%mss)
-        if noSig: bad_masses.append(sys + "_a%d"%mass)
+        bad_masses = []
+        for mss in range(15, 61, 5):
+            if mss not in masses or noSig:
+                bad_masses.append(sys + "_a%d"%mss)
+        #bad_masses = [sys + "_a%d"%mss for mss in range(15, 61, 5)]
+        #for mss in range(mass+5, 61, 5): bad_masses.append(sys + "_a%d"%mss)
+        
+        #if noSig: bad_masses.append(sys + "_a%d"%mass)
         #remove the ones we won't use from dists.
         for bm in bad_masses: 
       #      print("bm to remove: {}".format(bm))
@@ -311,12 +279,13 @@ if __name__ == "__main__":
         #    print("removing data observed!")
             dists.remove(sys+"_data_obs")
 
-   ## temprorarily remove all bkg's except one to debug and junk.
+   ## temporarily remove all bkg's except one to debug and junk.
    # nd = 0
    # while nd < len(dists):
    #     
    #     dist = dists[nd]
-   #     if not dist == "Nominal_rareBkg": #"Nominal_Bkg":
+   #     #if not dist == "Nominal_rareBkg": #"Nominal_Bkg":
+   #     if not dist == "Nominal_Bkg":
    #         dists.remove(dist)
    #         print("dist to remove: " + dist)
    #         print("now dists = " + str(dists))
@@ -360,7 +329,7 @@ if __name__ == "__main__":
                     else:
                         var = allcats[cat].vars[variableHandle][0]
                         bins = allcats[cat].vars[variableHandle][1]
-                    title = "%s_%s_%s"%(str(dist), str(cat), str(variableHandle))
+                    title = "%s_%s_%s_%s"%(str(dist), str(cat), str(variableHandle), sys)
                     if type(bins[0])==list:
                        # print("Making new TH1D! title = {}".format(title))
                         histodict[sys][dist][cat][variableHandle] = ROOT.TH1D(title,title,bins[0][0],bins[0][1],bins[0][2])
@@ -402,11 +371,11 @@ if __name__ == "__main__":
                             #print("masterArray[finalweight]: {}".format(masterArray["finalweight"]))
                             root_numpy.fill_hist(histodict[sys][dist][cat][variableHandle],val,masterArray["finalweight"])
                             integrals[sys][dist][cat][variableHandle] = histodict[sys][dist][cat][variableHandle].Integral() 
-                            #print("just filled hist {}, {}, {}, {}: {}, int: {}".format(sys, dist, cat, variableHandle, histodict[sys][dist][cat][variableHandle], integrals[sys][dist][cat][variableHandle]))
+                            print("just filled hist {}, {}, {}, {}: {}, int: {}".format(sys, dist, cat, variableHandle, histodict[sys][dist][cat][variableHandle], integrals[sys][dist][cat][variableHandle]))
                             #print("3rd bin: {}".format(histodict[sys][dist][cat][variableHandle][3]))
                             if ii == 0:
                                 passvars.append(var)
-                        except:
+                        except KeyError:
                             print "problem with variable so skipping ",var
                             continue
 
@@ -444,7 +413,7 @@ if __name__ == "__main__":
             #make a separate plot for each category.
             for cat in cats:
                 #signal
-                hSignals={}
+                hSignals=[]
 
                 hDataDict={}
                 hMCDict={}
@@ -501,17 +470,19 @@ if __name__ == "__main__":
                 if var=="mll_fine":
                     l=ROOT.TLegend(0.40,0.55,0.40+0.28,0.9);
                 #signal isn't stacked with the backgrounds.
-                hSig = ROOT.TH1F()
+                #hSig = ROOT.TH1F()
                 hData = ROOT.TH1F()
                 #sort dists by Integral!
                 sorted_dists = []
                 try:
                     #the sig will be the last item, to try to fix this root bug. data will be the first.
-                    signame = "" #will be filled in later if it's in dists (else won't be inserted).
+                    signames = [] #"" #will be filled in later if it's in dists (else won't be inserted).
                     for di in dists:
                         #if it's the sig, continue bc we'll put this at the front after this loop.
-                        if di == (sys + "_a%d"%mass):  
-                            signame = di
+                        #if di == (sys + "_a%d"%mass):  
+                        if di in [(sys + "_a%d"%mass) for mass in masses]:
+                            #signame = di
+                            signames.append( di )
                             continue
                         if di == (sys + "_data_obs"):
                             #data_obs will be inserted at the front right after this loop.
@@ -522,8 +493,9 @@ if __name__ == "__main__":
                             idx += 1
                         sorted_dists.insert(idx, di)
                     #now append the sig, if it's here.
-                    if signame != "":
-                        sorted_dists.append(signame)
+                    if signames != []:  #"":
+                        for sn in signames:
+                            sorted_dists.append(sn)
                     if not noData:
                         sorted_dists.insert(0, sys + "_data_obs")
                 except:
@@ -579,10 +551,15 @@ if __name__ == "__main__":
                     elif dist == sys + "_rareBkg":
                         colstr = "#FF6600"
                         bkgtit = "TTXX, WZ to Inv, 4#alpha"
-                    elif dist == (sys + "_a%d"%mass):  #in ["%s_a%d"%(sys, mss) for mss in range(15, 61, 5)]:
+                    #elif dist == (sys + "_a%d"%mass):  #in ["%s_a%d"%(sys, mss) for mss in range(15, 61, 5)]:
+                    elif dist in [(sys + "_a%d"%mass) for mass in masses]:  #in ["%s_a%d"%(sys, mss) for mss in range(15, 61, 5)]:
                         is_sig = True
-                        print("is_sig!!")
-                        colstr = "#0000FF" #blue
+                        #print("is_sig!!")
+                        colstr = "#0000FF" #blue for a40
+                        if "20" in dist: colstr = "#00FF00" #green
+                        elif "30" in dist: colstr = "#FF0000" #red
+                        elif "50" in dist: colstr = "#00FFFF" #
+                        elif "60" in dist: colstr = "#FF00FF" #
                         bkgtit = "Signal " + dist
                     elif dist == (sys + "_data_obs"):
                         is_data = True
@@ -593,6 +570,8 @@ if __name__ == "__main__":
                         system.exit() 
                         #break
 
+                    hirBackground.SetTitle(bkgtit)
+
                     if not is_sig and not is_data:
                     #background
                         hirBackground.SetLineColor(1)
@@ -600,9 +579,9 @@ if __name__ == "__main__":
                         hirBackground.SetFillColor(ROOT.TColor.GetColor(colstr))
                         hBkgTot.Add(hirBackground)
                         if (not noData and dnum == 1) or (noData and dnum == 0):
-                            hbkgerr.Sumw2() #will this get the stat errors right? ans: no :(
                             hbkgerr = hirBackground.Clone()
-                            #hbkgerr.Sumw2() #will this get the stat errors right? ans: no :(
+                            hbkgerr.Sumw2()
+                          
                             if var == "AMass":
                                 print("started with bkg " + str(hirBackground))
                                 print("Starting bin 1 content: " + str(hbkgerr.GetBinContent(1)))
@@ -616,18 +595,24 @@ if __name__ == "__main__":
                     #    print("added to hBkgTot: {}".format(str(hirBackground)))
                     elif is_sig:
                     #signal
+                        #print("setting " + dist + " to color " + colstr)
                         hirBackground.SetLineColor(ROOT.TColor.GetColor(colstr))
+                        hirBackground.SetMarkerColor(ROOT.TColor.GetColor(colstr))
                         hirBackground.SetFillStyle(0)
-                        hSig = hirBackground.Clone()
+                        #hSig = hirBackground.Clone()
+                        #hSignals.append ( hirBackground.Clone() )
+                        #print("now " + dist + " has color " + str(hirBackground.GetLineColor()))
                     else:
                     #data
                         hirBackground.SetMarkerColor(1)
                         hirBackground.SetMarkerStyle(20)
                         hData = hirBackground.Clone()
 
-                    hirBackground.SetTitle(bkgtit)
 
-                    if not is_data:
+                    if is_sig:
+                        l.AddEntry(hirBackground, hirBackground.GetTitle(), "l")
+                    elif not is_data:
+            #        if not is_data:
                         l.AddEntry(hirBackground)
                     else:
                         l.AddEntry(hData, "Data observed", "PE")
@@ -635,6 +620,12 @@ if __name__ == "__main__":
                     #print("Added {} to hBkgTot. Now hBkgTot = {}".format(hirBackground, hBkgTot))
                     #add entry to the legend.
                     
+                    if is_sig:
+                        #do NOT Clone or else the TLegend gets messed up fsr...
+                        hsig = hirBackground #.Clone()
+                        hSignals.append ( hsig )
+                        #print("hsig has color " + str(hsig.GetLineColor()))
+                        #print("hirBackground now has color " + str(hirBackground.GetLineColor()))
 
 
         
@@ -671,7 +662,8 @@ if __name__ == "__main__":
                 #set maximum to what it should be (idk why root can't do this automatically)
                     realmax = hBkgTot.GetMaximum()
                     if not noSig:
-                        realmax = max(realmax, hSig.GetMaximum())
+                        for hSig in hSignals:
+                            realmax = max(realmax, hSig.GetMaximum())
                     if not noData:
                         realmax = max(realmax, hData.GetMaximum())
                     hBkgTot.SetMaximum(1.1*realmax) 
@@ -684,11 +676,18 @@ if __name__ == "__main__":
                     hbkgerr.SetFillColor(ROOT.TColor.GetColor("#263238"))
                     hbkgerr.Draw("same E2")  #hopefully this will show MC errors
                     if not noSig:
-                        hSig.Draw("same HIST")
+                        for hSig in hSignals:
+                            print(hSig.GetTitle() + " has color " + str(hSig.GetLineColor()))
+                            hSig.Draw("same HIST")
+                            print("after drawing, " + hSig.GetTitle() + " has color " + str(hSig.GetLineColor()))
                     if not noData:
                         hData.Draw("PE same") # same")
                 else:
-                    hSig.Draw("HIST")
+                    for ih,hSig in enumerate(hSignals):
+                        if ih == 0:
+                            hSig.Draw("HIST")
+                        else:
+                            hSig.Draw("HIST same")
                 
                 try:
                     stack_title = variabledic[var][3]+variabledic[var][2]
@@ -706,9 +705,10 @@ if __name__ == "__main__":
                 #    hData.GetYaxis().SetTitle("Events")
                 #    hData.SetTitle("")
                 else:
-                    hSig.GetXaxis().SetTitle(stack_title)
-                    hSig.GetYaxis().SetTitle("Events")
-                    hSig.SetTitle("")
+                    for hSig in hSignals:
+                        hSig.GetXaxis().SetTitle(stack_title)
+                        hSig.GetYaxis().SetTitle("Events")
+                        hSig.SetTitle("")
 
                 #print("boutta draw lumi")
                 #hirBackground.Draw("same")
@@ -716,6 +716,7 @@ if __name__ == "__main__":
                 cms.Draw()
                 pre.Draw(args.channel)
                 l.Draw()
+                
 
                 #TPad 2 for ratio
                 c.cd()
@@ -731,6 +732,10 @@ if __name__ == "__main__":
                     c.SaveAs(fname)
                 except:
                     print("Error: could not save {}".format(fname))
+
+            #    if not noSig:
+            #        for hSig in hSignals:
+            #            print("very end: " + hSig.GetTitle() + " has color " + str(hSig.GetLineColor()))
 
                 if not sigOnly and hirBackground:
                     hirBackground.Delete()
