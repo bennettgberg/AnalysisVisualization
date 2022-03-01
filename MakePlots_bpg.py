@@ -567,8 +567,9 @@ if __name__ == "__main__":
                         bkgtit = "Data observed"
                     else:
                     #    print("Error: still need to implement dnum = {}, dist = {}".format(dnum, dist))
-                        system.exit() 
+                        #system.exit() 
                         #break
+                        continue
 
                     hirBackground.SetTitle(bkgtit)
 
